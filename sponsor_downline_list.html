@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>保荐下线列表</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .header {
+            background-color: #007aff;
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .back-arrow {
+            font-size: 20px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .header-right {
+            font-size: 20px;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .form-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+        
+        .filter-toggle h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .filter-toggle-icon {
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+        
+        .filter-toggle-icon.active {
+            transform: rotate(180deg);
+        }
+        
+        .filter-content {
+            max-height: 500px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .filter-content.show {
+            max-height: 500px;
+        }
+        
+        .filter-content.hidden {
+            max-height: 0;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+        
+        .button-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background-color: #1976d2;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: #4caf50;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .table-section {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        th {
+            background-color: #f5f5f5;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        td {
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                padding: 10px;
+            }
+            
+            .form-section {
+                padding: 15px;
+                margin-bottom: 15px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+                padding: 12px;
+                font-size: 15px;
+                border-radius: 8px;
+            }
+            
+            .table-section {
+                border-radius: 8px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                overflow: hidden;
+                margin-top: 15px;
+            }
+            
+            table {
+                font-size: 14px;
+            }
+            
+            th {
+                padding: 12px 8px;
+                font-size: 13px;
+                font-weight: 600;
+                background-color: #f8f8f8;
+                color: #333;
+                white-space: nowrap;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            
+            td {
+                padding: 12px 8px;
+                font-size: 13px;
+                border-bottom: 1px solid #f0f0f0;
+                white-space: nowrap;
+            }
+            
+            .table-section > div {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: thin;
+            }
+            
+            .table-section > div::-webkit-scrollbar {
+                height: 6px;
+            }
+            
+            .table-section > div::-webkit-scrollbar-track {
+                background: #f1f1f1;
+            }
+            
+            .table-section > div::-webkit-scrollbar-thumb {
+                background: #c1c1c1;
+                border-radius: 3px;
+            }
+            
+            .table-section > div::-webkit-scrollbar-thumb:hover {
+                background: #a8a8a8;
+            }
+            
+            tr:nth-child(even) {
+                background-color: #fafafa;
+            }
+            
+            tr:hover {
+                background-color: #f5f5f5;
+            }
+            
+            input[placeholder="Search Downline ID"] {
+                padding: 12px;
+                font-size: 14px;
+                border-radius: 8px;
+                border: 1px solid #e0e0e0;
+                box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            }
+            
+            .filter-drawer {
+                width: 280px;
+                right: -280px;
+                box-shadow: -4px 0 12px rgba(0, 0, 0, 0.15);
+            }
+            
+            .filter-drawer-content {
+                padding: 15px;
+            }
+            
+            .filter-drawer-footer {
+                padding: 15px;
+            }
+            
+            .loading-spinner {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .loading-text {
+                font-size: 14px;
+            }
+        }
+        
+        .filter-drawer {
+            position: fixed;
+            top: 0;
+            right: -350px;
+            width: 350px;
+            height: 100vh;
+            background-color: white;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .filter-drawer-content {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .filter-drawer-footer {
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+            background-color: white;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            display: none;
+        }
+        
+        .loading-overlay.show {
+            display: flex;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 15px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: white;
+            font-size: 16px;
+        }
+        
+        .filter-drawer.open {
+            right: 0;
+        }
+        
+        .filter-drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            background-color: #f5f5f5;
+        }
+        
+        .filter-drawer-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .filter-drawer-close {
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .filter-drawer-content {
+            padding: 20px;
+        }
+        
+        .filter-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 999;
+        }
+        
+        .filter-overlay.show {
+            display: block;
+        }
+        
+        .no-scroll {
+            overflow: hidden;
+        }
+        
+        .points-filter-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .points-filter-content.show {
+            max-height: 300px;
+        }
+        
+        .level-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .level-button {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #e3f2fd;
+            color: #1976d2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        @media (max-width: 768px) {
+            .filter-drawer {
+                width: 280px;
+                right: -280px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="back-arrow" onclick="window.history.back()">&larr;</div>
+            <div class="header-title">保荐下线列表</div>
+        </div>
+    </div>
+    <div class="content">
+        <div class="form-section">
+            <div class="filter-toggle" onclick="toggleFilterContent()">
+                <h3>筛选条件</h3>
+                <div class="filter-toggle-icon" id="filterToggleIcon">▼</div>
+            </div>
+            <div class="form-group">
+                <label>Member ID</label>
+                <input type="text" id="filterMemberId" placeholder="Search Downline ID">
+                <div id="loadingSpinner" style="display: none; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
+                    <div style="width: 20px; height: 20px; border: 2px solid #f3f3f3; border-top: 2px solid #007aff; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                </div>
+                <div id="searchResults" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #e0e0e0; border-radius: 4px; max-height: 200px; overflow-y: auto; z-index: 1000;"></div>
+            </div>
+            <div class="filter-content show" id="filterContent">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Max Levels</label>
+                        <select id="filterMaxLevels">
+                            <option selected>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                            <option>5</option>
+                            <option>6</option>
+                            <option>7</option>
+                            <option>8</option>
+                            <option>9</option>
+                            <option>10</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Expiry</label>
+                        <select id="filterExpiry">
+                            <option></option>
+                            <option>2026-03</option>
+                            <option>2026-02</option>
+                            <option>2026-01</option>
+                            <option>2025-12</option>
+                            <option>2025-11</option>
+                            <option>2025-10</option>
+                            <option>2025-09</option>
+                            <option>2025-08</option>
+                            <option>2025-07</option>
+                            <option>2025-06</option>
+                            <option>2025-05</option>
+                            <option>2025-04</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="filterPoints" onchange="togglePointsFilter()">
+                    <label for="filterPoints">Filter By Minimum Points</label>
+                </div>
+                <div class="points-filter-content" id="pointsFilterContent">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>PS 2026-02</label>
+                            <input type="text" id="filterPs202602">
+                        </div>
+                        <div class="form-group">
+                            <label>PS 2026-03</label>
+                            <input type="text" id="filterPs202603">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>PGS 2026-02</label>
+                            <input type="text" id="filterPgs202602">
+                        </div>
+                        <div class="form-group">
+                            <label>PGS 2026-03</label>
+                            <input type="text" id="filterPgs202603">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>TGS 2026-02</label>
+                            <input type="text" id="filterTgs202602">
+                        </div>
+                        <div class="form-group">
+                            <label>TGS 2026-03</label>
+                            <input type="text" id="filterTgs202603">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Breakaway</label>
+                        <select id="filterBreakaway">
+                            <option>No</option>
+                            <option>Yes</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Sort By</label>
+                        <select id="filterSortBy">
+                            <option>Network ID</option>
+                            <option>Member ID</option>
+                            <option>IBO Name</option>
+                            <option>Membership Rank</option>
+                            <option>PRP Tiering</option>
+                            <option>CPGS</option>
+                            <option>Expiry</option>
+                            <option>Payout method</option>
+                            <option>PS 2026-02</option>
+                            <option>PS 2026-03</option>
+                            <option>PGS 2026-02</option>
+                            <option>PGS 2026-03</option>
+                            <option>TGS 2026-02</option>
+                            <option selected>TGS 2026-03</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Order By</label>
+                        <select id="filterOrderBy">
+                            <option>Desc</option>
+                            <option>Asc</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="resetFilter()">重置</button>
+                    <button class="btn btn-primary" onclick="applyFilter()">应用筛选</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">加载中...</div>
+        </div>
+        
+        <div class="table-section">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>Level</th>
+                            <th>Member ID</th>
+                            <th>IBO Name</th>
+                            <th>Membership Rank</th>
+                            <th>Rank 2026-02</th>
+                            <th>Rank 2026-03</th>
+                            <th>PS 2026-02</th>
+                            <th>PGS 2026-02</th>
+                            <th>TGS 2026-02</th>
+                            <th>PS 2026-03</th>
+                            <th>PGS 2026-03</th>
+                            <th>TGS 2026-03</th>
+                            <th>PRP</th>
+                            <th>CPGS</th>
+                            <th>Expiry</th>
+                            <th>Payout method</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+            <div id="loadingMore" style="text-align: center; padding: 20px; display: none;">
+                <div style="width: 30px; height: 30px; border: 3px solid #f3f3f3; border-top: 3px solid #007aff; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 10px;"></div>
+                <p>加载中...</p>
+            </div>
+            <div style="padding: 15px; border-top: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center;">
+                <div id="recordCount" style="font-size: 14px; color: #666;"></div>
+                <button class="btn btn-secondary" onclick="downloadTable()" style="padding: 8px 16px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    下载
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const allData = [
+            { level: 0, memberId: '0', name: 'Company Distributor', rank: 'PD', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '0', pgs202602: '93.9', tgs202602: '124450', ps202603: '0', pgs202603: '30', tgs202603: '45253', prp: '40%', cpgs: '>600', expiry: '2027-01-01', payout: 'No', parentId: null },
+            { level: 1, memberId: '1001', name: 'John Doe', rank: 'SD', rank202602: 'DEALER', rank202603: 'SD', ps202602: '15000', pgs202602: '25000', tgs202602: '35000', ps202603: '18000', pgs202603: '28000', tgs202603: '42000', prp: '35%', cpgs: '550', expiry: '2026-12-31', payout: 'Yes', parentId: null },
+            { level: 1, memberId: '1002', name: 'Jane Smith', rank: 'SD', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '12000', pgs202602: '22000', tgs202602: '32000', ps202603: '15000', pgs202603: '25000', tgs202603: '38000', prp: '30%', cpgs: '500', expiry: '2026-11-30', payout: 'Yes', parentId: null },
+            { level: 1, memberId: '1003', name: 'Mike Johnson', rank: 'SD', rank202602: 'DEALER', rank202603: 'SD', ps202602: '14000', pgs202602: '24000', tgs202602: '34000', ps202603: '17000', pgs202603: '27000', tgs202603: '41000', prp: '32%', cpgs: '530', expiry: '2026-12-15', payout: 'Yes', parentId: null },
+            { level: 1, memberId: '1004', name: 'Sarah Williams', rank: 'SD', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '13000', pgs202602: '23000', tgs202602: '33000', ps202603: '16000', pgs202603: '26000', tgs202603: '40000', prp: '28%', cpgs: '480', expiry: '2026-11-20', payout: 'Yes', parentId: null },
+            { level: 1, memberId: '1005', name: 'David Brown', rank: 'SD', rank202602: 'DEALER', rank202603: 'SD', ps202602: '16000', pgs202602: '26000', tgs202602: '36000', ps202603: '19000', pgs202603: '29000', tgs202603: '43000', prp: '36%', cpgs: '560', expiry: '2026-12-25', payout: 'Yes', parentId: null },
+            { level: 1, memberId: '1006', name: 'Emily Davis', rank: 'SD', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '11000', pgs202602: '21000', tgs202602: '31000', ps202603: '14000', pgs202603: '24000', tgs202603: '37000', prp: '26%', cpgs: '460', expiry: '2026-11-10', payout: 'Yes', parentId: null },
+            { level: 1, memberId: '1007', name: 'Robert Miller', rank: 'SD', rank202602: 'DEALER', rank202603: 'SD', ps202602: '15500', pgs202602: '25500', tgs202602: '35500', ps202603: '18500', pgs202603: '28500', tgs202603: '42500', prp: '34%', cpgs: '540', expiry: '2026-12-20', payout: 'Yes', parentId: null },
+            { level: 1, memberId: '1008', name: 'Lisa Anderson', rank: 'SD', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '12500', pgs202602: '22500', tgs202602: '32500', ps202603: '15500', pgs202603: '25500', tgs202603: '38500', prp: '29%', cpgs: '490', expiry: '2026-11-25', payout: 'Yes', parentId: null },
+            { level: 1, memberId: '1009', name: 'James Wilson', rank: 'SD', rank202602: 'DEALER', rank202603: 'SD', ps202602: '14500', pgs202602: '24500', tgs202602: '34500', ps202603: '17500', pgs202603: '27500', tgs202603: '41500', prp: '33%', cpgs: '520', expiry: '2026-12-18', payout: 'Yes', parentId: null },
+            { level: 1, memberId: '1010', name: 'Patricia Taylor', rank: 'SD', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '11500', pgs202602: '21500', tgs202602: '31500', ps202603: '14500', pgs202603: '24500', tgs202603: '37500', prp: '27%', cpgs: '470', expiry: '2026-11-15', payout: 'Yes', parentId: null },
+            { level: 1, memberId: '1011', name: 'Michael Thomas', rank: 'SD', rank202602: 'DEALER', rank202603: 'SD', ps202602: '16500', pgs202602: '26500', tgs202602: '36500', ps202603: '19500', pgs202603: '29500', tgs202603: '43500', prp: '37%', cpgs: '570', expiry: '2026-12-22', payout: 'Yes', parentId: null },
+            { level: 1, memberId: '1012', name: 'Jennifer Jackson', rank: 'SD', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '13500', pgs202602: '23500', tgs202602: '33500', ps202603: '16500', pgs202603: '26500', tgs202603: '39500', prp: '31%', cpgs: '510', expiry: '2026-11-28', payout: 'Yes', parentId: null },
+            { level: 1, memberId: '1013', name: 'William White', rank: 'SD', rank202602: 'DEALER', rank202603: 'SD', ps202602: '14800', pgs202602: '24800', tgs202602: '34800', ps202603: '17800', pgs202603: '27800', tgs202603: '41800', prp: '33%', cpgs: '525', expiry: '2026-12-12', payout: 'Yes', parentId: null },
+            { level: 1, memberId: '1014', name: 'Linda Harris', rank: 'SD', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '12800', pgs202602: '22800', tgs202602: '32800', ps202603: '15800', pgs202603: '25800', tgs202603: '38800', prp: '28%', cpgs: '475', expiry: '2026-11-22', payout: 'Yes', parentId: null },
+            { level: 1, memberId: '1015', name: 'Richard Martin', rank: 'SD', rank202602: 'DEALER', rank202603: 'SD', ps202602: '15800', pgs202602: '25800', tgs202602: '35800', ps202603: '18800', pgs202603: '28800', tgs202603: '42800', prp: '35%', cpgs: '555', expiry: '2026-12-28', payout: 'Yes', parentId: null },
+            { level: 1, memberId: '1016', name: 'Barbara Thompson', rank: 'SD', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '11800', pgs202602: '21800', tgs202602: '31800', ps202603: '14800', pgs202603: '24800', tgs202603: '37800', prp: '26%', cpgs: '465', expiry: '2026-11-12', payout: 'Yes', parentId: null },
+            { level: 1, memberId: '1017', name: 'Charles Garcia', rank: 'SD', rank202602: 'DEALER', rank202603: 'SD', ps202602: '15200', pgs202602: '25200', tgs202602: '35200', ps202603: '18200', pgs202603: '28200', tgs202603: '42200', prp: '34%', cpgs: '535', expiry: '2026-12-16', payout: 'Yes', parentId: null },
+            { level: 1, memberId: '1018', name: 'Susan Martinez', rank: 'SD', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '13200', pgs202602: '23200', tgs202602: '33200', ps202603: '16200', pgs202603: '26200', tgs202603: '39200', prp: '30%', cpgs: '495', expiry: '2026-11-26', payout: 'Yes', parentId: null },
+            { level: 1, memberId: '1019', name: 'Joseph Robinson', rank: 'SD', rank202602: 'DEALER', rank202603: 'SD', ps202602: '16200', pgs202602: '26200', tgs202602: '36200', ps202603: '19200', pgs202603: '29200', tgs202603: '43200', prp: '36%', cpgs: '565', expiry: '2026-12-24', payout: 'Yes', parentId: null },
+            { level: 1, memberId: '1020', name: 'Nancy Clark', rank: 'SD', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '11200', pgs202602: '21200', tgs202602: '31200', ps202603: '14200', pgs202603: '24200', tgs202603: '37200', prp: '25%', cpgs: '455', expiry: '2026-11-08', payout: 'Yes', parentId: null },
+            { level: 1, memberId: '2001', name: 'Bob Johnson', rank: 'DEALER', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '8000', pgs202602: '15000', tgs202602: '20000', ps202603: '9000', pgs202603: '16000', tgs202603: '22000', prp: '25%', cpgs: '450', expiry: '2026-10-31', payout: 'Yes', parentId: '1001' },
+            { level: 1, memberId: '2002', name: 'Alice Brown', rank: 'DEALER', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '7000', pgs202602: '14000', tgs202602: '19000', ps202603: '8000', pgs202603: '15000', tgs202603: '21000', prp: '25%', cpgs: '400', expiry: '2026-12-31', payout: 'Yes', parentId: '1001' },
+            { level: 1, memberId: '2003', name: 'Charlie Davis', rank: 'DEALER', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '6000', pgs202602: '13000', tgs202602: '18000', ps202603: '7000', pgs202603: '14000', tgs202603: '20000', prp: '20%', cpgs: '350', expiry: '2026-11-30', payout: 'Yes', parentId: '1002' },
+            { level: 1, memberId: '2004', name: 'Diana Evans', rank: 'DEALER', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '7500', pgs202602: '14500', tgs202602: '19500', ps202603: '8500', pgs202603: '15500', tgs202603: '21500', prp: '23%', cpgs: '425', expiry: '2026-12-15', payout: 'Yes', parentId: '1003' },
+            { level: 1, memberId: '2005', name: 'Edward Fisher', rank: 'DEALER', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '6500', pgs202602: '13500', tgs202602: '18500', ps202603: '7500', pgs202603: '14500', tgs202603: '20500', prp: '22%', cpgs: '375', expiry: '2026-11-20', payout: 'Yes', parentId: '1004' },
+            { level: 1, memberId: '2006', name: 'Fiona Green', rank: 'DEALER', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '8500', pgs202602: '15500', tgs202602: '20500', ps202603: '9500', pgs202603: '16500', tgs202603: '22500', prp: '26%', cpgs: '475', expiry: '2026-12-25', payout: 'Yes', parentId: '1005' },
+            { level: 1, memberId: '2007', name: 'George Harris', rank: 'DEALER', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '5500', pgs202602: '12500', tgs202602: '17500', ps202603: '6500', pgs202603: '13500', tgs202603: '19500', prp: '19%', cpgs: '325', expiry: '2026-11-10', payout: 'Yes', parentId: '1006' },
+            { level: 1, memberId: '2008', name: 'Helen Jones', rank: 'DEALER', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '7800', pgs202602: '14800', tgs202602: '19800', ps202603: '8800', pgs202603: '15800', tgs202603: '21800', prp: '24%', cpgs: '440', expiry: '2026-12-20', payout: 'Yes', parentId: '1007' },
+            { level: 1, memberId: '2009', name: 'Ian King', rank: 'DEALER', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '6800', pgs202602: '13800', tgs202602: '18800', ps202603: '7800', pgs202603: '14800', tgs202603: '20800', prp: '21%', cpgs: '365', expiry: '2026-11-25', payout: 'Yes', parentId: '1008' },
+            { level: 1, memberId: '2010', name: 'Julia Lee', rank: 'DEALER', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '8200', pgs202602: '15200', tgs202602: '20200', ps202603: '9200', pgs202603: '16200', tgs202603: '22200', prp: '25%', cpgs: '460', expiry: '2026-12-18', payout: 'Yes', parentId: '1009' },
+            { level: 1, memberId: '2011', name: 'Kevin Martin', rank: 'DEALER', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '5800', pgs202602: '12800', tgs202602: '17800', ps202603: '6800', pgs202603: '13800', tgs202603: '19800', prp: '20%', cpgs: '335', expiry: '2026-11-15', payout: 'Yes', parentId: '1010' },
+            { level: 1, memberId: '2012', name: 'Laura Nelson', rank: 'DEALER', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '7200', pgs202602: '14200', tgs202602: '19200', ps202603: '8200', pgs202603: '15200', tgs202603: '21200', prp: '23%', cpgs: '415', expiry: '2026-12-22', payout: 'Yes', parentId: '1011' },
+            { level: 1, memberId: '2013', name: 'Michael O\'Brien', rank: 'DEALER', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '6200', pgs202602: '13200', tgs202602: '18200', ps202603: '7200', pgs202603: '14200', tgs202603: '20200', prp: '21%', cpgs: '355', expiry: '2026-11-28', payout: 'Yes', parentId: '1012' },
+            { level: 1, memberId: '2014', name: 'Nancy Parker', rank: 'DEALER', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '8000', pgs202602: '15000', tgs202602: '20000', ps202603: '9000', pgs202603: '16000', tgs202603: '22000', prp: '24%', cpgs: '450', expiry: '2026-12-12', payout: 'Yes', parentId: '1013' },
+            { level: 1, memberId: '2015', name: 'Oliver Quinn', rank: 'DEALER', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '5600', pgs202602: '12600', tgs202602: '17600', ps202603: '6600', pgs202603: '13600', tgs202603: '19600', prp: '20%', cpgs: '345', expiry: '2026-11-22', payout: 'Yes', parentId: '1014' },
+            { level: 1, memberId: '2016', name: 'Patricia Reed', rank: 'DEALER', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '7400', pgs202602: '14400', tgs202602: '19400', ps202603: '8400', pgs202603: '15400', tgs202603: '21400', prp: '23%', cpgs: '410', expiry: '2026-12-28', payout: 'Yes', parentId: '1015' },
+            { level: 1, memberId: '2017', name: 'Quentin Scott', rank: 'DEALER', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '6400', pgs202602: '13400', tgs202602: '18400', ps202603: '7400', pgs202603: '14400', tgs202603: '20400', prp: '21%', cpgs: '365', expiry: '2026-11-12', payout: 'Yes', parentId: '1016' },
+            { level: 1, memberId: '2018', name: 'Rachel Turner', rank: 'DEALER', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '8600', pgs202602: '15600', tgs202602: '20600', ps202603: '9600', pgs202603: '16600', tgs202603: '22600', prp: '26%', cpgs: '480', expiry: '2026-12-16', payout: 'Yes', parentId: '1017' },
+            { level: 1, memberId: '2019', name: 'Samuel Underwood', rank: 'DEALER', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '6000', pgs202602: '13000', tgs202602: '18000', ps202603: '7000', pgs202603: '14000', tgs202603: '20000', prp: '20%', cpgs: '350', expiry: '2026-11-26', payout: 'Yes', parentId: '1018' },
+            { level: 1, memberId: '2020', name: 'Teresa Vance', rank: 'DEALER', rank202602: 'DEALER', rank202603: 'DEALER', ps202602: '7600', pgs202602: '14600', tgs202602: '19600', ps202603: '8600', pgs202603: '15600', tgs202603: '21600', prp: '23%', cpgs: '420', expiry: '2026-12-24', payout: 'Yes', parentId: '1019' },
+            { level: 0, memberId: '3001', name: 'David Evans', rank: 'ASSOCIATE', rank202602: 'ASSOCIATE', rank202603: 'ASSOCIATE', ps202602: '3000', pgs202602: '6000', tgs202602: '9000', ps202603: '3500', pgs202603: '6500', tgs202603: '10000', prp: '15%', cpgs: '300', expiry: '2026-09-30', payout: 'Yes', parentId: '2001' },
+            { level: 0, memberId: '3002', name: 'Eve Fisher', rank: 'ASSOCIATE', rank202602: 'ASSOCIATE', rank202603: 'ASSOCIATE', ps202602: '2500', pgs202602: '5000', tgs202602: '8000', ps202603: '3000', pgs202603: '5500', tgs202603: '9000', prp: '15%', cpgs: '250', expiry: '2026-10-31', payout: 'Yes', parentId: '2001' },
+            { level: 0, memberId: '3003', name: 'Frank Green', rank: 'ASSOCIATE', rank202602: 'ASSOCIATE', rank202603: 'ASSOCIATE', ps202602: '2000', pgs202602: '4000', tgs202602: '7000', ps202603: '2500', pgs202603: '4500', tgs202603: '8000', prp: '10%', cpgs: '200', expiry: '2026-11-30', payout: 'Yes', parentId: '2002' },
+            { level: 0, memberId: '3004', name: 'Grace Harris', rank: 'ASSOCIATE', rank202602: 'ASSOCIATE', rank202603: 'ASSOCIATE', ps202602: '2800', pgs202602: '5600', tgs202602: '8400', ps202603: '3300', pgs202603: '6100', tgs202603: '9400', prp: '14%', cpgs: '280', expiry: '2026-12-15', payout: 'Yes', parentId: '2004' },
+            { level: 0, memberId: '3005', name: 'Henry Irving', rank: 'ASSOCIATE', rank202602: 'ASSOCIATE', rank202603: 'ASSOCIATE', ps202602: '2200', pgs202602: '4400', tgs202602: '6600', ps202603: '2700', pgs202603: '4900', tgs202603: '7600', prp: '11%', cpgs: '220', expiry: '2026-11-20', payout: 'Yes', parentId: '2005' },
+            { level: 0, memberId: '3006', name: 'Iris Jenkins', rank: 'ASSOCIATE', rank202602: 'ASSOCIATE', rank202603: 'ASSOCIATE', ps202602: '3200', pgs202602: '6400', tgs202602: '9600', ps202603: '3700', pgs202603: '6900', tgs202603: '10100', prp: '16%', cpgs: '320', expiry: '2026-12-25', payout: 'Yes', parentId: '2006' },
+            { level: 0, memberId: '3007', name: 'Jack Kelly', rank: 'ASSOCIATE', rank202602: 'ASSOCIATE', rank202603: 'ASSOCIATE', ps202602: '1800', pgs202602: '3600', tgs202602: '5400', ps202603: '2300', pgs202603: '4100', tgs202603: '6400', prp: '9%', cpgs: '180', expiry: '2026-11-10', payout: 'Yes', parentId: '2007' },
+            { level: 0, memberId: '3008', name: 'Kate Lewis', rank: 'ASSOCIATE', rank202602: 'ASSOCIATE', rank202603: 'ASSOCIATE', ps202602: '2900', pgs202602: '5800', tgs202602: '8700', ps202603: '3400', pgs202603: '6300', tgs202603: '9700', prp: '14%', cpgs: '290', expiry: '2026-12-20', payout: 'Yes', parentId: '2008' },
+            { level: 0, memberId: '3009', name: 'Liam Moore', rank: 'ASSOCIATE', rank202602: 'ASSOCIATE', rank202603: 'ASSOCIATE', ps202602: '2400', pgs202602: '4800', tgs202602: '7200', ps202603: '2900', pgs202603: '5300', tgs202603: '8200', prp: '12%', cpgs: '240', expiry: '2026-11-25', payout: 'Yes', parentId: '2009' },
+            { level: 0, memberId: '3010', name: 'Megan Nelson', rank: 'ASSOCIATE', rank202602: 'ASSOCIATE', rank202603: 'ASSOCIATE', ps202602: '3100', pgs202602: '6200', tgs202602: '9300', ps202603: '3600', pgs202603: '6700', tgs202603: '10300', prp: '15%', cpgs: '310', expiry: '2026-12-18', payout: 'Yes', parentId: '2010' },
+            { level: 0, memberId: '3011', name: 'Noah O\'Brien', rank: 'ASSOCIATE', rank202602: 'ASSOCIATE', rank202603: 'ASSOCIATE', ps202602: '1900', pgs202602: '3800', tgs202602: '5700', ps202603: '2400', pgs202603: '4300', tgs202603: '6900', prp: '10%', cpgs: '190', expiry: '2026-11-15', payout: 'Yes', parentId: '2011' },
+            { level: 0, memberId: '3012', name: 'Olivia Parker', rank: 'ASSOCIATE', rank202602: 'ASSOCIATE', rank202603: 'ASSOCIATE', ps202602: '2700', pgs202602: '5400', tgs202602: '8100', ps202603: '3200', pgs202603: '5900', tgs202603: '9100', prp: '13%', cpgs: '270', expiry: '2026-12-22', payout: 'Yes', parentId: '2012' },
+            { level: 0, memberId: '3013', name: 'Peter Quinn', rank: 'ASSOCIATE', rank202602: 'ASSOCIATE', rank202603: 'ASSOCIATE', ps202602: '2100', pgs202602: '4200', tgs202602: '6300', ps202603: '2600', pgs202603: '4700', tgs202603: '7300', prp: '11%', cpgs: '210', expiry: '2026-11-30', payout: 'Yes', parentId: '2013' }
+        ];
+        
+        let currentLevel = 0;
+        let currentParentId = null;
+        let navigationPath = [0];
+        let navigationMembers = [null];
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable();
+            const filterMemberId = document.getElementById('filterMemberId');
+            if (filterMemberId) {
+                filterMemberId.addEventListener('input', handleSearch);
+            }
+        });
+        
+        function renderTable() {
+            const tableBody = document.getElementById('tableBody');
+            if (!tableBody) return;
+            
+            tableBody.innerHTML = '';
+            
+            let filteredData;
+            let currentMember = null;
+            if (currentLevel === 0) {
+                filteredData = allData.filter(item => item.parentId === null);
+            } else {
+                filteredData = allData.filter(item => item.parentId === currentParentId);
+                currentMember = allData.find(item => item.memberId === currentParentId);
+                if (currentMember) {
+                    filteredData.unshift(currentMember);
+                }
+            }
+            
+            filteredData.forEach(row => {
+                const isCurrentMember = row.memberId === currentParentId;
+                const hasSubs = allData.some(item => item.parentId === row.memberId);
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        ${isCurrentMember ? '' : (hasSubs ? `<button onclick="showLevel(${currentLevel + 1}, '${row.memberId}')" style="margin-right: 10px; padding: 4px 8px; background-color: #007aff; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">▼</button>` : '')}
+                        ${isCurrentMember ? `<button onclick="showLevel(${currentLevel - 1}, '${navigationMembers[navigationMembers.length - 2]}')" style="padding: 4px 8px; background-color: #ff9500; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">▲</button>` : ''}
+                    </td>
+                    <td>${isCurrentMember ? 0 : row.level}</td>
+                    <td>${row.memberId}</td>
+                    <td>${row.name}</td>
+                    <td>${row.rank}</td>
+                    <td>${row.rank202602}</td>
+                    <td>${row.rank202603}</td>
+                    <td>${row.ps202602}</td>
+                    <td>${row.pgs202602}</td>
+                    <td>${row.tgs202602}</td>
+                    <td>${row.ps202603}</td>
+                    <td>${row.pgs202603}</td>
+                    <td>${row.tgs202603}</td>
+                    <td>${row.prp}</td>
+                    <td>${row.cpgs}</td>
+                    <td>${row.expiry}</td>
+                    <td>${row.payout}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+            
+            updateRecordCount();
+        }
+        
+        function showLevel(level, parentId) {
+            currentLevel = level;
+            currentParentId = parentId;
+            
+            if (level > navigationPath.length - 1) {
+                navigationPath.push(level);
+                navigationMembers.push(parentId);
+            } else {
+                navigationPath = navigationPath.slice(0, level + 1);
+                navigationMembers = navigationMembers.slice(0, level + 1);
+            }
+            
+            renderTable();
+        }
+        
+        function updateRecordCount() {
+            const recordCountElement = document.getElementById('recordCount');
+            if (recordCountElement) {
+                const tableBody = document.getElementById('tableBody');
+                if (tableBody) {
+                    const rows = tableBody.querySelectorAll('tr');
+                    recordCountElement.textContent = `本页有 ${rows.length} 条数据`;
+                }
+            }
+        }
+        
+        function handleSearch(e) {
+            const searchTerm = e.target.value.toLowerCase();
+        }
+        
+        function toggleFilterContent() {
+            const filterContent = document.getElementById('filterContent');
+            const filterToggleIcon = document.getElementById('filterToggleIcon');
+            if (filterContent && filterToggleIcon) {
+                filterContent.classList.toggle('hidden');
+                filterContent.classList.toggle('show');
+                filterToggleIcon.classList.toggle('active');
+            }
+        }
+        
+        function togglePointsFilter() {
+            const pointsFilterContent = document.getElementById('pointsFilterContent');
+            if (pointsFilterContent) {
+                pointsFilterContent.classList.toggle('show');
+            }
+        }
+        
+        function resetFilter() {
+            document.getElementById('filterMemberId').value = '';
+            document.getElementById('filterMaxLevels').value = '1';
+            document.getElementById('filterExpiry').value = '';
+            document.getElementById('filterPoints').checked = false;
+            document.getElementById('filterPs202602').value = '';
+            document.getElementById('filterPs202603').value = '';
+            document.getElementById('filterPgs202602').value = '';
+            document.getElementById('filterPgs202603').value = '';
+            document.getElementById('filterTgs202602').value = '';
+            document.getElementById('filterTgs202603').value = '';
+            document.getElementById('filterBreakaway').value = 'No';
+            document.getElementById('filterSortBy').value = 'TGS 2026-03';
+            document.getElementById('filterOrderBy').value = 'Desc';
+            document.getElementById('pointsFilterContent').classList.remove('show');
+        }
+        
+        function applyFilter() {
+            renderTable();
+        }
+        
+        function downloadTable() {
+            const tableBody = document.getElementById('tableBody');
+            if (!tableBody) return;
+            
+            const rows = tableBody.querySelectorAll('tr');
+            if (rows.length === 0) {
+                alert('没有数据可下载');
+                return;
+            }
+            
+            let csvContent = '\uFEFF';
+            const headers = ['Action', 'Level', 'Member ID', 'IBO Name', 'Membership Rank', 'Rank 2026-02', 'Rank 2026-03', 'PS 2026-02', 'PGS 2026-02', 'TGS 2026-02', 'PS 2026-03', 'PGS 2026-03', 'TGS 2026-03', 'PRP', 'CPGS', 'Expiry', 'Payout method'];
+            csvContent += headers.join(',') + '\n';
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const rowData = [];
+                cells.forEach((cell, index) => {
+                    let cellText = cell.innerText || '';
+                    if (index === 0) {
+                        cellText = '';
+                    }
+                    cellText = cellText.replace(/"/g, '""');
+                    rowData.push(`"${cellText}"`);
+                });
+                csvContent += rowData.join(',') + '\n';
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'sponsor_downline_list.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>

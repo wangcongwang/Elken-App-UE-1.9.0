@@ -1,0 +1,3868 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>elken app重构版</title>
+    <style>
+        :root {
+            --primary-color: #0066cc;
+            --secondary-color: #f5f5f5;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --text-light: #999999;
+            --border-color: #e0e0e0;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --border-radius: 12px;
+            --box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            --safe-area-top: env(safe-area-inset-top, 20px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            font-size: 16px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", Roboto, sans-serif;
+            background-color: #fafafa;
+            color: var(--text-primary);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        /* 顶部状态栏占位 */
+        .status-bar {
+            height: var(--safe-area-top);
+            background-color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        /* 顶部导航栏 */
+        .header {
+            background-color: white;
+            padding: 12px 16px;
+            position: sticky;
+            top: var(--safe-area-top);
+            z-index: 999;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            flex: 1;
+            text-align: center;
+        }
+
+        .header-right {
+            width: 60px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .back-btn {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--text-primary);
+            border-top: none;
+            border-right: none;
+            transform: rotate(45deg);
+        }
+
+        /* 可滚动标签栏 */
+        .tab-bar-container {
+            background-color: white;
+            position: sticky;
+            top: calc(var(--safe-area-top) + 64px);
+            z-index: 998;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        }
+
+        .tab-bar {
+            display: flex;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+            padding: 0 8px;
+        }
+
+        .tab-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-item {
+            padding: 14px 16px;
+            font-size: 14px;
+            white-space: nowrap;
+            color: var(--text-secondary);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .tab-item.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        /* 主内容区 */
+        .container {
+            padding: 16px;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        /* 卡片组件 */
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* 数据行 */
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-row:last-child {
+            border-bottom: none;
+        }
+
+        .data-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            flex: 1;
+        }
+
+        .data-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            text-align: right;
+        }
+
+        /* 表单元素 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-label.required::after {
+            content: " *";
+            color: var(--danger-color);
+        }
+
+        .form-hint {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            height: 48px;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: white;
+            -webkit-appearance: none;
+            appearance: none;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        .form-control.error {
+            border-color: var(--danger-color);
+        }
+
+        .form-control:disabled {
+            background-color: var(--secondary-color);
+            color: var(--text-light);
+        }
+
+        .error-message {
+            color: var(--danger-color);
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .form-control.error + .error-message {
+            display: block;
+        }
+
+        /* 下拉选择框 */
+        .form-select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 24px;
+            padding-right: 40px;
+        }
+
+        /* 单选按钮组 */
+        .radio-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .radio-label {
+            flex: 1;
+            min-width: 140px;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .radio-label:active {
+            transform: scale(0.98);
+        }
+
+        .radio-input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .radio-label.selected {
+            border-color: var(--primary-color);
+            background-color: rgba(0, 102, 204, 0.05);
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        /* 开关按钮 */
+        .switch-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .3s;
+            border-radius: 28px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* 按钮 */
+        .btn {
+            width: 100%;
+            height: 48px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: var(--text-primary);
+            margin-top: 12px;
+        }
+
+        /* 状态标签 */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background-color: #fff5f5;
+            color: var(--danger-color);
+        }
+
+        /* 地区选择 */
+        .region-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .region-item {
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .region-item:active {
+            transform: scale(0.95);
+        }
+
+        .region-item.active {
+            background-color: var(--success-color);
+            color: white;
+            border-color: var(--success-color);
+        }
+
+        /* 文件上传 */
+        .file-upload {
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 32px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .file-upload:active {
+            transform: scale(0.98);
+            border-color: var(--primary-color);
+        }
+
+        .file-upload-icon {
+            font-size: 32px;
+            color: var(--text-light);
+            margin-bottom: 12px;
+        }
+
+        .file-upload-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* 图片预览 */
+        .image-preview {
+            width: 100%;
+            height: 120px;
+            border-radius: 8px;
+            object-fit: cover;
+            display: none;
+            margin-bottom: 12px;
+        }
+
+        .image-preview.show {
+            display: block;
+        }
+
+        /* 折叠面板 */
+        .accordion {
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .accordion-item {
+            background-color: white;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .accordion-item:last-child {
+            border-bottom: none;
+        }
+
+        .accordion-header {
+            padding: 16px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+
+        .accordion-header:active {
+            background-color: var(--secondary-color);
+        }
+
+        .accordion-title {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .accordion-icon {
+            transition: transform 0.3s;
+            font-size: 12px;
+        }
+
+        .accordion-header.active .accordion-icon {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            display: none;
+            padding: 0 16px 16px;
+        }
+
+        .accordion-content.active {
+            display: block;
+        }
+
+        /* 标签页内容 */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        #address {
+            padding-bottom: 100px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* 银行卡片样式 */
+        .bank-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px 20px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bank-card-number {
+            font-size: 24px;
+            letter-spacing: 2px;
+            margin: 20px 0;
+            font-family: monospace;
+        }
+
+        /* 提示信息 */
+        .info-box {
+            background-color: rgba(0, 102, 204, 0.05);
+            border-left: 3px solid var(--primary-color);
+            padding: 12px 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+        }
+
+        .info-box-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--primary-color);
+        }
+
+        .info-box-content {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* 隐藏滚动条 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* 优化输入框自动填充 */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0 30px white inset;
+        }
+
+        /* 标签页指示器 */
+        .tab-indicator {
+            position: absolute;
+            bottom: 0;
+            height: 3px;
+            background-color: var(--primary-color);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        /* 联络详情字段动态显示 */
+        .contact-fields {
+            animation: fadeIn 0.3s ease;
+            transition: all 0.3s ease;
+        }
+
+        /* 电话输入框组合 */
+        .phone-input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .phone-input-group .form-control {
+            flex: 1;
+        }
+
+
+
+        /* 验证码输入框组合 */
+        .verification-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .verification-group .form-control {
+            flex: 1;
+        }
+
+        .verification-btn {
+            width: auto;
+            min-width: 100px;
+            padding: 0 16px;
+        }
+
+        .countdown-text {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-left: 8px;
+        }
+
+        /* 表格样式 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            overflow-x: auto;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .data-table th {
+            background-color: var(--secondary-color);
+            font-weight: 600;
+            font-size: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .data-table td {
+            font-size: 14px;
+        }
+
+
+
+        /* 分页样式 - 手机样式 */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding: 0 16px;
+        }
+
+        .pagination-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: white;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+
+        .pagination-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .pagination-btn:active {
+            transform: scale(0.95);
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .pagination-btn:disabled {
+            background-color: var(--secondary-color);
+            color: var(--text-light);
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            font-size: 14px;
+            color: var(--text-secondary);
+            flex: 1;
+            text-align: center;
+            margin: 0 16px;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* 模态框 */
+        .modal,
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active,
+        .modal-overlay.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            animation: slideIn 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-footer .btn {
+            flex: 1;
+        }
+
+        .add-address-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .add-address-container .btn {
+            width: 100%;
+            max-width: 300px;
+        }
+        /* 非模态提示框样式 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="status-bar"></div>
+
+    <!-- 顶部导航栏 -->
+    <header class="header">
+        <div class="header-left" id="backBtn" onclick="window.history.back()">
+            <div class="back-btn"></div>
+        </div>
+        <h1 class="header-title">我的账户</h1>
+        <div class="header-right"></div>
+    </header>
+
+    <!-- 可滚动标签栏 -->
+    <div class="tab-bar-container">
+        <div class="tab-bar no-scrollbar">
+            <div class="tab-item active" data-target="business">商业信息</div>
+            <div class="tab-item" data-target="personal">个人信息</div>
+            <div class="tab-item" data-target="address">地址管理</div>
+            <div class="tab-item" data-target="bonus">奖金信息</div>
+            <div class="tab-item" data-target="placement">安置偏好</div>
+            <div class="tab-item" data-target="policies">e-form</div>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <main class="container">
+        <!-- 商业信息 -->
+        <div id="business" class="tab-content active">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">账号基础信息</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-label">会员姓名</div>
+                    <div class="data-value">EW1</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-label">会员号</div>
+                    <div class="data-value">1</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-label">状态</div>
+                    <div class="data-value">
+                        <span class="status-badge status-active">活跃</span>
+                    </div>
+                </div>
+                <div class="data-row">
+                    <div class="data-label">加入日期</div>
+                    <div class="data-value">2016-07-11</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-label">到期日期</div>
+                    <div class="data-value">2027-06-30</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-label">剩余天数</div>
+                    <div class="data-value">488天</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">等级体系</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-label">会员等级</div>
+                    <div class="data-value">PD</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-label">荣衔等级</div>
+                    <div class="data-value">黄金</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-label">最高等级</div>
+                    <div class="data-value">经销商</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-label">精英等级</div>
+                    <div class="data-value">-</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">推荐关系</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-label">推荐人ID</div>
+                    <div class="data-value">0</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-label">推荐人名称</div>
+                    <div class="data-value">公司经销商</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">税务信息</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-label">预扣税状态</div>
+                    <div class="data-value">否</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-label">所得税国家</div>
+                    <div class="data-value">马来西亚</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 个人信息 -->
+        <div id="personal" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">编辑个人信息</div>
+                </div>
+                <form id="personalForm">
+                    <div class="form-group">
+                        <label class="form-label required">国籍</label>
+                        <select class="form-control form-select" required disabled>
+                            <option value="MY" selected>马来西亚</option>
+                            <option value="TH">泰国</option>
+                            <option value="SG">新加坡</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">姓名</label>
+                        <input type="text" class="form-control" value="EW1" required disabled>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Translated Name</label>
+                        <input type="text" class="form-control" value="EW1" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">会员ID</label>
+                        <input type="text" class="form-control" value="1" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">性别</label>
+                        <div class="radio-group">
+                            <label class="radio-label selected">
+                                <input type="radio" name="gender" value="female" class="radio-input" checked> 女
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="gender" value="male" class="radio-input"> 男
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">身份证/护照号</label>
+                        <input type="text" class="form-control" value="1231321" required inputmode="numeric" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">出生日期</label>
+                        <input type="date" class="form-control" value="1963-06-06" required disabled>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">种族</label>
+                        <select class="form-control form-select" required>
+                            <option value="aboriginal">原住民</option>
+                            <option value="cham">占族</option>
+                            <option value="chinese">华人</option>
+                            <option value="filipino">菲律宾人</option>
+                            <option value="indian">印度人</option>
+                            <option value="indonesian">印度尼西亚人</option>
+                            <option value="khmer">高棉人</option>
+                            <option value="malay" selected>马来人</option>
+                            <option value="others">其他</option>
+                            <option value="taiwanese">台湾人</option>
+                            <option value="thai">泰国人</option>
+                            <option value="vietnamese">越南人</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">首选语言</label>
+                        <select class="form-control form-select" required>
+                            <option value="en">英语</option>
+                            <option value="ms">马来语</option>
+                            <option value="id">印尼语</option>
+                            <option value="th">泰语</option>
+                            <option value="km">柬埔寨语</option>
+                            <option value="zh-cn" selected>简体中文</option>
+                            <option value="zh-tw">繁體中文(台灣)</option>
+                            <option value="zh-hk">繁體中文 (香港)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">婚姻状况</label>
+                        <select class="form-control form-select" required>
+                            <option value="single" selected>单身</option>
+                            <option value="married">已婚</option>
+                            <option value="divorced">离婚</option>
+                            <option value="widowed">丧偶</option>
+                            <option value="others">其他</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">所得税国家</label>
+                        <select id="incomeTaxCountry" class="form-control form-select" required disabled onchange="updateTaxField()">
+                            <option value="MY">Malaysia</option>
+                            <option value="TW">Taiwan</option>
+                            <option value="PH">Philippines</option>
+                            <option value="TH">Thailand</option>
+                            <option value="SG">Singapore</option>
+                            <option value="ID">Indonesia</option>
+                            <option value="VN">Vietnam</option>
+                            <option value="KH">Cambodia</option>
+                            <option value="MM">Myanmar</option>
+                            <option value="BN">Brunei</option>
+                            <option value="HK">Hong Kong</option>
+                            <option value="CN">China</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="taxIdField" style="display: none;">
+                        <label class="form-label" id="taxIdLabel">马来西亚税务编号</label>
+                        <input type="text" class="form-control" placeholder="请输入税务编号">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">证件上传</label>
+                        <div class="file-upload">
+                            <img class="image-preview" id="idCardPreview" src="">
+                            <div class="file-upload-icon">📁</div>
+                            <div class="file-upload-text">点击上传证件照片</div>
+                            <input type="file" id="idCardUpload" style="display: none;" accept="image/*,.pdf">
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">联络详情</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">首选联络人</label>
+                    <div class="form-hint">My preferred mode to receive verification code</div>
+                    <div class="radio-group">
+                        <label class="radio-label selected">
+                            <input type="radio" name="preferredContact" value="email" class="radio-input" checked> 邮箱
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="preferredContact" value="phone" class="radio-input"> 手机
+                        </label>
+                    </div>
+                </div>
+                <div id="emailFields" class="contact-fields">
+                    <div class="form-group">
+                        <label class="form-label required">我的电子邮件</label>
+                        <input type="email" id="emailAddress" class="form-control" placeholder="请输入电子邮件地址" required>
+                    </div>
+                </div>
+                <div id="phoneFields" class="contact-fields">
+                    <div class="form-group">
+                        <label class="form-label required">手机号码</label>
+                        <div class="phone-input-group">
+                            <select id="mobileCountry" class="form-control form-select" required>
+                                <option value="MY" selected>马来西亚 (+60)</option>
+                                <option value="TH">泰国 (+66)</option>
+                                <option value="SG">新加坡 (+65)</option>
+                                <option value="HK">香港 (+852)</option>
+                                <option value="TW">台湾 (+886)</option>
+                                <option value="CN">中国 (+86)</option>
+                                <option value="ID">印度尼西亚 (+62)</option>
+                                <option value="VN">越南 (+84)</option>
+                                <option value="US">美国 (+1)</option>
+                                <option value="UK">英国 (+44)</option>
+                                <option value="AU">澳大利亚 (+61)</option>
+                                <option value="CA">加拿大 (+1)</option>
+                            </select>
+                            <input type="tel" id="mobileNumber" class="form-control" placeholder="请输入手机号码" required inputmode="tel">
+                        </div>
+                        <div class="verification-group" style="margin-top: 12px;">
+                            <input type="text" class="form-control" placeholder="验证码" required inputmode="numeric">
+                            <button class="btn btn-primary verification-btn" id="sendCodeBtn">获取验证码</button>
+                            <span class="countdown-text" id="countdown" style="display: none;"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">住宅电话</label>
+                    <div class="phone-input-group">
+                        <select class="form-control form-select">
+                            <option value="MY" selected>马来西亚 (+60)</option>
+                            <option value="TH">泰国 (+66)</option>
+                            <option value="SG">新加坡 (+65)</option>
+                            <option value="HK">香港 (+852)</option>
+                            <option value="TW">台湾 (+886)</option>
+                            <option value="CN">中国 (+86)</option>
+                            <option value="ID">印度尼西亚 (+62)</option>
+                            <option value="VN">越南 (+84)</option>
+                            <option value="US">美国 (+1)</option>
+                            <option value="UK">英国 (+44)</option>
+                            <option value="AU">澳大利亚 (+61)</option>
+                            <option value="CA">加拿大 (+1)</option>
+                        </select>
+                        <input type="tel" class="form-control" placeholder="请输入住宅电话" inputmode="tel">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">办公电话</label>
+                    <div class="phone-input-group">
+                        <select class="form-control form-select">
+                            <option value="MY" selected>马来西亚 (+60)</option>
+                            <option value="TH">泰国 (+66)</option>
+                            <option value="SG">新加坡 (+65)</option>
+                            <option value="HK">香港 (+852)</option>
+                            <option value="TW">台湾 (+886)</option>
+                            <option value="CN">中国 (+86)</option>
+                            <option value="ID">印度尼西亚 (+62)</option>
+                            <option value="VN">越南 (+84)</option>
+                            <option value="US">美国 (+1)</option>
+                            <option value="UK">英国 (+44)</option>
+                            <option value="AU">澳大利亚 (+61)</option>
+                            <option value="CA">加拿大 (+1)</option>
+                        </select>
+                        <input type="tel" class="form-control" placeholder="请输入办公电话" inputmode="tel">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="validateContactForm()">保存联络信息</button>
+            </div>
+        </div>
+
+        <!-- 地址管理 -->
+        <div id="address" class="tab-content">
+            <div class="accordion">
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <div class="accordion-title">永久地址</div>
+                        <div class="accordion-icon">▼</div>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="form-group">
+                            <label class="form-label required">地址1</label>
+                            <input type="text" class="form-control" placeholder="请输入地址1" required disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">地址2</label>
+                            <input type="text" class="form-control" placeholder="请输入地址2" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">地址3</label>
+                            <input type="text" class="form-control" placeholder="请输入地址3" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">地址4</label>
+                            <input type="text" class="form-control" placeholder="请输入地址4" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">国家</label>
+                            <select class="form-control form-select" id="permanentCountry" required disabled>
+                                <option value="">请选择国家</option>
+                                <option value="MY" selected>马来西亚</option>
+                                <option value="TH">泰国</option>
+                                <option value="SG">新加坡</option>
+                                <option value="ID">印度尼西亚</option>
+                                <option value="PH">菲律宾</option>
+                                <option value="VN">越南</option>
+                                <option value="KH">柬埔寨</option>
+                                <option value="LA">老挝</option>
+                                <option value="MM">缅甸</option>
+                                <option value="BN">文莱</option>
+                                <option value="HK">香港</option>
+                                <option value="TW">台湾</option>
+                                <option value="CN">中国</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">城市</label>
+                            <select class="form-control form-select" id="permanentCity" disabled>
+                                <option value="">请选择城市</option>
+                                <option value="Subang Jaya" selected>Subang Jaya</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">州/省</label>
+                            <select class="form-control form-select" id="permanentState" disabled>
+                                <option value="">请选择州/省</option>
+                                <option value="Selangor" selected>Selangor</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">邮编</label>
+                            <input type="text" class="form-control" placeholder="邮编" required inputmode="numeric" disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <div class="accordion-title">通讯地址</div>
+                        <div class="accordion-icon">▼</div>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="form-group">
+                            <label class="form-label required">地址1</label>
+                            <input type="text" class="form-control" placeholder="请输入地址1" required disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">地址2</label>
+                            <input type="text" class="form-control" placeholder="请输入地址2" required disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">地址3</label>
+                            <input type="text" class="form-control" placeholder="请输入地址3" required disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">地址4</label>
+                            <input type="text" class="form-control" placeholder="请输入地址4" required disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">国家</label>
+                            <select class="form-control form-select" id="communicationCountry" required disabled>
+                                <option value="">请选择国家</option>
+                                <option value="MY" selected>马来西亚</option>
+                                <option value="TH">泰国</option>
+                                <option value="SG">新加坡</option>
+                                <option value="ID">印度尼西亚</option>
+                                <option value="PH">菲律宾</option>
+                                <option value="VN">越南</option>
+                                <option value="KH">柬埔寨</option>
+                                <option value="LA">老挝</option>
+                                <option value="MM">缅甸</option>
+                                <option value="BN">文莱</option>
+                                <option value="HK">香港</option>
+                                <option value="TW">台湾</option>
+                                <option value="CN">中国</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">城市</label>
+                            <select class="form-control form-select" id="communicationCity" disabled>
+                                <option value="">请选择城市</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">州/省</label>
+                            <select class="form-control form-select" id="communicationState" disabled>
+                                <option value="">请选择州/省</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">邮编</label>
+                            <input type="text" class="form-control" placeholder="邮编" required inputmode="numeric" disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <div class="accordion-title">邮寄1 <span class="status-badge status-active" id="mailing1Status" style="display: none;">已设置</span></div>
+                        <div class="accordion-icon">▼</div>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="form-group">
+                            <label class="form-label required">地址1</label>
+                            <input type="text" class="form-control" id="mailing1Address" placeholder="请输入地址1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">地址2</label>
+                            <input type="text" class="form-control" placeholder="请输入地址2">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">地址3</label>
+                            <input type="text" class="form-control" placeholder="请输入地址3">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">地址4</label>
+                            <input type="text" class="form-control" placeholder="请输入地址4">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">国家</label>
+                            <select class="form-control form-select" id="mailing1Country" required>
+                                <option value="">请选择国家</option>
+                                <option value="MY" selected>马来西亚</option>
+                                <option value="TH">泰国</option>
+                                <option value="SG">新加坡</option>
+                                <option value="ID">印度尼西亚</option>
+                                <option value="PH">菲律宾</option>
+                                <option value="VN">越南</option>
+                                <option value="KH">柬埔寨</option>
+                                <option value="LA">老挝</option>
+                                <option value="MM">缅甸</option>
+                                <option value="BN">文莱</option>
+                                <option value="HK">香港</option>
+                                <option value="TW">台湾</option>
+                                <option value="CN">中国</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">城市</label>
+                            <select class="form-control form-select" id="mailing1City">
+                                <option value="">请选择城市</option>
+                                <option value="Kuala Lumpur">Kuala Lumpur</option>
+                                <option value="Subang Jaya">Subang Jaya</option>
+                                <option value="Petaling Jaya">Petaling Jaya</option>
+                                <option value="Shah Alam">Shah Alam</option>
+                                <option value="Johor Bahru">Johor Bahru</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">州/省</label>
+                            <select class="form-control form-select" id="mailing1State">
+                                <option value="">请选择州/省</option>
+                                <option value="Kuala Lumpur">Kuala Lumpur</option>
+                                <option value="Selangor">Selangor</option>
+                                <option value="Johor">Johor</option>
+                                <option value="Penang">Penang</option>
+                                <option value="Perak">Perak</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">邮编</label>
+                            <input type="text" class="form-control" id="mailing1Postcode" placeholder="邮编" required inputmode="numeric">
+                        </div>
+                        <button class="btn btn-primary" id="saveMailing1Address">保存地址</button>
+                        <button class="btn btn-secondary" id="editMailing1Address" style="display: none;">编辑</button>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <div class="accordion-title">邮寄2</div>
+                        <div class="accordion-icon">▼</div>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="form-group">
+                            <label class="form-label required">地址1</label>
+                            <input type="text" class="form-control" placeholder="请输入地址1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">地址2</label>
+                            <input type="text" class="form-control" placeholder="请输入地址2">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">地址3</label>
+                            <input type="text" class="form-control" placeholder="请输入地址3">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">地址4</label>
+                            <input type="text" class="form-control" placeholder="请输入地址4">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">国家</label>
+                            <select class="form-control form-select" id="mailing2Country" required>
+                                <option value="">请选择国家</option>
+                                <option value="MY" selected>马来西亚</option>
+                                <option value="TH">泰国</option>
+                                <option value="SG">新加坡</option>
+                                <option value="ID">印度尼西亚</option>
+                                <option value="PH">菲律宾</option>
+                                <option value="VN">越南</option>
+                                <option value="KH">柬埔寨</option>
+                                <option value="LA">老挝</option>
+                                <option value="MM">缅甸</option>
+                                <option value="BN">文莱</option>
+                                <option value="HK">香港</option>
+                                <option value="TW">台湾</option>
+                                <option value="CN">中国</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">城市</label>
+                            <select class="form-control form-select" id="mailing2City">
+                                <option value="">请选择城市</option>
+                                <option value="Kuala Lumpur">Kuala Lumpur</option>
+                                <option value="Subang Jaya">Subang Jaya</option>
+                                <option value="Petaling Jaya">Petaling Jaya</option>
+                                <option value="Shah Alam">Shah Alam</option>
+                                <option value="Johor Bahru">Johor Bahru</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">州/省</label>
+                            <select class="form-control form-select" id="mailing2State">
+                                <option value="">请选择州/省</option>
+                                <option value="Kuala Lumpur">Kuala Lumpur</option>
+                                <option value="Selangor">Selangor</option>
+                                <option value="Johor">Johor</option>
+                                <option value="Penang">Penang</option>
+                                <option value="Perak">Perak</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">邮编</label>
+                            <input type="text" class="form-control" placeholder="邮编" required inputmode="numeric">
+                        </div>
+                        <button class="btn btn-primary" id="saveMailing2Address">保存地址</button>
+                    </div>
+                </div>
+                <div class="add-address-container">
+                    <button class="btn btn-primary" id="addNewAddressBtn">添加新地址</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 添加新地址模态框 -->
+        <div id="addAddressModal" class="modal">
+            <div class="modal-content" style="max-width: 90%; width: 400px; max-height: 90vh; overflow-y: auto;">
+                <div class="modal-header">
+                    <h3 class="modal-title">添加新地址</h3>
+                    <span class="modal-close" id="closeAddAddressModal">&times;</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">地址1</label>
+                    <input type="text" class="form-control" id="newAddress1" placeholder="请输入地址1" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">地址2</label>
+                    <input type="text" class="form-control" id="newAddress2" placeholder="请输入地址2">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">地址3</label>
+                    <input type="text" class="form-control" id="newAddress3" placeholder="请输入地址3">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">地址4</label>
+                    <input type="text" class="form-control" id="newAddress4" placeholder="请输入地址4">
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">国家</label>
+                    <select class="form-control form-select" id="newCountry" required>
+                        <option value="">请选择国家</option>
+                        <option value="MY" selected>马来西亚</option>
+                        <option value="TH">泰国</option>
+                        <option value="SG">新加坡</option>
+                        <option value="ID">印度尼西亚</option>
+                        <option value="PH">菲律宾</option>
+                        <option value="VN">越南</option>
+                        <option value="KH">柬埔寨</option>
+                        <option value="LA">老挝</option>
+                        <option value="MM">缅甸</option>
+                        <option value="BN">文莱</option>
+                        <option value="HK">香港</option>
+                        <option value="TW">台湾</option>
+                        <option value="CN">中国</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">城市</label>
+                    <select class="form-control form-select" id="newCity">
+                        <option value="">请选择城市</option>
+                        <option value="Kuala Lumpur">Kuala Lumpur</option>
+                        <option value="Subang Jaya">Subang Jaya</option>
+                        <option value="Petaling Jaya">Petaling Jaya</option>
+                        <option value="Shah Alam">Shah Alam</option>
+                        <option value="Johor Bahru">Johor Bahru</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">州/省</label>
+                    <select class="form-control form-select" id="newState">
+                        <option value="">请选择州/省</option>
+                        <option value="Kuala Lumpur">Kuala Lumpur</option>
+                        <option value="Selangor">Selangor</option>
+                        <option value="Johor">Johor</option>
+                        <option value="Penang">Penang</option>
+                        <option value="Perak">Perak</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">邮编</label>
+                    <input type="text" class="form-control" id="newPostcode" placeholder="邮编" required inputmode="numeric">
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" id="cancelAddAddress">取消</button>
+                    <button class="btn btn-primary" id="confirmAddAddress">确认添加</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 奖金信息 -->
+        <div id="bonus" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">支付地区</div>
+                </div>
+                <div class="region-selector">
+                    <div class="region-item active" data-country="MY">马来西亚</div>
+                    <div class="region-item" data-country="TH">泰国</div>
+                    <div class="region-item" data-country="SG">新加坡</div>
+                    <div class="region-item" data-country="HK">香港</div>
+                    <div class="region-item" data-country="KH">柬埔寨</div>
+                    <div class="region-item" data-country="PH">菲律宾</div>
+                    <div class="region-item" data-country="ID">印度尼西亚</div>
+                    <div class="region-item" data-country="BN">文莱</div>
+                    <div class="region-item" data-country="TW">台湾</div>
+                    <div class="region-item" data-country="EC">电子商务国家</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">支付方式配置</div>
+                </div>
+                <form id="paymentForm">
+                    <div class="form-group">
+                        <label class="form-label required">选择支付方式</label>
+                        <div class="radio-group">
+                            <label class="radio-label" data-payment="bank">
+                                <input type="radio" name="payment" value="bank" class="radio-input"> 银行
+                            </label>
+                            <label class="radio-label selected" data-payment="gcc">
+                                <input type="radio" name="payment" value="gcc" class="radio-input" checked> 银行卡
+                            </label>
+                            <label class="radio-label" data-payment="mpay">
+                                <input type="radio" name="payment" value="mpay" class="radio-input"> Mpay
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 银行账户信息 - BANK -->
+                    <div id="bankAccountFields" class="payment-fields" style="display: none;">
+                        <div class="card" style="margin-top: 20px;">
+                            <div class="card-header" style="margin-bottom: 12px;">
+                                <div class="card-title">银行账户信息</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">银行国家</label>
+                                <input type="text" id="bankCountry" class="form-control" value="马来西亚" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">银行名称</label>
+                                <select id="bankName" class="form-control form-select" required>
+                                    <option value="">请选择银行</option>
+                                    <option value="mmb">马来亚银行</option>
+                                    <option value="cimb">CIMB银行</option>
+                                    <option value="rhb">RHB银行</option>
+                                    <option value="public">大众银行</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">SWIFT代码</label>
+                                <input type="text" id="swiftCode" class="form-control" placeholder="SWIFT代码" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">银行账号</label>
+                                <input type="text" class="form-control" placeholder="请输入银行账号" required inputmode="numeric">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">账户持有人姓名</label>
+                                <input type="text" class="form-control" value="EW1" required disabled>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 银行卡信息 - GCC -->
+                    <div id="cardFields" class="payment-fields" style="display: block;">
+                        <div class="card" style="margin-top: 20px;">
+                            <div class="card-header" style="margin-bottom: 12px;">
+                                <div class="card-title">银行卡信息</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">卡片国家</label>
+                                <select id="gccCardCountry" class="form-control form-select" required>
+                                    <option value="MY" selected>马来西亚</option>
+                                    <option value="TH">泰国</option>
+                                    <option value="SG">新加坡</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">持卡人姓名</label>
+                                <input type="text" class="form-control" value="EW1" required disabled>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">卡号</label>
+                                <input type="text" class="form-control" placeholder="请输入银行卡号" required inputmode="numeric">
+                            </div>
+                            <div class="radio-group">
+                                <div class="form-group" style="flex: 1; min-width: 140px;">
+                                    <label class="form-label required">到期月份</label>
+                                    <select id="gccExpMonth" class="form-control form-select" required>
+                                        <option value="">请选择</option>
+                                        <option value="01">01月</option>
+                                        <option value="02">02月</option>
+                                        <option value="03">03月</option>
+                                        <option value="04">04月</option>
+                                        <option value="05">05月</option>
+                                        <option value="06">06月</option>
+                                        <option value="07">07月</option>
+                                        <option value="08">08月</option>
+                                        <option value="09">09月</option>
+                                        <option value="10">10月</option>
+                                        <option value="11">11月</option>
+                                        <option value="12">12月</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="flex: 1; min-width: 140px;">
+                                    <label class="form-label required">到期年份</label>
+                                    <select id="gccExpYear" class="form-control form-select" required>
+                                        <option value="">请选择</option>
+                                        <option value="2024">2024</option>
+                                        <option value="2025">2025</option>
+                                        <option value="2026">2026</option>
+                                        <option value="2027">2027</option>
+                                        <option value="2028">2028</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mpay信息 -->
+                    <div id="mpayFields" class="payment-fields" style="display: none;">
+                        <div class="card" style="margin-top: 20px;">
+                            <div class="card-header" style="margin-bottom: 12px;">
+                                <div class="card-title">Mpay信息</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">卡片国家</label>
+                                <input type="text" id="mpayCountry" class="form-control" value="马来西亚" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">持卡人姓名</label>
+                                <input type="text" class="form-control" value="EW1" required disabled>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">卡号</label>
+                                <input type="text" class="form-control" placeholder="请输入卡号" required inputmode="numeric">
+                            </div>
+                            <div class="radio-group">
+                                <div class="form-group" style="flex: 1; min-width: 140px;">
+                                    <label class="form-label required">到期月份</label>
+                                    <select id="mpayExpMonth" class="form-control form-select" required>
+                                        <option value="">请选择</option>
+                                        <option value="01">01月</option>
+                                        <option value="02">02月</option>
+                                        <option value="03">03月</option>
+                                        <option value="04">04月</option>
+                                        <option value="05">05月</option>
+                                        <option value="06">06月</option>
+                                        <option value="07">07月</option>
+                                        <option value="08">08月</option>
+                                        <option value="09">09月</option>
+                                        <option value="10">10月</option>
+                                        <option value="11">11月</option>
+                                        <option value="12">12月</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="flex: 1; min-width: 140px;">
+                                    <label class="form-label required">到期年份</label>
+                                    <select id="mpayExpYear" class="form-control form-select" required>
+                                        <option value="">请选择</option>
+                                        <option value="2024">2024</option>
+                                        <option value="2025">2025</option>
+                                        <option value="2026">2026</option>
+                                        <option value="2027">2027</option>
+                                        <option value="2028">2028</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">支付公司</label>
+                                <input type="text" id="payoutCompany" class="form-control" value="0000012365245612" required disabled>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-primary" style="margin-top: 20px;" onclick="validatePaymentForm()">保存更改</button>
+                </form>
+            </div>
+        </div>
+
+
+        <!-- 安置偏好 -->
+        <div id="placement" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">安置偏好设置</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">自动安置</label>
+                    <div class="switch-group">
+                        <label class="switch">
+                            <input type="checkbox" id="autoPlacementSwitch" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group" id="manualPlacementGroup" style="display: none;">
+                    <label class="form-label required">手动安置位置</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="placement" value="left" class="radio-input"> 左下
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="placement" value="right" class="radio-input"> 右下
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">下次安置位置</label>
+                    <input type="text" id="nextPlacement" class="form-control" value="自动" disabled>
+                </div>
+                <button class="btn btn-primary" id="updatePlacementBtn">更新设置</button>
+            </div>
+            <div class="info-box">
+                <div class="info-box-title">Placement Preference for your newly sponsored enrollees</div>
+                <div class="info-box-content">Please select the default Placement Preference for your new personally sponsored enrollees. By changing your default, the next new enrollee you sponsored will be placed on the Left or Right side of your Business Center (for Customers) or the Left or Right Leg in the Binary Tree (for Brand Ambassadors) based on the preference you select below. You may change your Placement Preference at any time.</div>
+            </div>
+        </div>
+
+
+        <!-- e-form -->
+        <div id="policies" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">e-form</div>
+                </div>
+                <div class="data-row" style="cursor: pointer;">
+                    <div class="data-label">电子表格</div>
+                    <div class="data-value">
+                        <a href="policy_detail.html" style="color: var(--primary-color); text-decoration: none;">查看</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- PDF查看模态框 -->
+    <div id="pdfViewerModal" class="modal">
+        <div class="modal-content" style="max-width: 95vw; max-height: 95vh; width: 95vw; height: 95vh;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="pdfTitle">查看文件</h3>
+                <span class="modal-close" id="closePdfModal">&times;</span>
+            </div>
+            <div style="padding: 10px 0; flex: 1; display: flex; flex-direction: column;">
+                <iframe id="pdfViewer" src="" style="width: 100%; height: 85vh; border: none;"></iframe>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="closePdfBtn">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 标签页切换
+        document.querySelectorAll('.tab-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
+                this.classList.add('active');
+                
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                const target = this.getAttribute('data-target');
+                document.getElementById(target).classList.add('active');
+            });
+        });
+
+        // 单选按钮组
+        document.querySelectorAll('.radio-input').forEach(input => {
+            input.addEventListener('change', function() {
+                const name = this.getAttribute('name');
+                document.querySelectorAll(`input[name="${name}"]`).forEach(radio => {
+                    radio.parentElement.classList.remove('selected');
+                });
+                this.parentElement.classList.add('selected');
+            });
+        });
+
+        // 首选联络人切换
+        document.querySelectorAll('input[name="preferredContact"]').forEach(input => {
+            input.addEventListener('change', function() {
+                const value = this.value;
+                const emailInput = document.getElementById('emailAddress');
+                const mobileInput = document.getElementById('mobileNumber');
+                
+                if (value === 'email') {
+                    emailInput.disabled = false;
+                    mobileInput.disabled = true;
+                } else {
+                    emailInput.disabled = true;
+                    mobileInput.disabled = false;
+                }
+            });
+        });
+        
+        // 初始化首选联络人状态
+        const initialPreferredContact = document.querySelector('input[name="preferredContact"]:checked');
+        if (initialPreferredContact && initialPreferredContact.value === 'email') {
+            document.getElementById('mobileNumber').disabled = true;
+        } else {
+            document.getElementById('emailAddress').disabled = true;
+        }
+
+        // 支付方式切换
+        document.querySelectorAll('input[name="payment"]').forEach(input => {
+            input.addEventListener('change', function() {
+                const value = this.value;
+                document.querySelectorAll('.payment-fields').forEach(field => {
+                    field.style.display = 'none';
+                });
+                if (value === 'bank') {
+                    document.getElementById('bankAccountFields').style.display = 'block';
+                } else if (value === 'gcc') {
+                    document.getElementById('cardFields').style.display = 'block';
+                } else if (value === 'mpay') {
+                    document.getElementById('mpayFields').style.display = 'block';
+                }
+            });
+        });
+
+        // 折叠面板
+        document.querySelectorAll('.accordion-header').forEach(header => {
+            header.addEventListener('click', function() {
+                this.classList.toggle('active');
+                const content = this.nextElementSibling;
+                content.classList.toggle('active');
+            });
+        });
+
+        // 文件上传
+        document.getElementById('idCardUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const preview = document.getElementById('idCardPreview');
+                    preview.src = event.target.result;
+                    preview.classList.add('show');
+                    // 自动保存
+                    alert('操作成功');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // 点击文件上传区域
+        document.querySelector('.file-upload').addEventListener('click', function() {
+            document.getElementById('idCardUpload').click();
+        });
+
+        // 发送验证码倒计时
+        function startCountdown(elementId, buttonId) {
+            let seconds = 180;
+            const countdown = document.getElementById(elementId);
+            const button = document.getElementById(buttonId);
+            
+            countdown.style.display = 'inline';
+            button.disabled = true;
+            
+            const interval = setInterval(() => {
+                seconds--;
+                countdown.textContent = `${seconds}秒后重试`;
+                
+                if (seconds <= 0) {
+                    clearInterval(interval);
+                    countdown.style.display = 'none';
+                    button.disabled = false;
+                }
+            }, 1000);
+        }
+
+        // 发送验证码按钮
+        document.getElementById('sendCodeBtn').addEventListener('click', function() {
+            const mobileNumber = document.getElementById('mobileNumber').value;
+            if (!mobileNumber) {
+                alert('请先填写手机号');
+                return;
+            }
+            startCountdown('countdown', 'sendCodeBtn');
+            alert('验证码已发送');
+        });
+
+        // 地区选择
+        document.querySelectorAll('.region-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.region-item').forEach(region => region.classList.remove('active'));
+                this.classList.add('active');
+                
+                const country = this.getAttribute('data-country');
+                updateBankCountry(country);
+                updateMpayCountry(country);
+                updatePayoutCompany(country);
+                updatePaymentMethods(country);
+            });
+        });
+        
+        // 根据国家更新支付方式
+        function updatePaymentMethods(country) {
+            const paymentOptions = document.querySelectorAll('input[name="payment"]');
+            const paymentLabels = document.querySelectorAll('.radio-label[data-payment]');
+
+            const savedConfig = JSON.parse(localStorage.getItem('paymentConfig') || '{}');
+            const savedMethod = savedConfig[country];
+
+            if (savedMethod) {
+                paymentOptions.forEach(option => {
+                    option.parentElement.style.display = 'none';
+                    option.disabled = true;
+                });
+
+                document.querySelector(`[data-payment="${savedMethod}"]`).style.display = 'flex';
+                document.querySelector(`input[name="payment"][value="${savedMethod}"]`).checked = true;
+                document.querySelector(`input[name="payment"][value="${savedMethod}"]`).parentElement.classList.add('selected');
+
+                document.getElementById('bankAccountFields').style.display = savedMethod === 'bank' ? 'block' : 'none';
+                document.getElementById('cardFields').style.display = savedMethod === 'gcc' ? 'block' : 'none';
+                document.getElementById('mpayFields').style.display = savedMethod === 'mpay' ? 'block' : 'none';
+
+                if (savedMethod === 'bank') {
+                    document.getElementById('bankCountry').disabled = true;
+                    document.getElementById('bankName').disabled = true;
+                    document.getElementById('swiftCode').disabled = true;
+                    document.querySelector('#bankAccountFields input[type="text"][placeholder="请输入银行账号"]').disabled = true;
+                    document.querySelector('#bankAccountFields input[value="EW1"]').disabled = true;
+                } else if (savedMethod === 'gcc') {
+                    document.getElementById('gccCardCountry').disabled = true;
+                    document.querySelector('#cardFields input[value="EW1"]').disabled = true;
+                    document.querySelector('#cardFields input[placeholder="请输入银行卡号"]').disabled = true;
+                    document.getElementById('gccExpMonth').disabled = false;
+                    document.getElementById('gccExpYear').disabled = false;
+                } else if (savedMethod === 'mpay') {
+                    document.getElementById('mpayCountry').disabled = true;
+                    document.querySelector('#mpayFields input[value="EW1"]').disabled = true;
+                    document.querySelector('#mpayFields input[placeholder="请输入卡号"]').disabled = true;
+                    document.getElementById('mpayExpMonth').disabled = false;
+                    document.getElementById('mpayExpYear').disabled = false;
+                    document.getElementById('payoutCompany').disabled = true;
+                }
+                return;
+            }
+
+            paymentOptions.forEach(option => {
+                option.parentElement.style.display = 'none';
+                option.disabled = false;
+            });
+
+            const currentMethod = document.querySelector('input[name="payment"]:checked').value;
+
+            if (currentMethod === 'bank') {
+                document.getElementById('bankCountry').disabled = true;
+                document.getElementById('bankName').disabled = false;
+                document.getElementById('swiftCode').disabled = true;
+                document.querySelector('#bankAccountFields input[type="text"][placeholder="请输入银行账号"]').disabled = false;
+                document.querySelector('#bankAccountFields input[value="EW1"]').disabled = true;
+                document.getElementById('cardFields').style.display = 'none';
+                document.getElementById('mpayFields').style.display = 'none';
+            } else if (currentMethod === 'gcc') {
+                document.getElementById('gccCardCountry').disabled = true;
+                document.querySelector('#cardFields input[value="EW1"]').disabled = true;
+                document.querySelector('#cardFields input[placeholder="请输入银行卡号"]').disabled = false;
+                document.getElementById('gccExpMonth').disabled = false;
+                document.getElementById('gccExpYear').disabled = false;
+                document.getElementById('bankAccountFields').style.display = 'none';
+                document.getElementById('mpayFields').style.display = 'none';
+            } else if (currentMethod === 'mpay') {
+                document.getElementById('mpayCountry').disabled = true;
+                document.querySelector('#mpayFields input[value="EW1"]').disabled = true;
+                document.querySelector('#mpayFields input[placeholder="请输入卡号"]').disabled = false;
+                document.getElementById('mpayExpMonth').disabled = false;
+                document.getElementById('mpayExpYear').disabled = false;
+                document.getElementById('payoutCompany').disabled = true;
+                document.getElementById('bankAccountFields').style.display = 'none';
+                document.getElementById('cardFields').style.display = 'none';
+            }
+
+            if (country === 'MY' || country === 'EC') {
+                document.querySelector('[data-payment="bank"]').style.display = 'flex';
+                document.querySelector('[data-payment="mpay"]').style.display = 'flex';
+                document.querySelector('input[name="payment"][value="bank"]').checked = true;
+                document.querySelector('input[name="payment"][value="bank"]').parentElement.classList.add('selected');
+                document.querySelector('input[name="payment"][value="mpay"]').parentElement.classList.remove('selected');
+                document.getElementById('bankAccountFields').style.display = 'block';
+                document.getElementById('cardFields').style.display = 'none';
+                document.getElementById('mpayFields').style.display = 'none';
+            } else if (country === 'TH' || country === 'SG' || country === 'HK' || country === 'KH' || country === 'PH' || country === 'ID') {
+                document.querySelector('[data-payment="bank"]').style.display = 'flex';
+                document.querySelector('[data-payment="gcc"]').style.display = 'flex';
+                document.querySelector('input[name="payment"][value="bank"]').checked = true;
+                document.querySelector('input[name="payment"][value="bank"]').parentElement.classList.add('selected');
+                document.querySelector('input[name="payment"][value="gcc"]').parentElement.classList.remove('selected');
+                document.getElementById('bankAccountFields').style.display = 'block';
+                document.getElementById('cardFields').style.display = 'none';
+                document.getElementById('mpayFields').style.display = 'none';
+            } else if (country === 'BN' || country === 'TW') {
+                document.querySelector('[data-payment="bank"]').style.display = 'flex';
+                document.querySelector('input[name="payment"][value="bank"]').checked = true;
+                document.querySelector('input[name="payment"][value="bank"]').parentElement.classList.add('selected');
+                document.getElementById('bankAccountFields').style.display = 'block';
+                document.getElementById('cardFields').style.display = 'none';
+                document.getElementById('mpayFields').style.display = 'none';
+            }
+        }
+
+        // 更新银行国家
+        function updateBankCountry(country) {
+            const bankCountry = document.getElementById('bankCountry');
+            const countryNames = {
+                'MY': '马来西亚',
+                'TH': '泰国',
+                'SG': '新加坡',
+                'HK': '香港',
+                'KH': '柬埔寨',
+                'PH': '菲律宾',
+                'ID': '印度尼西亚',
+                'BN': '文莱',
+                'TW': '台湾',
+                'EC': '电子商务国家'
+            };
+            bankCountry.value = countryNames[country] || '马来西亚';
+        }
+
+        // 更新Mpay国家
+        function updateMpayCountry(country) {
+            const mpayCountry = document.getElementById('mpayCountry');
+            const countryNames = {
+                'MY': '马来西亚',
+                'EC': '电子商务国家'
+            };
+            mpayCountry.value = countryNames[country] || '马来西亚';
+        }
+
+        // 更新支付公司
+        function updatePayoutCompany(country) {
+            const payoutCompany = document.getElementById('payoutCompany');
+            if (country === 'MY') {
+                payoutCompany.value = '0000012365245612';
+            } else if (country === 'EC') {
+                payoutCompany.value = 'US';
+            } else {
+                payoutCompany.value = '0000012365245612';
+            }
+        }
+
+        // 银行名称变更时更新SWIFT代码
+        document.getElementById('bankName').addEventListener('change', function() {
+            const bankName = this.value;
+            const swiftCode = document.getElementById('swiftCode');
+            const swiftCodes = {
+                'mmb': 'MBBEMYKL',
+                'cimb': 'CIBBMYKL',
+                'rhb': 'RHBBMYKL',
+                'public': 'PBBEMYKL'
+            };
+            swiftCode.value = swiftCodes[bankName] || '';
+        });
+
+        // 邮寄地址1保存
+        document.getElementById('saveMailing1Address').addEventListener('click', function() {
+            // 校验必填项
+            const address = document.getElementById('mailing1Address').value;
+            const country = document.getElementById('mailing1Country').value;
+            const postcode = document.getElementById('mailing1Postcode').value;
+            
+            if (!address || !country || !postcode) {
+                showToast('请填写所有必填项');
+                return;
+            }
+            
+            // 保存成功
+            showToast('操作成功');
+            
+            // 显示已设置状态
+            document.getElementById('mailing1Status').style.display = 'inline';
+            
+            // 禁用字段
+            document.getElementById('mailing1Address').disabled = true;
+            document.getElementById('mailing1Country').disabled = true;
+            document.getElementById('mailing1City').disabled = true;
+            document.getElementById('mailing1State').disabled = true;
+            document.getElementById('mailing1Postcode').disabled = true;
+            
+            // 切换按钮
+            document.getElementById('saveMailing1Address').style.display = 'none';
+            document.getElementById('editMailing1Address').style.display = 'block';
+        });
+        
+        // 邮寄地址1编辑
+        document.getElementById('editMailing1Address').addEventListener('click', function() {
+            // 启用字段
+            document.getElementById('mailing1Address').disabled = false;
+            document.getElementById('mailing1Country').disabled = false;
+            document.getElementById('mailing1City').disabled = false;
+            document.getElementById('mailing1State').disabled = false;
+            document.getElementById('mailing1Postcode').disabled = false;
+            
+            // 切换按钮
+            document.getElementById('editMailing1Address').style.display = 'none';
+            document.getElementById('saveMailing1Address').style.display = 'block';
+        });
+        
+        // 邮寄地址2保存
+        document.getElementById('saveMailing2Address').addEventListener('click', function() {
+            // 校验必填项
+            const address = document.querySelector('#address .accordion-item:nth-child(4) input[type="text"]').value;
+            const country = document.getElementById('mailing2Country').value;
+            const postcode = document.querySelector('#address .accordion-item:nth-child(4) input[type="text"]:last-child').value;
+            
+            if (!address || !country || !postcode) {
+                showToast('请填写所有必填项');
+                return;
+            }
+            
+            // 保存成功
+            showToast('操作成功');
+            
+            // 显示已设置状态
+            const mailing2Title = document.querySelector('#address .accordion-item:nth-child(4) .accordion-title');
+            if (!mailing2Title.querySelector('.status-badge')) {
+                const statusBadge = document.createElement('span');
+                statusBadge.className = 'status-badge status-active';
+                statusBadge.textContent = '已设置';
+                statusBadge.style.marginLeft = '8px';
+                mailing2Title.appendChild(statusBadge);
+            }
+            
+            // 禁用字段
+            const fields = document.querySelectorAll('#address .accordion-item:nth-child(4) input, #address .accordion-item:nth-child(4) select');
+            fields.forEach(field => field.disabled = true);
+            
+            // 切换按钮
+            document.getElementById('saveMailing2Address').style.display = 'none';
+            const editBtn = document.createElement('button');
+            editBtn.className = 'btn btn-secondary';
+            editBtn.id = 'editMailing2Address';
+            editBtn.textContent = '编辑';
+            editBtn.style.marginTop = '12px';
+            document.querySelector('#address .accordion-item:nth-child(4) .accordion-content').appendChild(editBtn);
+            
+            // 添加编辑按钮事件
+            editBtn.addEventListener('click', function() {
+                // 启用字段
+                fields.forEach(field => field.disabled = false);
+                
+                // 切换按钮
+                editBtn.style.display = 'none';
+                document.getElementById('saveMailing2Address').style.display = 'block';
+                
+                // 重新初始化地址选择器，确保级联功能正常
+                initAddressSelectors();
+            });
+        });
+
+        // 添加新地址功能
+        const addNewAddressBtn = document.getElementById('addNewAddressBtn');
+        const addAddressModal = document.getElementById('addAddressModal');
+        const closeAddAddressModal = document.getElementById('closeAddAddressModal');
+        const cancelAddAddress = document.getElementById('cancelAddAddress');
+        const confirmAddAddress = document.getElementById('confirmAddAddress');
+
+        if (addNewAddressBtn && addAddressModal) {
+            addNewAddressBtn.addEventListener('click', function() {
+                addAddressModal.classList.add('active');
+            });
+        }
+
+        if (closeAddAddressModal && addAddressModal) {
+            closeAddAddressModal.addEventListener('click', function() {
+                addAddressModal.classList.remove('active');
+            });
+        }
+
+        if (cancelAddAddress && addAddressModal) {
+            cancelAddAddress.addEventListener('click', function() {
+                addAddressModal.classList.remove('active');
+            });
+        }
+
+        if (confirmAddAddress && addAddressModal) {
+            confirmAddAddress.addEventListener('click', function() {
+                const address1 = document.getElementById('newAddress1').value.trim();
+                const address2 = document.getElementById('newAddress2').value.trim();
+                const address3 = document.getElementById('newAddress3').value.trim();
+                const address4 = document.getElementById('newAddress4').value.trim();
+                const country = document.getElementById('newCountry').value;
+                const postcode = document.getElementById('newPostcode').value.trim();
+
+                if (!address1 || !country || !postcode) {
+                    alert('请填写所有必填项');
+                    return;
+                }
+
+                const newAddress = address1 + '|' + address2 + '|' + address3 + '|' + address4 + '|' + country + '|' + postcode;
+
+                const existingAddresses = [];
+                document.querySelectorAll('#address .accordion-item').forEach(item => {
+                    const inputs = item.querySelectorAll('input');
+                    const selects = item.querySelectorAll('select');
+                    const addr1 = inputs[0] ? inputs[0].value.trim() : '';
+                    const addr2 = inputs[1] ? inputs[1].value.trim() : '';
+                    const addr3 = inputs[2] ? inputs[2].value.trim() : '';
+                    const addr4 = inputs[3] ? inputs[3].value.trim() : '';
+                    const countrySelect = Array.from(selects).find(s => s.id.includes('Country'));
+                    const countryVal = countrySelect ? countrySelect.value : '';
+                    const postcodeInput = inputs[inputs.length - 1];
+                    const postcodeVal = postcodeInput ? postcodeInput.value.trim() : '';
+                    existingAddresses.push(addr1 + '|' + addr2 + '|' + addr3 + '|' + addr4 + '|' + countryVal + '|' + postcodeVal);
+                });
+
+                if (existingAddresses.includes(newAddress)) {
+                    alert('存在完全相同地址，请修改');
+                    return;
+                }
+
+                alert('新地址添加成功！');
+                addAddressModal.classList.remove('active');
+                
+                // 清空表单
+                document.getElementById('newAddress1').value = '';
+                document.getElementById('newAddress2').value = '';
+                document.getElementById('newAddress3').value = '';
+                document.getElementById('newAddress4').value = '';
+                document.getElementById('newCountry').value = '';
+                document.getElementById('newCity').value = '';
+                document.getElementById('newState').value = '';
+                document.getElementById('newPostcode').value = '';
+
+                // 生成唯一ID
+                const timestamp = Date.now();
+                const addressId = 'newAddress' + timestamp;
+                
+                // 获取accordion容器
+                const accordion = document.querySelector('#address .accordion');
+                
+                // 创建新的邮寄地址折叠项
+                const newAddressItem = document.createElement('div');
+                newAddressItem.className = 'accordion-item';
+                newAddressItem.innerHTML = `
+                    <div class="accordion-header">
+                        <div class="accordion-title">新地址 <span class="status-badge status-active">已设置</span></div>
+                        <div class="accordion-icon">▼</div>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="form-group">
+                            <label class="form-label required">地址1</label>
+                            <input type="text" class="form-control" value="${address1}" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">地址2</label>
+                            <input type="text" class="form-control" value="${address2}" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">地址3</label>
+                            <input type="text" class="form-control" value="${address3}" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">地址4</label>
+                            <input type="text" class="form-control" value="${address4}" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">国家</label>
+                            <select class="form-control form-select" id="${addressId}Country" disabled>
+                                <option value="">请选择国家</option>
+                                <option value="MY" ${country === 'MY' ? 'selected' : ''}>马来西亚</option>
+                                <option value="TH" ${country === 'TH' ? 'selected' : ''}>泰国</option>
+                                <option value="SG" ${country === 'SG' ? 'selected' : ''}>新加坡</option>
+                                <option value="ID" ${country === 'ID' ? 'selected' : ''}>印度尼西亚</option>
+                                <option value="PH" ${country === 'PH' ? 'selected' : ''}>菲律宾</option>
+                                <option value="VN" ${country === 'VN' ? 'selected' : ''}>越南</option>
+                                <option value="KH" ${country === 'KH' ? 'selected' : ''}>柬埔寨</option>
+                                <option value="LA" ${country === 'LA' ? 'selected' : ''}>老挝</option>
+                                <option value="MM" ${country === 'MM' ? 'selected' : ''}>缅甸</option>
+                                <option value="BN" ${country === 'BN' ? 'selected' : ''}>文莱</option>
+                                <option value="HK" ${country === 'HK' ? 'selected' : ''}>香港</option>
+                                <option value="TW" ${country === 'TW' ? 'selected' : ''}>台湾</option>
+                                <option value="CN" ${country === 'CN' ? 'selected' : ''}>中国</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">城市</label>
+                            <select class="form-control form-select" id="${addressId}City" disabled>
+                                <option value="">请选择城市</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">州/省</label>
+                            <select class="form-control form-select" id="${addressId}State" disabled>
+                                <option value="">请选择州/省</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">邮编</label>
+                            <input type="text" class="form-control" value="${postcode}" disabled inputmode="numeric">
+                        </div>
+                        <div style="display: flex; gap: 12px;">
+                            <button class="btn btn-primary edit-btn" style="flex: 1;">编辑</button>
+                            <button class="btn btn-secondary delete-btn" style="flex: 1;">删除</button>
+                        </div>
+                    </div>
+                `;
+                
+                // 添加到accordion中
+                accordion.appendChild(newAddressItem);
+                
+                // 重新绑定折叠面板事件
+                newAddressItem.querySelector('.accordion-header').addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    const content = this.nextElementSibling;
+                    content.classList.toggle('active');
+                });
+                
+                // 绑定编辑按钮事件
+                newAddressItem.querySelector('.edit-btn').addEventListener('click', function() {
+                    const fields = newAddressItem.querySelectorAll('input, select');
+                    fields.forEach(field => field.disabled = false);
+                    this.style.display = 'none';
+                    const saveBtn = document.createElement('button');
+                    saveBtn.className = 'btn btn-primary';
+                    saveBtn.textContent = '保存';
+                    saveBtn.style.flex = '1';
+                    saveBtn.style.display = 'block';
+                    this.parentElement.appendChild(saveBtn);
+                    
+                    saveBtn.addEventListener('click', function() {
+                        fields.forEach(field => field.disabled = true);
+                        saveBtn.style.display = 'none';
+                        newAddressItem.querySelector('.edit-btn').style.display = 'block';
+                        alert('保存成功');
+                    });
+                });
+                
+                // 绑定删除按钮事件
+                newAddressItem.querySelector('.delete-btn').addEventListener('click', function() {
+                    if (confirm('确定要删除这个地址吗？')) {
+                        newAddressItem.remove();
+                        alert('删除成功');
+                    }
+                });
+
+                // 重新初始化地址选择器
+                initAddressSelectors();
+            });
+        }
+
+        // 点击模态框外部关闭
+        window.addEventListener('click', function(event) {
+            if (event.target == addAddressModal) {
+                addAddressModal.classList.remove('active');
+            }
+        });
+
+        // 安置偏好更新
+        const autoPlacementSwitch = document.getElementById('autoPlacementSwitch');
+        const manualPlacementGroup = document.getElementById('manualPlacementGroup');
+        const nextPlacementInput = document.getElementById('nextPlacement');
+        
+        autoPlacementSwitch.addEventListener('change', function() {
+            if (this.checked) {
+                manualPlacementGroup.style.display = 'none';
+                document.querySelectorAll('input[name="placement"]').forEach(radio => {
+                    radio.checked = false;
+                });
+            } else {
+                manualPlacementGroup.style.display = 'block';
+                document.querySelector('input[name="placement"][value="left"]').checked = true;
+            }
+        });
+        
+        document.getElementById('updatePlacementBtn').addEventListener('click', function() {
+            const isAuto = autoPlacementSwitch.checked;
+            if (isAuto) {
+                nextPlacementInput.value = '自动';
+                alert('操作成功');
+                return;
+            }
+            
+            const selectedPlacement = document.querySelector('input[name="placement"]:checked').value;
+            const placementMap = {
+                'left': '左下',
+                'right': '右下'
+            };
+            document.getElementById('nextPlacement').value = placementMap[selectedPlacement];
+            alert('操作成功');
+        });
+
+        // 表单提交
+        document.getElementById('paymentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('操作成功');
+        });
+
+        // 返回按钮
+        document.getElementById('backBtn').addEventListener('click', function() {
+            alert('返回功能');
+        });
+        
+        // 国家、城市、州数据
+        const countryData = {
+            'MY': {
+                name: '马来西亚',
+                capital: 'Kuala Lumpur',
+                states: {
+                    'Kuala Lumpur': ['Kuala Lumpur', 'Cheras', 'Petaling Jaya'],
+                    'Selangor': ['Subang Jaya', 'Petaling Jaya', 'Shah Alam', 'Klang', 'Puchong', 'Kajang'],
+                    'Johor': ['Johor Bahru', 'Kota Tinggi', 'Mersing', 'Kluang', 'Batu Pahat', 'Pontian'],
+                    'Penang': ['George Town', 'Batu Ferringhi', 'Butterworth', 'Bayan Lepas', 'Seberang Perai'],
+                    'Perak': ['Ipoh', 'Taiping', 'Kuala Kangsar', 'Teluk Intan', 'Seri Iskandar'],
+                    'Sabah': ['Kota Kinabalu', 'Sandakan', 'Tawau', 'Kudat', 'Ranau', 'Semporna'],
+                    'Sarawak': ['Kuching', 'Miri', 'Sibu', 'Bintulu', 'Kota Samarahan'],
+                    'Malacca': ['Malacca City', 'Alor Gajah', 'Jasin'],
+                    'Negeri Sembilan': ['Seremban', 'Port Dickson', 'Nilai', 'Kuala Pilah']
+                }
+            },
+            'TH': {
+                name: '泰国',
+                capital: 'Bangkok',
+                states: {
+                    'Bangkok': ['Bangkok', 'Nonthaburi', 'Pathum Thani', 'Samut Prakan', 'Nakhon Pathom'],
+                    'Chiang Mai': ['Chiang Mai', 'Chiang Rai', 'Mae Hong Son', 'Lamphun', 'Lampang'],
+                    'Phuket': ['Phuket', 'Karon', 'Patong', 'Kata', 'Rawai', 'Thalang'],
+                    'Krabi': ['Krabi', 'Ao Nang', 'Koh Lanta', 'Railay', 'Klong Muang'],
+                    'Surat Thani': ['Surat Thani', 'Koh Samui', 'Koh Phangan', 'Chaweng', 'Lamai'],
+                    'Pattaya': ['Pattaya', 'Jomtien', 'Bang Lamung', 'Prachuap Khiri Khan'],
+                    'Hua Hin': ['Hua Hin', 'Cha-am', 'Pranburi'],
+                    'Ayutthaya': ['Ayutthaya', 'Bang Pa-in', 'Phra Nakhon Si Ayutthaya']
+                }
+            },
+            'SG': {
+                name: '新加坡',
+                capital: 'Singapore City',
+                states: {
+                    'Central': ['Singapore City', 'Marina Bay', 'Orchard Road', 'Bugis', 'Chinatown', 'Clarke Quay'],
+                    'East': ['Bedok', 'Tampines', 'Pasir Ris', 'Simei', 'Changi', 'Katong'],
+                    'West': ['Jurong', 'Bukit Batok', 'Choa Chu Kang', 'Tuas', 'Pioneer', 'Boon Lay'],
+                    'North': ['Woodlands', 'Sembawang', 'Yishun', 'Admiralty', 'Marsiling', 'Kranji'],
+                    'North-East': ['Ang Mo Kio', 'Serangoon', 'Hougang', 'Punggol', 'Sengkang', 'Kallang']
+                }
+            },
+            'HK': {
+                name: '香港',
+                capital: 'Central',
+                states: {
+                    'Hong Kong Island': ['Central', 'Wan Chai', 'Causeway Bay', 'Tsim Sha Tsui', 'Sheung Wan', 'Stanley'],
+                    'Kowloon': ['Tsim Sha Tsui', 'Mong Kok', 'Yau Ma Tei', 'Sham Shui Po', 'Kowloon City', 'Kwun Tong'],
+                    'New Territories': ['Sha Tin', 'Tuen Mun', 'Yuen Long', 'Shatin', 'Tai Po', 'Fanling'],
+                    'Lantau Island': ['Tung Chung', 'Disneyland', 'Ngong Ping', 'Cheung Chau', 'Lamma Island'],
+                    'Outlying Islands': ['Lantau Island', 'Cheung Chau', 'Lamma Island', 'Peng Chau']
+                }
+            },
+            'TW': {
+                name: '台湾',
+                capital: 'Taipei City',
+                states: {
+                    'Taipei': ['Taipei City', 'New Taipei City', 'Keelung', 'Taipei County', 'Sanxia', 'Xindian'],
+                    'Taichung': ['Taichung City', 'Changhua', 'Nantou', 'Miaoli', 'Yunlin', 'Chiayi'],
+                    'Kaohsiung': ['Kaohsiung City', 'Pingtung', 'Tainan', 'Chiayi', 'Taitung', 'Penghu'],
+                    'Hsinchu': ['Hsinchu City', 'Hsinchu County', 'Zhubei', 'Miao Li', 'Taoyuan'],
+                    'Yilan': ['Yilan City', 'Suao', 'Luodong', 'Dongshan', 'Wujie', 'Toucheng']
+                }
+            },
+            'CN': {
+                name: '中国',
+                capital: 'Beijing City',
+                states: {
+                    'Beijing': ['Beijing City', 'Haidian District', 'Chaoyang District', 'Dongcheng District', 'Xicheng District', 'Shijingshan District'],
+                    'Shanghai': ['Shanghai City', 'Pudong New District', 'Xuhui District', 'Jingan District', 'Hongkou District', 'Changning District'],
+                    'Guangdong': ['Guangzhou', 'Shenzhen', 'Dongguan', 'Foshan', 'Zhuhai', 'Zhongshan', 'Huizhou'],
+                    'Jiangsu': ['Nanjing', 'Suzhou', 'Wuxi', 'Changzhou', 'Nantong', 'Yangzhou', 'Xuzhou'],
+                    'Zhejiang': ['Hangzhou', 'Ningbo', 'Wenzhou', 'Shaoxing', 'Huzhou', 'Jiaxing', 'Taizhou'],
+                    'Sichuan': ['Chengdu', 'Mianyang', 'Leshan', 'Deyang', 'Luzhou', 'Nanchong'],
+                    'Hubei': ['Wuhan', 'Xiangyang', 'Yichang', 'Jingzhou', 'Huanggang', 'Shiyan'],
+                    'Guangxi': ['Nanning', 'Guilin', 'Liuzhou', 'Beihai', 'Fangchenggang', 'Qinzhou']
+                }
+            },
+            'ID': {
+                name: '印度尼西亚',
+                capital: 'Jakarta',
+                states: {
+                    'Jakarta': ['Jakarta', 'Bogor', 'Tangerang', 'Depok', 'Bekasi', 'South Jakarta'],
+                    'Bali': ['Denpasar', 'Kuta', 'Seminyak', 'Ubud', 'Canggu', 'Jimbaran', 'Nusa Dua'],
+                    'Surabaya': ['Surabaya', 'Sidoarjo', 'Gresik', 'Mojokerto', 'Pasuruan', 'Malang'],
+                    'Bandung': ['Bandung', 'Cimahi', 'Bekasi', 'Subang', 'Purwakarta', 'Garut'],
+                    'Yogyakarta': ['Yogyakarta', 'Sleman', 'Bantul', 'Kulon Progo', 'Gunung Kidul'],
+                    'Medan': ['Medan', 'Binjai', 'Deli Serdang', 'Karo', 'Langkat'],
+                    'Makassar': ['Makassar', 'Maros', 'Gowa', 'Takalar', 'Jeneponto'],
+                    'Palembang': ['Palembang', 'Ogan Komering Ulu', 'Ogan Komering Ilir', 'Musi Banyuasin']
+                }
+            },
+            'PH': {
+                name: '菲律宾',
+                capital: 'Manila',
+                states: {
+                    'Metro Manila': ['Manila', 'Makati', 'Quezon City', 'Pasig', 'Taguig', 'Mandaluyong', 'Pasay'],
+                    'Cebu': ['Cebu City', 'Mandaue', 'Lapu-Lapu', 'Talisay', 'Minglanilla', 'Naga'],
+                    'Davao': ['Davao City', 'Digos', 'Tagum', 'Mati', 'Samal', 'Panabo'],
+                    'Bacolod': ['Bacolod City', 'Talisay', 'Silay', 'Victorias', 'Cadiz', 'Sagay'],
+                    'Iloilo': ['Iloilo City', 'Pavia', 'Leganes', 'Oton', 'Dumangas', 'Barotac Nuevo'],
+                    'Cagayan de Oro': ['Cagayan de Oro', 'El Salvador', 'Opol', 'Gingoog', 'Malaybalay'],
+                    'Zamboanga': ['Zamboanga City', 'Isabela', 'Pagadian', 'Dipolog', 'Oroquieta'],
+                    'Baguio': ['Baguio City', 'La Trinidad', 'Itogon', 'Tuba', 'Sablan']
+                }
+            },
+            'VN': {
+                name: '越南',
+                capital: 'Hanoi',
+                states: {
+                    'Hanoi': ['Hanoi', 'Ha Dong', 'Gia Lam', 'Thanh Xuan', 'Hoan Kiem', 'Ba Dinh'],
+                    'Ho Chi Minh City': ['Ho Chi Minh City', 'Thu Duc', 'Binh Chanh', 'District 1', 'District 3', 'District 5'],
+                    'Da Nang': ['Da Nang', 'Hai Chau', 'Son Tra', 'Ngu Hanh Son', 'Cam Le', 'Hoa Vang'],
+                    'Hue': ['Hue', 'Phu Vang', 'Huong Tra', 'Huong Thuy', 'Phu Loc', 'Quang Dien'],
+                    'Nha Trang': ['Nha Trang', 'Cam Ranh', 'Phan Rang', 'Phan Thiet', 'Mui Ne', 'Binh Thuan'],
+                    'Can Tho': ['Can Tho', 'Cai Rang', 'Ninh Kieu', 'Binh Thuy', 'Thot Not', 'Phong Dien'],
+                    'Da Lat': ['Da Lat', 'Lam Ha', 'Duc Trong', 'Don Duong', 'Lac Duong'],
+                    'Vung Tau': ['Vung Tau', 'Con Dao', 'Ba Ria', 'Long Dien', 'Xuyen Moc']
+                }
+            },
+            'KH': {
+                name: '柬埔寨',
+                capital: 'Phnom Penh',
+                states: {
+                    'Phnom Penh': ['Phnom Penh', 'Kandal', 'Takeo', 'Prek Phnov', 'Chbar Ampov', 'Mean Chey'],
+                    'Siem Reap': ['Siem Reap', 'Angkor Wat', 'Banteay Srei', 'Siem Reap Town', 'Banteay Samre', 'Ta Prohm'],
+                    'Sihanoukville': ['Sihanoukville', 'Kampot', 'Kep', 'Preah Sihanouk', 'Koh Rong', 'Koh Rong Samloem'],
+                    'Battambang': ['Battambang', 'Sangkae', 'Pursat', 'Siem Reap', 'Banteay Meanchey', 'Oddar Meanchey'],
+                    'Koh Kong': ['Koh Kong', 'Sre Ambel', 'Thma Bang', 'Khemarak Phoumin', 'Chi Phat', 'Tatai'],
+                    'Kampong Cham': ['Kampong Cham', 'Kampong Chhnang', 'Kampong Thom', 'Kratie', 'Stung Treng'],
+                    'Preah Vihear': ['Preah Vihear', 'Tbeng Meanchey', 'Kulen Mountain', 'Preah Khan', 'Banteay Chhmar']
+                }
+            },
+            'LA': {
+                name: '老挝',
+                capital: 'Vientiane',
+                states: {
+                    'Vientiane': ['Vientiane', 'Vang Vieng', 'Luang Prabang', 'Phonsavan', 'Thakhek', 'Savannakhet'],
+                    'Savannakhet': ['Savannakhet', 'Thakhek', 'Mukdahan', 'Khammouane', 'Mahaxay', 'Nakhon Phanom'],
+                    'Pakse': ['Pakse', 'Champasak', 'Si Phan Don', 'Lak Xao', 'Sekong', 'Attapeu'],
+                    'Luang Namtha': ['Luang Namtha', 'Muang Sing', 'Nong Khiaw', 'Phongsali', 'Udomxai', 'Luang Prabang'],
+                    'Xiangkhouang': ['Xiangkhouang', 'Phonsavan', 'Muang Phoukhoune', 'Khamkeut', 'Viengxay', 'Sam Neua']
+                }
+            },
+            'MM': {
+                name: '缅甸',
+                capital: 'Naypyidaw',
+                states: {
+                    'Yangon': ['Yangon', 'Pyin Oo Lwin', 'Bago', 'Mandalay', 'Mawlamyine', 'Pathein'],
+                    'Mandalay': ['Mandalay', 'Amarapura', 'Bagan', 'Pyay', 'Pakokku', 'Myitkyina'],
+                    'Naypyidaw': ['Naypyidaw', 'Pyinmana', 'Lewe', 'Tatkon', 'Oattara Thiri', 'Zeyathiri'],
+                    'Bago': ['Bago', 'Taungoo', 'Pegu', 'Monywa', 'Sittwe', 'Kyaing Tong'],
+                    'Mawlamyine': ['Mawlamyine', 'Kyaikto', 'Thaton', 'Hpa-an', 'Dawei', 'Myeik']
+                }
+            },
+            'BN': {
+                name: '文莱',
+                capital: 'Bandar Seri Begawan',
+                states: {
+                    'Brunei-Muara': ['Bandar Seri Begawan', 'Kuala Belait', 'Seria', 'Jerudong', 'Tutong', 'Bangar'],
+                    'Tutong': ['Tutong', 'Pekan Tutong', 'Rimba', 'Telisai', 'Lamunin', 'Ukong'],
+                    'Belait': ['Kuala Belait', 'Seria', 'Sungai Liang', 'Limbang', 'Lawas', 'Temburong'],
+                    'Temburong': ['Bangar', 'Limbang', 'Lawas', 'Ulu Temburong', 'Bukit Puan', 'Batang Duri']
+                }
+            }
+        };
+        
+        // 初始化地址选择
+        function initAddressSelectors() {
+            console.log('初始化地址选择器');
+            // 获取所有相关选择框
+            const countrySelects = document.querySelectorAll('select[id$="Country"]');
+            const stateSelects = document.querySelectorAll('select[id$="State"]');
+            const citySelects = document.querySelectorAll('select[id$="City"]');
+            
+            console.log('找到的国家选择框数量：', countrySelects.length);
+            console.log('找到的州选择框数量：', stateSelects.length);
+            console.log('找到的城市选择框数量：', citySelects.length);
+            
+            // 为所有国家选择框添加事件监听器
+            countrySelects.forEach(select => {
+                // 先移除可能存在的事件监听器
+                select.removeEventListener('change', handleCountryChange);
+                // 添加新的事件监听器
+                select.addEventListener('change', handleCountryChange);
+            });
+            
+            // 为所有州选择框添加事件监听器
+            stateSelects.forEach(select => {
+                // 先移除可能存在的事件监听器
+                select.removeEventListener('change', handleStateChange);
+                // 添加新的事件监听器
+                select.addEventListener('change', handleStateChange);
+            });
+            
+            // 初始化默认国家的选项
+            countrySelects.forEach(select => {
+                const countryCode = select.value;
+                const citySelect = document.getElementById(select.id.replace('Country', 'City'));
+                const stateSelect = document.getElementById(select.id.replace('Country', 'State'));
+                
+                if (countryCode) {
+                    // 启用州和城市选择框并更新选项
+                    updateStateOptions(countryCode, stateSelect, citySelect);
+                } else {
+                    // 清空选项
+                    stateSelect.innerHTML = '<option value="">请选择州/省</option>';
+                    citySelect.innerHTML = '<option value="">请选择城市</option>';
+                }
+            });
+        }
+        
+        // 处理国家选择变更
+        function handleCountryChange() {
+            const countryCode = this.value;
+            const citySelect = document.getElementById(this.id.replace('Country', 'City'));
+            const stateSelect = document.getElementById(this.id.replace('Country', 'State'));
+            
+            console.log('国家选择变更：', countryCode);
+            console.log('对应城市选择框：', citySelect.id);
+            console.log('对应州选择框：', stateSelect.id);
+            
+            // 根据是否选择了国家来更新选项
+            if (countryCode) {
+                updateStateOptions(countryCode, stateSelect, citySelect);
+            } else {
+                stateSelect.innerHTML = '<option value="">请选择州/省</option>';
+                citySelect.innerHTML = '<option value="">请选择城市</option>';
+            }
+        }
+        
+        // 处理州选择变更
+        function handleStateChange() {
+            const state = this.value;
+            const countrySelect = document.getElementById(this.id.replace('State', 'Country'));
+            const countryCode = countrySelect.value;
+            const citySelect = document.getElementById(this.id.replace('State', 'City'));
+            
+            console.log('州选择变更：', state);
+            console.log('对应国家选择框：', countrySelect.id);
+            console.log('对应城市选择框：', citySelect.id);
+            
+            updateCityOptions(countryCode, state, citySelect);
+        }
+        
+        // 更新州选项
+        function updateStateOptions(countryCode, stateSelect, citySelect) {
+            // 清空州和城市选项
+            stateSelect.innerHTML = '<option value="">请选择州/省</option>';
+            citySelect.innerHTML = '<option value="">请选择城市</option>';
+            
+            if (countryCode && countryData[countryCode]) {
+                const states = countryData[countryCode].states;
+                const capital = countryData[countryCode].capital;
+                let selectedState = null;
+                
+                // 找到包含首都的州
+                for (const state in states) {
+                    if (states[state].includes(capital)) {
+                        selectedState = state;
+                        break;
+                    }
+                }
+                
+                // 添加州选项
+                for (const state in states) {
+                    const option = document.createElement('option');
+                    option.value = state;
+                    option.textContent = state;
+                    // 默认选择包含首都的州
+                    if (state === selectedState) {
+                        option.selected = true;
+                    }
+                    stateSelect.appendChild(option);
+                }
+                
+                // 如果找到了包含首都的州，更新城市选项并默认选择首都
+                if (selectedState) {
+                    updateCityOptions(countryCode, selectedState, citySelect);
+                }
+            }
+        }
+        
+        // 更新城市选项
+        function updateCityOptions(countryCode, state, citySelect) {
+            // 清空城市选项
+            citySelect.innerHTML = '<option value="">请选择城市</option>';
+            
+            if (countryCode && state && countryData[countryCode] && countryData[countryCode].states[state]) {
+                const cities = countryData[countryCode].states[state];
+                const capital = countryData[countryCode].capital;
+                
+                cities.forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city;
+                    option.textContent = city;
+                    // 默认选择首都
+                    if (city === capital) {
+                        option.selected = true;
+                    }
+                    citySelect.appendChild(option);
+                });
+            }
+        }
+        
+        // 页面加载时初始化
+        window.addEventListener('load', function() {
+            // 初始化默认国家的支付方式
+            const defaultCountry = document.querySelector('.region-item.active').getAttribute('data-country');
+            updatePaymentMethods(defaultCountry);
+            
+            // 初始化e-form查看功能
+            initPdfViewer();
+            
+            // 初始化地址选择器
+            console.log('页面加载：准备初始化地址选择器');
+            initAddressSelectors();
+            console.log('页面加载：地址选择器初始化完成');
+        });
+        
+        // 验证个人信息表单
+        function validatePersonalForm() {
+            const form = document.getElementById('personalForm');
+            const requiredFields = form.querySelectorAll('.form-group .required + input[required], .form-group .required + select[required], .form-group .required + .radio-group');
+            
+            let isValid = true;
+            let errorMessage = '';
+            
+            requiredFields.forEach(field => {
+                if (field.tagName === 'INPUT') {
+                    if (!field.value.trim()) {
+                        isValid = false;
+                        errorMessage = '请填写所有必填项';
+                    }
+                } else if (field.tagName === 'SELECT') {
+                    if (!field.value) {
+                        isValid = false;
+                        errorMessage = '请填写所有必填项';
+                    }
+                } else if (field.classList.contains('radio-group')) {
+                    const radioChecked = field.querySelector('input[type="radio"]:checked');
+                    if (!radioChecked) {
+                        isValid = false;
+                        errorMessage = '请填写所有必填项';
+                    }
+                }
+            });
+            
+            if (isValid) {
+                const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+                
+                if (paymentMethod === 'bank') {
+                    document.querySelectorAll('#bankAccountFields input, #bankAccountFields select').forEach(field => {
+                        field.disabled = true;
+                    });
+                } else if (paymentMethod === 'gcc') {
+                    document.querySelectorAll('#cardFields input').forEach(field => {
+                        field.disabled = true;
+                    });
+                    document.getElementById('gccExpMonth').disabled = false;
+                    document.getElementById('gccExpYear').disabled = false;
+                } else if (paymentMethod === 'mpay') {
+                    document.querySelectorAll('#mpayFields input').forEach(field => {
+                        field.disabled = true;
+                    });
+                    document.getElementById('mpayExpMonth').disabled = false;
+                    document.getElementById('mpayExpYear').disabled = false;
+                }
+                
+                showToast('操作成功');
+            } else {
+                showToast(errorMessage);
+            }
+        }
+        
+        // 验证联络信息表单
+        function validateContactForm() {
+            const preferredContact = document.querySelector('input[name="preferredContact"]:checked').value;
+            let isValid = true;
+            let errorMessage = '';
+            
+            // 验证首选联系人对应的字段
+            if (preferredContact === 'email') {
+                const email = document.getElementById('email').value;
+                if (!email.trim()) {
+                    isValid = false;
+                    errorMessage = '请填写电子邮箱';
+                }
+            } else if (preferredContact === 'phone') {
+                const phone = document.getElementById('phone').value;
+                if (!phone.trim()) {
+                    isValid = false;
+                    errorMessage = '请填写手机号码';
+                }
+            }
+            
+            if (isValid) {
+                showToast('操作成功');
+            } else {
+                showToast(errorMessage);
+            }
+        }
+        
+        // 验证奖金信息表单
+        function validatePaymentForm() {
+            const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+            let isValid = true;
+            let errorMessage = '';
+            
+            // 根据选择的支付方式验证对应的必填项
+            if (paymentMethod === 'bank') {
+                const bankName = document.getElementById('bankName').value;
+                const bankAccount = document.querySelector('#bankAccountFields input[type="text"][required]').value;
+                
+                if (!bankName) {
+                    isValid = false;
+                    errorMessage = '请选择银行名称';
+                } else if (!bankAccount.trim()) {
+                    isValid = false;
+                    errorMessage = '请填写银行账号';
+                }
+            } else if (paymentMethod === 'gcc') {
+                const cardNumber = document.querySelector('#cardFields input[type="text"][required]').value;
+                const expMonth = document.getElementById('gccExpMonth').value;
+                const expYear = document.getElementById('gccExpYear').value;
+                
+                if (!cardNumber.trim()) {
+                    isValid = false;
+                    errorMessage = '请填写银行卡号';
+                } else if (!expMonth) {
+                    isValid = false;
+                    errorMessage = '请选择到期月份';
+                } else if (!expYear) {
+                    isValid = false;
+                    errorMessage = '请选择到期年份';
+                }
+            } else if (paymentMethod === 'mpay') {
+                const cardNumber = document.querySelector('#mpayFields input[type="text"][required]').value;
+                const expMonth = document.getElementById('mpayExpMonth').value;
+                const expYear = document.getElementById('mpayExpYear').value;
+                
+                if (!cardNumber.trim()) {
+                    isValid = false;
+                    errorMessage = '请填写卡号';
+                } else if (!expMonth) {
+                    isValid = false;
+                    errorMessage = '请选择到期月份';
+                } else if (!expYear) {
+                    isValid = false;
+                    errorMessage = '请选择到期年份';
+                }
+            }
+            
+            if (isValid) {
+                const country = document.querySelector('.region-item.active').getAttribute('data-country');
+                const savedConfig = JSON.parse(localStorage.getItem('paymentConfig') || '{}');
+                savedConfig[country] = paymentMethod;
+                localStorage.setItem('paymentConfig', JSON.stringify(savedConfig));
+
+                if (paymentMethod === 'bank') {
+                    document.getElementById('bankCountry').disabled = true;
+                    document.getElementById('bankName').disabled = true;
+                    document.getElementById('swiftCode').disabled = true;
+                    document.querySelector('#bankAccountFields input[type="text"][placeholder="请输入银行账号"]').disabled = true;
+                    document.querySelector('#bankAccountFields input[value="EW1"]').disabled = true;
+                } else if (paymentMethod === 'gcc') {
+                    document.getElementById('gccCardCountry').disabled = true;
+                    document.querySelector('#cardFields input[value="EW1"]').disabled = true;
+                    document.querySelector('#cardFields input[placeholder="请输入银行卡号"]').disabled = true;
+                    document.getElementById('gccExpMonth').disabled = false;
+                    document.getElementById('gccExpYear').disabled = false;
+                } else if (paymentMethod === 'mpay') {
+                    document.getElementById('mpayCountry').disabled = true;
+                    document.querySelector('#mpayFields input[value="EW1"]').disabled = true;
+                    document.querySelector('#mpayFields input[placeholder="请输入卡号"]').disabled = true;
+                    document.getElementById('mpayExpMonth').disabled = false;
+                    document.getElementById('mpayExpYear').disabled = false;
+                    document.getElementById('payoutCompany').disabled = true;
+                }
+
+                showToast('操作成功');
+
+                setTimeout(() => {
+                    updatePaymentMethods(country);
+                }, 100);
+            } else {
+                showToast(errorMessage);
+            }
+        }
+
+        // 页面DOM加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM加载完成：准备初始化地址选择器');
+            // 延迟一下确保所有元素都已加载
+            setTimeout(function() {
+                initAddressSelectors();
+                console.log('DOM加载完成：地址选择器初始化完成');
+            }, 100);
+        });
+        
+        // 初始化PDF查看功能
+        function initPdfViewer() {
+            console.log('开始初始化PDF查看功能');
+            
+            // 等待DOM完全加载
+            setTimeout(function() {
+                const pdfLinks = document.querySelectorAll('#policies a');
+                const pdfRows = document.querySelectorAll('#policies .data-row');
+                const pdfModal = document.getElementById('pdfViewerModal');
+                const pdfTitle = document.getElementById('pdfTitle');
+                const pdfViewer = document.getElementById('pdfViewer');
+                const closePdfModal = document.getElementById('closePdfModal');
+                const closePdfBtn = document.getElementById('closePdfBtn');
+                
+                console.log('初始化PDF查看功能，找到的链接数量：', pdfLinks.length);
+                console.log('初始化PDF查看功能，找到的行数量：', pdfRows.length);
+                console.log('PDF模态框元素：', pdfModal);
+                console.log('PDF标题元素：', pdfTitle);
+                console.log('PDF查看器元素：', pdfViewer);
+                console.log('关闭按钮元素：', closePdfModal);
+                console.log('关闭按钮元素2：', closePdfBtn);
+                
+                // 为每个查看链接添加点击事件
+                pdfLinks.forEach((link, index) => {
+                    console.log('为链接', index, '添加点击事件');
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        console.log('点击了查看链接');
+                        const fileName = this.closest('.data-row').querySelector('.data-label').textContent;
+                        
+                        // 设置PDF标题
+                        pdfTitle.textContent = fileName;
+                        
+                        // 跳转到政策文件详情页面
+                        const policyUrl = `policy_detail.html`;
+                        
+                        console.log('跳转到政策文件详情页面：', policyUrl);
+                        window.location.href = policyUrl;
+                    });
+                });
+                
+                // 为每一行添加点击事件，使整行都可以触发查看功能
+                pdfRows.forEach((row, index) => {
+                    console.log('为行', index, '添加点击事件');
+                    row.addEventListener('click', function() {
+                        console.log('点击了整行');
+                        const link = this.querySelector('a');
+                        if (link) {
+                            console.log('找到链接，触发点击');
+                            link.click();
+                        } else {
+                            console.log('未找到链接');
+                        }
+                    });
+                });
+                
+                // 关闭模态框
+                if (closePdfModal) {
+                    closePdfModal.addEventListener('click', function() {
+                        console.log('点击关闭按钮');
+                        pdfModal.classList.remove('active');
+                        pdfViewer.src = '';
+                    });
+                }
+                
+                if (closePdfBtn) {
+                    closePdfBtn.addEventListener('click', function() {
+                        console.log('点击关闭按钮');
+                        pdfModal.classList.remove('active');
+                        pdfViewer.src = '';
+                    });
+                }
+                
+                // 点击模态框外部关闭
+                window.addEventListener('click', function(event) {
+                    if (event.target == pdfModal) {
+                        console.log('点击模态框外部');
+                        pdfModal.classList.remove('active');
+                        pdfViewer.src = '';
+                    }
+                });
+                
+                console.log('PDF查看功能初始化完成');
+            }, 100);
+        }
+    </script>
+<!-- 非模态提示框 -->
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        // 显示非模态提示框
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+        
+        // 替换所有alert为showToast
+        window.alert = function(message) {
+            showToast(message);
+        };
+        
+        // 根据所得税国家显示/隐藏税号字段
+        function updateTaxField() {
+            const country = document.getElementById('incomeTaxCountry').value;
+            const taxIdField = document.getElementById('taxIdField');
+            const taxIdLabel = document.getElementById('taxIdLabel');
+            
+            const taxCountries = ['MY', 'TW', 'PH'];
+            
+            if (taxCountries.includes(country)) {
+                taxIdField.style.display = 'block';
+                const countryNames = {
+                    'MY': '马来西亚',
+                    'TW': '台湾',
+                    'PH': '菲律宾'
+                };
+                taxIdLabel.textContent = countryNames[country] + '税务编号';
+            } else {
+                taxIdField.style.display = 'none';
+            }
+        }
+        
+        // 页面加载时初始化税号字段状态
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTaxField();
+        });
+    </script>
+
+    <!-- Language Selector -->
+    <div id="langSelector" class="lang-selector">
+        <div class="lang-btn" id="langBtn">
+            <span>🌐</span>
+        </div>
+        <div class="lang-dropdown" id="langDropdown">
+            <div class="lang-option" data-lang="en">English</div>
+            <div class="lang-option" data-lang="ms">Bahasa Malaysia</div>
+            <div class="lang-option" data-lang="zh-CN">简体中文</div>
+            <div class="lang-option" data-lang="zh-TW">繁體中文 (台灣)</div>
+            <div class="lang-option" data-lang="zh-HK">繁體中文 (香港)</div>
+            <div class="lang-option" data-lang="id">Bahasa Indonesia</div>
+            <div class="lang-option" data-lang="th">ไทย</div>
+            <div class="lang-option" data-lang="km">ខ្មែរ</div>
+        </div>
+    </div>
+
+    <style>
+        .lang-selector {
+            position: fixed;
+            z-index: 9999;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .lang-btn {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            font-size: 24px;
+            user-select: none;
+            transition: transform 0.2s ease;
+        }
+
+        .lang-btn:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+
+        .lang-dropdown {
+            display: none;
+            position: absolute;
+            bottom: 60px;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            overflow: hidden;
+            min-width: 180px;
+        }
+
+        .lang-dropdown.show {
+            display: block;
+            animation: slideUp 0.2s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .lang-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .lang-option:hover {
+            background-color: #f5f5f5;
+        }
+
+        .lang-option.active {
+            background-color: #667eea;
+            color: white;
+        }
+    </style>
+
+    <script>
+        (function() {
+            const translations = {
+                en: {
+                    '账号基础信息': 'Account Basic Information',
+                    '等级体系': 'Rank System',
+                    '推荐关系': 'Referral Relationship',
+                    '税务信息': 'Tax Information',
+                    '编辑个人信息': 'Edit Personal Information',
+                    'Translated Name': 'Translated Name',
+                    '会员ID': 'Member ID',
+                    '马来西亚税务编号': 'Malaysia Tax Number',
+                    '台湾税务编号': 'Taiwan Tax Number',
+                    '菲律宾税务编号': 'Philippines Tax Number',
+                    '证件上传': 'Document Upload',
+                    '联络详情': 'Contact Details',
+                    '住宅电话': 'Home Phone',
+                    '办公电话': 'Office Phone',
+                    '首选联络人': 'Preferred Contact',
+                    '我的电子邮件': 'My Email',
+                    '手机号码': 'Mobile Number',
+                    '获取验证码': 'Get Code',
+                    '验证码': 'Verification Code',
+                    '地址1': 'Address 1',
+                    '地址2': 'Address 2',
+                    '地址3': 'Address 3',
+                    '地址4': 'Address 4',
+                    '城市': 'City',
+                    '州/省': 'State/Province',
+                    '邮编': 'Postal Code',
+                    '国家': 'Country',
+                    '支付地区': 'Payment Region',
+                    '支付方式配置': 'Payment Method Configuration',
+                    '银行账户信息': 'Bank Account Information',
+                    '银行国家': 'Bank Country',
+                    '银行名称': 'Bank Name',
+                    'SWIFT代码': 'SWIFT Code',
+                    '银行账号': 'Bank Account',
+                    '账户持有人姓名': 'A/C Holder Name',
+                    '银行卡信息': 'GCC Card Information',
+                    '卡片国家': 'Card Country',
+                    '持卡人姓名': 'Card Holder Name',
+                    '卡号': 'Card Number',
+                    '到期月份': 'Expiry Month',
+                    '到期年份': 'Expiry Year',
+                    'Mpay信息': 'Mpay Information',
+                    '支付公司': 'Payout Company',
+                    '安置偏好设置': 'Placement Preference Settings',
+                    '下次安置位置': 'Next Placement Position',
+                    'e-form': 'e-form',
+                    '我的名片': 'My Card',
+                    '保存更改': 'Save Changes',
+                    '保存联络信息': 'Save Contact Info',
+                    '请选择银行': 'Please Select Bank',
+                    '请输入银行账号': 'Please Enter Bank Account',
+                    '请输入银行卡号': 'Please Enter Card Number',
+                    '请输入卡号': 'Please Enter Card Number',
+                    '请选择': 'Please Select',
+                    '请输入电子邮件地址': 'Please Enter Email Address',
+                    '请输入手机号码': 'Please Enter Mobile Number',
+                    '01月': 'Jan', '02月': 'Feb', '03月': 'Mar', '04月': 'Apr',
+                    '05月': 'May', '06月': 'Jun', '07月': 'Jul', '08月': 'Aug',
+                    '09月': 'Sep', '10月': 'Oct', '11月': 'Nov', '12月': 'Dec',
+                    '我的Elken业务': 'My Elken Business',
+                    '安置网络': 'Placement Network',
+                    '推荐网络': 'Referral Network',
+                    '收入记录': 'Income Record',
+                    '促销优惠': 'Promotions',
+                    '政策': 'Policies',
+                    '语言': 'Language',
+                    '个人': 'Personal',
+                    '安置': 'Placement',
+                    '推荐': 'Referral',
+                    '奖金': 'Bonus',
+                    '地址管理': 'Address Management',
+                    '新增地址': 'Add New Address',
+                    '默认': 'Default',
+                    '编辑': 'Edit',
+                    '删除': 'Delete',
+                    '设为默认': 'Set as Default',
+                    '必填项': 'This field is required',
+                    '请填写所有必填项': 'Please fill in all required fields',
+                    'Email': 'Email',
+                    'Phone': 'Phone',
+                    'Bank': 'Bank',
+                    'GCC': 'GCC',
+                    'Mpay': 'Mpay',
+                    '马来亚银行': 'Maybank',
+                    'CIMB银行': 'CIMB Bank',
+                    'RHB银行': 'RHB Bank',
+                    '大众银行': 'Public Bank',
+                    '电子商务国家': 'E-Commerce Country',
+                    '婚姻状况': 'Marital Status',
+                    '所得税国家': 'Income Tax Country',
+                    '证件类型': 'Document Type',
+                    '身份证': 'IC',
+                    '护照': 'Passport',
+                    '其他': 'Others',
+                    '上传证件': 'Upload Document',
+                    '保存': 'Save',
+                    '取消': 'Cancel',
+                    '确定': 'Confirm',
+                    '提示': 'Notice',
+                    '成功': 'Success',
+                    '失败': 'Failed',
+                    '操作成功': 'Operation Successful',
+                    '存在完全相同地址，请修改': 'An identical address already exists, please modify',
+                    '新地址添加成功': 'New address added successfully',
+                    '请填写所有必填项': 'Please fill in all required fields',
+                    '所得税国家': 'Income Tax Country',
+                    'My preferred mode to receive verification code': 'My preferred mode to receive verification code',
+                    '单身': 'Single',
+                    '已婚': 'Married',
+                    '离婚': 'Divorced',
+                    '丧偶': 'Widowed',
+                    '其他': 'Others'
+                },
+                ms: {
+                    '账号基础信息': 'Maklumat Asas Akaun',
+                    '等级体系': 'Sistem Pangkat',
+                    '推荐关系': 'Hubungan Rujukan',
+                    '税务信息': 'Maklumat Cukai',
+                    '编辑个人信息': 'Edit Maklumat Peribadi',
+                    'Translated Name': 'Nama Diterjemahkan',
+                    '会员ID': 'ID Ahli',
+                    '马来西亚税务编号': 'Nombor Cukai Malaysia',
+                    '证件上传': 'Muat Naik Dokumen',
+                    '联络详情': 'Butiran Hubungan',
+                    '住宅电话': 'Telefon Rumah',
+                    '办公电话': 'Telefon Pejabat',
+                    '首选联络人': 'Hubungan Pilihan',
+                    '我的电子邮件': 'E-mel Saya',
+                    '手机号码': 'Nombor Telefon',
+                    '获取验证码': 'Dapatkan Kod',
+                    '地址1': 'Alamat 1',
+                    '地址2': 'Alamat 2',
+                    '地址3': 'Alamat 3',
+                    '地址4': 'Alamat 4',
+                    '城市': 'Bandar',
+                    '州/省': 'Negeri',
+                    '邮编': 'Poskod',
+                    '国家': 'Negara',
+                    '支付地区': 'Wilayah Pembayaran',
+                    '支付方式配置': 'Konfigurasi Kaedah Pembayaran',
+                    '银行账户信息': 'Maklumat Akaun Bank',
+                    '银行国家': 'Negara Bank',
+                    '银行名称': 'Nama Bank',
+                    'SWIFT代码': 'Kod SWIFT',
+                    '银行账号': 'Akaun Bank',
+                    '账户持有人姓名': 'Nama Pemegang Akaun',
+                    '银行卡信息': 'Maklumat Kad GCC',
+                    '卡片国家': 'Negara Kad',
+                    '持卡人姓名': 'Nama Pemegang Kad',
+                    '卡号': 'Nombor Kad',
+                    '到期月份': 'Bulan Tamat',
+                    '到期年份': 'Tahun Tamat',
+                    'Mpay信息': 'Maklumat Mpay',
+                    '支付公司': 'Syarikat Pembayaran',
+                    '安置偏好设置': 'Tetapan Keutamaan Penempatan',
+                    '下次安置位置': 'Kedudukan Penempatan seterusnya',
+                    'e-form': 'e-form',
+                    '我的名片': 'Kad Saya',
+                    '保存更改': 'Simpan Perubahan',
+                    '保存联络信息': 'Simpan Maklumat Hubungan',
+                    '我的Elken业务': 'Perniagaan Elken Saya',
+                    '安置网络': 'Rangkaian Penempatan',
+                    '推荐网络': 'Rangkaian Rujukan',
+                    '收入记录': 'Rekod Pendapatan',
+                    '促销优惠': 'Promosi',
+                    '政策': 'Polisi',
+                    '个人': 'Peribadi',
+                    '安置': 'Penempatan',
+                    '推荐': 'Rujukan',
+                    '奖金': 'Bonus',
+                    '地址管理': 'Pengurusan Alamat',
+                    '新增地址': 'Tambah Alamat Baru',
+                    '默认': 'Lalai',
+                    '编辑': 'Edit',
+                    '删除': 'Padam',
+                    '设为默认': 'Tetapkan sebagai Lalai',
+                    'Email': 'E-mel',
+                    'Phone': 'Telefon',
+                    'Bank': 'Bank',
+                    'GCC': 'GCC',
+                    'Mpay': 'Mpay',
+                    '马来亚银行': 'Maybank',
+                    'CIMB银行': 'CIMB Bank',
+                    'RHB银行': 'RHB Bank',
+                    '大众银行': 'Public Bank',
+                    '电子商务国家': 'Negara E-Dagang',
+                    '婚姻状况': 'Status Perkahwinan',
+                    '所得税国家': 'Negara Cukai Pendapatan',
+                    '证件类型': 'Jenis Dokumen',
+                    '身份证': 'IC',
+                    '护照': 'Pasport',
+                    '其他': 'Lain-lain',
+                    '上传证件': 'Muat Naik Dokumen',
+                    '保存': 'Simpan',
+                    '取消': 'Batal',
+                    '确定': 'Pastikan',
+                    '提示': 'Perhatian',
+                    '成功': 'Berjaya',
+                    '失败': 'Gagal',
+                    '操作成功': 'Operasi Berjaya',
+                    '存在完全相同地址，请修改': 'Alamat yang sama sudah wujud, sila ubah',
+                    '新地址添加成功': 'Alamat baharu berjaya ditambah',
+                    '请填写所有必填项': 'Sila isi semua ruangan yang diperlukan',
+                    'My preferred mode to receive verification code': 'Mod pilihan saya untuk menerima kod pengesahan',
+                    '单身': 'Bujang',
+                    '已婚': 'Berkahwin',
+                    '离婚': 'Bercerai',
+                    '丧偶': 'Duda/Balu',
+                    '其他': 'Lain-lain'
+                },
+                'zh-CN': {
+                    '账号基础信息': '账户基本信息',
+                    '等级体系': '等级体系',
+                    '推荐关系': '推荐关系',
+                    '税务信息': '税务信息',
+                    '编辑个人信息': '编辑个人信息',
+                    '会员ID': '会员ID',
+                    '马来西亚税务编号': '马来西亚税务编号',
+                    '证件上传': '证件上传',
+                    '联络详情': '联络详情',
+                    '首选联络人': '首选联络人',
+                    '我的电子邮件': '我的电子邮件',
+                    '手机号码': '手机号码',
+                    '获取验证码': '获取验证码',
+                    '地址2': '地址2',
+                    '地址3': '地址3',
+                    '地址4': '地址4',
+                    '城市': '城市',
+                    '州/省': '州/省',
+                    '邮编': '邮编',
+                    '国家': '国家',
+                    '支付地区': '支付地区',
+                    '支付方式配置': '支付方式配置',
+                    '银行账户信息': '银行账户信息',
+                    '银行国家': '银行国家',
+                    '银行名称': '银行名称',
+                    'SWIFT代码': 'SWIFT代码',
+                    '银行账号': '银行账号',
+                    '账户持有人姓名': '账户持有人姓名',
+                    '银行卡信息': '银行卡信息',
+                    '卡片国家': '卡片国家',
+                    '持卡人姓名': '持卡人姓名',
+                    '卡号': '卡号',
+                    '到期月份': '到期月份',
+                    '到期年份': '到期年份',
+                    'Mpay信息': 'Mpay信息',
+                    '支付公司': '支付公司',
+                    '安置偏好设置': '安置偏好设置',
+                    '下次安置位置': '下次安置位置',
+                    'e-form': 'e-form',
+                    '我的名片': '我的名片',
+                    '保存更改': '保存更改',
+                    '保存联络信息': '保存联络信息',
+                    '我的Elken业务': '我的Elken业务',
+                    '安置网络': '安置网络',
+                    '推荐网络': '推荐网络',
+                    '收入记录': '收入记录',
+                    '促销优惠': '促销优惠',
+                    '政策': '政策',
+                    '个人': '个人',
+                    '安置': '安置',
+                    '推荐': '推荐',
+                    '奖金': '奖金',
+                    '地址管理': '地址管理',
+                    '新增地址': '新增地址',
+                    '默认': '默认',
+                    '编辑': '编辑',
+                    '删除': '删除',
+                    '设为默认': '设为默认'
+                },
+                'zh-TW': {
+                    '账号基础信息': '帳戶基本信息',
+                    '等级体系': '等級體系',
+                    '推荐关系': '推薦關係',
+                    '税务信息': '稅務信息',
+                    '编辑个人信息': '編輯個人信息',
+                    '会员ID': '會員ID',
+                    '马来西亚税务编号': '馬來西亞稅務編號',
+                    '证件上传': '證件上傳',
+                    '联络详情': '聯絡詳情',
+                    '首选联络人': '首選聯絡人',
+                    '我的电子邮件': '我的電子郵件',
+                    '手机号码': '手機號碼',
+                    '获取验证码': '獲取驗證碼',
+                    '地址2': '地址2',
+                    '地址3': '地址3',
+                    '地址4': '地址4',
+                    '城市': '城市',
+                    '州/省': '州/省',
+                    '邮编': '郵編',
+                    '国家': '國家',
+                    '支付地区': '支付地區',
+                    '支付方式配置': '支付方式配置',
+                    '银行账户信息': '銀行帳戶信息',
+                    '银行国家': '銀行國家',
+                    '银行名称': '銀行名稱',
+                    'SWIFT代码': 'SWIFT代碼',
+                    '银行账号': '銀行帳號',
+                    '账户持有人姓名': '帳戶持有人姓名',
+                    '银行卡信息': '銀行卡信息',
+                    '卡片国家': '卡片國家',
+                    '持卡人姓名': '持卡人姓名',
+                    '卡号': '卡號',
+                    '到期月份': '到期月份',
+                    '到期年份': '到期年份',
+                    'Mpay信息': 'Mpay信息',
+                    '支付公司': '支付公司',
+                    '安置偏好设置': '安置偏好設置',
+                    '下次安置位置': '下次安置位置',
+                    'e-form': 'e-form',
+                    '我的名片': '我的名片',
+                    '保存更改': '保存更改',
+                    '保存联络信息': '儲存聯絡資訊',
+                    '我的Elken业务': '我的Elken業務',
+                    '安置网络': '安置網絡',
+                    '推荐网络': '推薦網絡',
+                    '收入记录': '收入記錄',
+                    '促销优惠': '促銷優惠',
+                    '政策': '政策',
+                    '个人': '個人',
+                    '安置': '安置',
+                    '推荐': '推薦',
+                    '奖金': '獎金',
+                    '地址管理': '地址管理',
+                    '新增地址': '新增地址',
+                    '默认': '默認',
+                    '编辑': '編輯',
+                    '删除': '刪除',
+                    '设为默认': '設為默認'
+                },
+                'zh-HK': {
+                    '账号基础信息': '帳戶基本資訊',
+                    '等级体系': '等級體系',
+                    '推荐关系': '推薦關係',
+                    '税务信息': '稅務資訊',
+                    '编辑个人信息': '編輯個人資訊',
+                    '会员ID': '會員ID',
+                    '马来西亚税务编号': '馬來西亞稅務編號',
+                    '证件上传': '證件上傳',
+                    '联络详情': '聯絡詳情',
+                    '首选联络人': '首選聯絡人',
+                    '我的电子邮件': '我的電子郵件',
+                    '手机号码': '手機號碼',
+                    '获取验证码': '獲取驗證碼',
+                    '地址2': '地址2',
+                    '地址3': '地址3',
+                    '地址4': '地址4',
+                    '城市': '城市',
+                    '州/省': '州/省',
+                    '邮编': '郵編',
+                    '国家': '國家',
+                    '支付地区': '支付地區',
+                    '支付方式配置': '支付方式配置',
+                    '银行账户信息': '銀行帳戶資訊',
+                    '银行国家': '銀行國家',
+                    '银行名称': '銀行名稱',
+                    'SWIFT代码': 'SWIFT代碼',
+                    '银行账号': '銀行帳號',
+                    '账户持有人姓名': '帳戶持有人姓名',
+                    '银行卡信息': '銀行卡資訊',
+                    '卡片国家': '卡片國家',
+                    '持卡人姓名': '持卡人姓名',
+                    '卡号': '卡號',
+                    '到期月份': '到期月份',
+                    '到期年份': '到期年份',
+                    'Mpay信息': 'Mpay資訊',
+                    '支付公司': '支付公司',
+                    '安置偏好设置': '安置偏好設置',
+                    '下次安置位置': '下次安置位置',
+                    'e-form': 'e-form',
+                    '我的名片': '我的名片',
+                    '保存更改': '保存更改',
+                    '保存联络信息': '儲存聯絡資訊',
+                    '我的Elken业务': '我的Elken業務',
+                    '安置网络': '安置網絡',
+                    '推荐网络': '推薦網絡',
+                    '收入记录': '收入記錄',
+                    '促销优惠': '促銷優惠',
+                    '政策': '政策',
+                    '个人': '個人',
+                    '安置': '安置',
+                    '推荐': '推薦',
+                    '奖金': '獎金',
+                    '地址管理': '地址管理',
+                    '新增地址': '新增地址',
+                    '默认': '默認',
+                    '编辑': '編輯',
+                    '删除': '刪除',
+                    '设为默认': '設為默認'
+                },
+                id: {
+                    '账号基础信息': 'Informasi Dasar Akun',
+                    '等级体系': 'Sistem Pangkat',
+                    '推荐关系': 'Hubungan Referral',
+                    '税务信息': 'Informasi Pajak',
+                    '编辑个人信息': 'Edit Informasi Pribadi',
+                    '会员ID': 'ID Anggota',
+                    '马来西亚税务编号': 'Nomor Pajak Malaysia',
+                    '证件上传': 'Unggah Dokumen',
+                    '联络详情': 'Detail Kontak',
+                    '住宅电话': 'Telepon Rumah',
+                    '办公电话': 'Telepon Kantor',
+                    '首选联络人': 'Kontak Pilihan',
+                    '我的电子邮件': 'Email Saya',
+                    '手机号码': 'Nomor Telepon',
+                    '获取验证码': 'Dapatkan Kode',
+                    '地址2': 'Alamat 2',
+                    '地址3': 'Alamat 3',
+                    '地址4': 'Alamat 4',
+                    '城市': 'Kota',
+                    '州/省': 'Provinsi',
+                    '邮编': 'Kode Pos',
+                    '国家': 'Negara',
+                    '支付地区': 'Wilayah Pembayaran',
+                    '支付方式配置': 'Konfigurasi Metode Pembayaran',
+                    '银行账户信息': 'Informasi Rekening Bank',
+                    '银行国家': 'Negara Bank',
+                    '银行名称': 'Nama Bank',
+                    'SWIFT代码': 'Kode SWIFT',
+                    '银行账号': 'Nomor Rekening',
+                    '账户持有人姓名': 'Nama Pemegang Rekening',
+                    '银行卡信息': 'Informasi Kartu GCC',
+                    '卡片国家': 'Negara Kartu',
+                    '持卡人姓名': 'Nama Pemegang Kartu',
+                    '卡号': 'Nomor Kartu',
+                    '到期月份': 'Bulan Kadaluarsa',
+                    '到期年份': 'Tahun Kadaluarsa',
+                    'Mpay信息': 'Informasi Mpay',
+                    '支付公司': 'Perusahaan Pembayaran',
+                    '安置偏好设置': 'Pengaturan Preferensi Penempatan',
+                    '下次安置位置': 'Posisi Penempatan Berikutnya',
+                    'e-form': 'e-form',
+                    '我的名片': 'Kartu Saya',
+                    '保存更改': 'Simpan Perubahan',
+                    '保存联络信息': 'Simpan Info Kontak',
+                    '我的Elken业务': 'Bisnis Elken Saya',
+                    '安置网络': 'Jaringan Penempatan',
+                    '推荐网络': 'Jaringan Referral',
+                    '收入记录': 'Catatan Pendapatan',
+                    '促销优惠': 'Promosi',
+                    '政策': 'Kebijakan',
+                    '个人': 'Pribadi',
+                    '安置': 'Penempatan',
+                    '推荐': 'Referral',
+                    '奖金': 'Bonus',
+                    '地址管理': 'Pengelolaan Alamat',
+                    '新增地址': 'Tambah Alamat Baru',
+                    '默认': 'Default',
+                    '编辑': 'Edit',
+                    '删除': 'Hapus',
+                    '设为默认': 'Jadikan Default'
+                },
+                th: {
+                    '账号基础信息': 'ข้อมูลบัญชีพื้นฐาน',
+                    '等级体系': 'ระบบลำดับชั้น',
+                    '推荐关系': 'ความสัมพันธ์ผู้แนะนำ',
+                    '税务信息': 'ข้อมูลภาษี',
+                    '编辑个人信息': 'แก้ไขข้อมูลส่วนตัว',
+                    '会员ID': 'รหัสสมาชิก',
+                    '马来西亚税务编号': 'หมายเลขภาษีมาเลเซีย',
+                    '证件上传': 'อัปโหลดเอกสาร',
+                    '联络详情': 'รายละเอียดการติดต่อ',
+                    '住宅电话': 'โทรศัพท์บ้าน',
+                    '办公电话': 'โทรศัพท์สำนักงาน',
+                    '首选联络人': 'ช่องทางติดต่อที่ต้องการ',
+                    '我的电子邮件': 'อีเมลของฉัน',
+                    '手机号码': 'หมายเลขโทรศัพท์',
+                    '获取验证码': 'รับรหัส',
+                    '地址2': 'ที่อยู่ 2',
+                    '地址3': 'ที่อยู่ 3',
+                    '地址4': 'ที่อยู่ 4',
+                    '城市': 'เมือง',
+                    '州/省': 'จังหวัด',
+                    '邮编': 'รหัสไปรษณีย์',
+                    '国家': 'ประเทศ',
+                    '支付地区': 'ภูมิภาคการชำระเงิน',
+                    '支付方式配置': 'การตั้งค่าวิธีการชำระเงิน',
+                    '银行账户信息': 'ข้อมูลบัญชีธนาคาร',
+                    '银行国家': 'ประเทศธนาคาร',
+                    '银行名称': 'ชื่อธนาคาร',
+                    'SWIFT代码': 'รหัส SWIFT',
+                    '银行账号': 'หมายเลขบัญชี',
+                    '账户持有人姓名': 'ชื่อผู้ถือบัญชี',
+                    '银行卡信息': 'ข้อมูลบัตร GCC',
+                    '卡片国家': 'ประเทศบัตร',
+                    '持卡人姓名': 'ชื่อผู้ถือบัตร',
+                    '卡号': 'หมายเลขบัตร',
+                    '到期月份': 'เดือนหมดอายุ',
+                    '到期年份': 'ปีหมดอายุ',
+                    'Mpay信息': 'ข้อมูล Mpay',
+                    '支付公司': 'บริษัทจ่ายเงิน',
+                    '安置偏好设置': 'การตั้งค่าความชอบการจัดวาง',
+                    '下次安置位置': 'ตำแหน่งวางถัดไป',
+                    'e-form': 'e-form',
+                    '我的名片': 'บัตรของฉัน',
+                    '保存更改': 'บันทึกการเปลี่ยนแปลง',
+                    '保存联络信息': 'บันทึกข้อมูลติดต่อ',
+                    '我的Elken业务': 'ธุรกิจ Elken ของฉัน',
+                    '安置网络': 'เครือข่ายการจัดวาง',
+                    '推荐网络': 'เครือข่ายผู้แนะนำ',
+                    '收入记录': 'บันทึกรายได้',
+                    '促销优惠': 'โปรโมชัน',
+                    '政策': 'นโยบาย',
+                    '个人': 'ส่วนตัว',
+                    '安置': 'การจัดวาง',
+                    '推荐': 'การแนะนำ',
+                    '奖金': 'โบนัส',
+                    '地址管理': 'จัดการที่อยู่',
+                    '新增地址': 'เพิ่มที่อยู่ใหม่',
+                    '默认': 'ค่าเริ่มต้น',
+                    '编辑': 'แก้ไข',
+                    '删除': 'ลบ',
+                    '设为默认': 'ตั้งเป็นค่าเริ่มต้น'
+                },
+                km: {
+                    '账号基础信息': 'ព័ត៌មានគណនីមូលដ្ឋាន',
+                    '等级体系': 'ប្រព័ន្ធចំណាត់ថ្នាក់',
+                    '推荐关系': 'ទំនាក់ទំនងណែនាំ',
+                    '税务信息': 'ព័ត៌មានពន្ធ',
+                    '编辑个人信息': 'កែសម្រួលព័ត៌មានផ្ទាល់ខ្លួន',
+                    '会员ID': 'លេខសម្គាល់សមាជិក',
+                    '马来西亚税务编号': 'លេខពន្ធម៉ាឡេស៊ី',
+                    '证件上传': 'បញ្ចូលឯកសារ',
+                    '联络详情': 'ព័ត៌មានទំនាក់ទំនង',
+                    '住宅电话': 'ទូរស័ព្ទផ្ទះ',
+                    '办公电话': 'ទូរស័ព្ទការិយាល័យ',
+                    '首选联络人': 'ទំនាក់ទំនងជម្រើស',
+                    '我的电子邮件': 'អ៊ីម៉េល់របស់ខ្ញុំ',
+                    '手机号码': 'លេខទូរស័ព្ទ',
+                    '获取验证码': 'ទទួលបានកូដ',
+                    '地址2': 'អាសយដ្ឋាន 2',
+                    '地址3': 'អាសយដ្ឋាន 3',
+                    '地址4': 'អាសយដ្ឋាន 4',
+                    '城市': 'ទីក្រុង',
+                    '州/省': 'ខេត្ត',
+                    '邮编': 'លេខប្រៃសណីយ៍',
+                    '国家': 'ប្រទេស',
+                    '支付地区': 'តំបន់បង់ប្រាក់',
+                    '支付方式配置': 'ការកំណត់វិធីបង់ប្រាក់',
+                    '银行账户信息': 'ព័ត៌មានគណនីធនាគារ',
+                    '银行国家': 'ប្រទេសធនាគារ',
+                    '银行名称': 'ឈ្មោះធនាគារ',
+                    'SWIFT代码': 'លេខកូដ SWIFT',
+                    '银行账号': 'លេខគណនី',
+                    '账户持有人姓名': 'ឈ្មោះម្ចាស់គណនី',
+                    '银行卡信息': 'ព័ត៌មានប័ណ្ណ GCC',
+                    '卡片国家': 'ប្រទេសប័ណ្ណ',
+                    '持卡人姓名': 'ឈ្មោះម្ចាស់ប័ណ្ណ',
+                    '卡号': 'លេខប័ណ្ណ',
+                    '到期月份': 'ខែផុតកំណត់',
+                    '到期年份': 'ឆ្នាំផុតកំណត់',
+                    'Mpay信息': 'ព័ត៌មាន Mpay',
+                    '支付公司': 'ក្រុមហ៊ុនទូទាត់',
+                    '安置偏好设置': 'ការកំណត់ចំណូលចិត្តការដាក់',
+                    '下次安置位置': 'ទីតាំងដាក់បន្ទាប់',
+                    'e-form': 'e-form',
+                    '我的名片': 'ប័ណ្ណរបស់ខ្ញុំ',
+                    '保存更改': 'រក្សាទុកការផ្លាស់ប្តូរ',
+                    '保存联络信息': 'រក្សាទុកព័ត៌មានទំនាក់ទំនង',
+                    '我的Elken业务': 'អាជីវកម្ម Elken របស់ខ្ញុំ',
+                    '安置网络': 'បណ្តាញការដាក់',
+                    '推荐网络': 'បណ្តាញណែនាំ',
+                    '收入记录': 'កំណត់ត្រាចំណូល',
+                    '促销优惠': 'ការផ្ស阳',
+                    '政策': 'គោលនយោបាយ',
+                    '个人': 'ផ្ទាល់ខ្លួន',
+                    '安置': 'ការដាក់',
+                    '推荐': 'ណែនាំ',
+                    '奖金': 'ប្រាក់រង្វាន់',
+                    '地址管理': 'ការគ្រប់គ្រងអាសយដ្ឋាន',
+                    '新增地址': 'បន្ថែមអាសយដ្ឋានថ្មី',
+                    '默认': 'លំនាំដើម',
+                    '编辑': 'កែសម្រួល',
+                    '删除': 'លុប',
+                    '设为默认': 'កំណត់ជាលំនាំដើម'
+                }
+            };
+
+            function translatePage(lang) {
+                const t = translations[lang] || translations['en'];
+
+                function translateTextNodes(element) {
+                    const walker = document.createTreeWalker(
+                        element,
+                        NodeFilter.SHOW_TEXT,
+                        {
+                            acceptNode: function(node) {
+                                if (node.parentElement.tagName === 'SCRIPT' ||
+                                    node.parentElement.tagName === 'STYLE' ||
+                                    node.parentElement.tagName === 'NOSCRIPT') {
+                                    return NodeFilter.FILTER_REJECT;
+                                }
+                                if (node.parentElement.id === 'langSelector' ||
+                                    node.parentElement.closest('#langSelector')) {
+                                    return NodeFilter.FILTER_REJECT;
+                                }
+                                return NodeFilter.FILTER_ACCEPT;
+                            }
+                        }
+                    );
+
+                    const nodesToTranslate = [];
+                    while (walker.nextNode()) {
+                        const node = walker.currentNode;
+                        let text = node.textContent.trim();
+                        if (text && t[text]) {
+                            nodesToTranslate.push({node: node, text: text});
+                        } else if (text && t[text.replace(/[：:]$/, '')] && text.endsWith(':') || text.endsWith('：')) {
+                            nodesToTranslate.push({node: node, text: text, stripColon: true});
+                        }
+                    }
+
+                    nodesToTranslate.forEach(item => {
+                        const originalText = item.text;
+                        const translation = item.stripColon ? t[originalText.replace(/[：:]$/, '')] : t[originalText];
+                        if (translation) {
+                            if (item.stripColon) {
+                                item.node.textContent = originalText.slice(0, -1) + (lang === 'en' ? ':' : '：') + translation;
+                            } else {
+                                item.node.textContent = translation;
+                            }
+                        }
+                    });
+                }
+
+                translateTextNodes(document.body);
+
+                document.querySelectorAll('input[placeholder]').forEach(el => {
+                    const placeholder = el.getAttribute('placeholder');
+                    if (placeholder && t[placeholder]) {
+                        el.setAttribute('placeholder', t[placeholder]);
+                    }
+                });
+
+                document.querySelectorAll('option').forEach(el => {
+                    const text = el.textContent.trim();
+                    if (text && t[text]) {
+                        el.textContent = t[text];
+                    }
+                });
+
+                document.title = lang === 'zh-CN' ? 'elken app重构版' :
+                                lang === 'ms' ? 'Elken App Versi Semula' :
+                                lang === 'id' ? 'Elken App Versi Ulang' :
+                                lang === 'th' ? 'Elken App รุ่นใหม่' :
+                                lang === 'km' ? 'Elken App កំណែថ្មី' :
+                                lang === 'zh-TW' ? 'Elken App 重構版' :
+                                lang === 'zh-HK' ? 'Elken App 重構版' :
+                                'Elken App Rebuild';
+            }
+
+            const langBtn = document.getElementById('langBtn');
+            const langDropdown = document.getElementById('langDropdown');
+            const langSelector = document.getElementById('langSelector');
+            const langOptions = document.querySelectorAll('.lang-option');
+
+            let isDragging = false;
+            let startX, startY, initialX, initialY;
+            let hasDragged = false;
+
+            const savedLang = localStorage.getItem('selectedLanguage') || 'en';
+            document.querySelector(`.lang-option[data-lang="${savedLang}"]`).classList.add('active');
+            translatePage(savedLang);
+
+            langBtn.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                hasDragged = false;
+                startX = e.clientX;
+                startY = e.clientY;
+                const rect = langSelector.getBoundingClientRect();
+                initialX = rect.left;
+                initialY = rect.top;
+                langBtn.style.cursor = 'grabbing';
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+
+                const deltaX = e.clientX - startX;
+                const deltaY = e.clientY - startY;
+
+                if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+                    hasDragged = true;
+                }
+
+                langSelector.style.left = (initialX + deltaX) + 'px';
+                langSelector.style.top = (initialY + deltaY) + 'px';
+                langSelector.style.right = 'auto';
+            });
+
+            document.addEventListener('mouseup', function() {
+                if (isDragging) {
+                    isDragging = false;
+                    langBtn.style.cursor = 'grab';
+                }
+            });
+
+            langBtn.addEventListener('click', function(e) {
+                if (hasDragged) {
+                    e.stopPropagation();
+                    hasDragged = false;
+                    return;
+                }
+                langDropdown.classList.toggle('show');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!langSelector.contains(e.target)) {
+                    langDropdown.classList.remove('show');
+                }
+            });
+
+            langOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    langOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    const lang = this.getAttribute('data-lang');
+                    localStorage.setItem('selectedLanguage', lang);
+                    langDropdown.classList.remove('show');
+                    location.reload();
+                });
+            });
+
+            langSelector.style.left = '20px';
+            langSelector.style.top = 'auto';
+            langSelector.style.bottom = '20px';
+        })();
+    </script>
+    </body>
+</html>

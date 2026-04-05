@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>elken app重构版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .header {
+            background-color: #007aff;
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .back-arrow {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .header-right {
+            font-size: 20px;
+            width: 60px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .card-icon-btn {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .card-icon-btn svg {
+            width: 48px;
+            height: 48px;
+            fill: white;
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 12px;
+            animation: slideIn 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-content.card-modal {
+            max-width: 400px;
+            width: 90%;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .modal-close {
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            background: none;
+            border: none;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background-color: #f0f0f0;
+        }
+
+        .card-preview.elken-card {
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            text-align: center;
+            color: #333;
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+
+        .card-preview.elken-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 0 0 0 100%;
+        }
+
+        .card-header h2 {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 0 0 20px 0;
+            color: #333;
+        }
+
+        .card-avatar {
+            margin: 0 auto 20px;
+        }
+
+        .avatar-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e94057 0%, #f27121 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 20px 0;
+            color: #333;
+        }
+
+        .card-info {
+            text-align: left;
+            margin-top: 20px;
+        }
+
+        .info-item {
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .info-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .card-share-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 36px;
+            height: 36px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .card-share-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .share-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background-color 0.2s ease;
+        }
+        
+        .share-btn:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+        
+        .share-btn.whatsapp svg {
+            fill: #25D366;
+        }
+        
+        .share-btn.facebook svg {
+            fill: #1877F2;
+        }
+        
+        .share-btn.copy svg {
+            fill: #666;
+        }
+        
+        .share-btn span {
+            font-size: 12px;
+            color: #333;
+        }
+        
+        /* 底部分享面板 */
+        .share-sheet-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 3000;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .share-sheet-overlay.show {
+            display: block;
+        }
+        
+        .share-sheet {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 16px 16px 0 0;
+            padding: 15px 20px;
+            padding-bottom: calc(20px + env(safe-area-inset-bottom));
+            animation: slideUp 0.3s ease;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+        
+        .share-sheet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 15px;
+        }
+        
+        .share-sheet-header span {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .share-sheet-close {
+            background: none;
+            border: none;
+            font-size: 16px;
+            color: #666;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+        
+        .share-sheet-content {
+            display: flex;
+            justify-content: space-around;
+            gap: 10px;
+        }
+        
+        .share-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background-color 0.2s ease;
+            flex: 1;
+        }
+        
+        .share-option:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .share-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .whatsapp-icon {
+            background-color: #25D366;
+        }
+        
+        .facebook-icon {
+            background-color: #1877F2;
+        }
+        
+        .copy-icon {
+            background-color: #666;
+        }
+        
+        .share-option span {
+            font-size: 13px;
+            color: #333;
+        }
+        
+        .notification {
+            background-color: #e3f2fd;
+            padding: 10px 15px;
+            margin: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .user-info {
+            background-color: white;
+            margin: 10px;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-right: 15px;
+            position: relative;
+        }
+        
+        .avatar .edit-icon {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            font-size: 14px;
+            color: #999;
+            background: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-left: 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .user-details {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .user-id {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .edit-icon {
+            font-size: 20px;
+            color: #999;
+            margin-left: 10px;
+        }
+        
+        .card-icon-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .card-icon-btn svg {
+            width: 28px;
+            height: 28px;
+            fill: #007aff;
+        }
+        
+        .header-icon-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .member-info {
+            background-color: white;
+            margin: 10px;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .period-selector {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .info-value {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .status-badge {
+            display: flex;
+            align-items: center;
+        }
+        
+        .status-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #ff4444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+            margin-left: 5px;
+        }
+        
+        .more-info {
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .more-info-link {
+            color: #007aff;
+            font-size: 14px;
+            text-decoration: none;
+        }
+        
+        .tools-section {
+            background-color: white;
+            margin: 10px;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+        
+        .tool-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .tool-icon {
+            width: 48px;
+            height: 48px;
+            background-color: #f0f0f0;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            font-size: 20px;
+        }
+        
+        .tool-label {
+            font-size: 12px;
+            text-align: center;
+        }
+        
+
+        
+        .data-updated {
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        /* 非模态提示框样式 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="back-arrow" onclick="window.history.back()">←</div>
+            <div class="header-title">爱康事业工具</div>
+        </div>
+        <div class="header-right">
+            <div class="header-icon-btn" onclick="openCustomerService()" style="margin-right: 5px;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+                    <circle cx="8" cy="10" r="1.5"/>
+                    <circle cx="12" cy="10" r="1.5"/>
+                    <circle cx="16" cy="10" r="1.5"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification">
+        人们，今天去超市发现好多东西都在打折 👍，真的
+    </div>
+    
+    <div class="user-info">
+        <div class="avatar" id="avatar" onclick="document.getElementById('avatar-upload').click()">
+            👤
+            <div class="edit-icon">✏️</div>
+        </div>
+        <div class="user-details">
+            <div class="user-name">CHE MAIMUN BT ABDULLAH</div>
+            <div class="user-id">ID: 10000522701</div>
+        </div>
+        <div class="card-icon-btn" onclick="shareCard()">
+            <svg viewBox="0 0 24 24">
+                <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/>
+            </svg>
+        </div>
+        <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
+    </div>
+    
+    <div class="member-info">
+        <div class="section-title">会员资料</div>
+        <select class="period-selector">
+            <option>PC 2026-02</option>
+        </select>
+        
+        <div class="info-item">
+            <div class="info-label">活动状态</div>
+            <div class="info-value status-badge">
+                否
+                <div class="status-icon">✕</div>
+            </div>
+        </div>
+        
+        <div class="info-item">
+            <div class="info-label">当期位阶</div>
+            <div class="info-value">DEALER</div>
+        </div>
+        
+        <div class="info-item">
+            <div class="info-label">PS</div>
+            <div class="info-value">0.00</div>
+        </div>
+        
+        <div class="info-item">
+            <div class="info-label">PGS</div>
+            <div class="info-value">0.00</div>
+        </div>
+        
+        <div class="info-item">
+            <div class="info-label">TGS</div>
+            <div class="info-value">0.00</div>
+        </div>
+        
+        <div class="info-item">
+            <div class="info-label">QLegs</div>
+            <div class="info-value">0</div>
+        </div>
+        
+        <div class="info-item">
+            <div class="info-label">当前个人PRP权益</div>
+            <div class="info-value">30%</div>
+        </div>
+        
+        <div class="info-item">
+            <div class="info-label">当前PRP级的CPGS</div>
+            <div class="info-value">649.50BV</div>
+        </div>
+        
+        <div class="info-item">
+            <div class="info-label">晋升到下一级PRP分级所需的CPGS</div>
+            <div class="info-value">150.5BV To Go</div>
+        </div>
+        
+        <div class="data-updated">
+            数据更新于：2026-02-27 16:05:08
+        </div>
+        
+        <div class="more-info">
+            <a href="#" class="more-info-link">更多信息</a>
+        </div>
+    </div>
+    
+    <div class="tools-section">
+        <div class="section-title">爱康事业工具</div>
+        <div class="tools-grid">
+            <div class="tool-item">
+                <div class="tool-icon">📢</div>
+                <div class="tool-label">最新消息</div>
+            </div>
+            <div class="tool-item" onclick="window.location.href='my_account_mobile.html'">
+                <div class="tool-icon">👤</div>
+                <div class="tool-label">我的账户</div>
+            </div>
+            <div class="tool-item">
+                <div class="tool-icon">📊</div>
+                <div class="tool-label">数据看板</div>
+            </div>
+            <div class="tool-item" onclick="window.location.href='sponsor_downline_list.html'">
+                <div class="tool-icon">👥</div>
+                <div class="tool-label">保荐下线列表</div>
+            </div>
+            <div class="tool-item" onclick="window.location.href='placement_chart.html'">
+                <div class="tool-icon">🏢</div>
+                <div class="tool-label">安置图谱</div>
+            </div>
+            <div class="tool-item">
+                <div class="tool-icon">📝</div>
+                <div class="tool-label">注册</div>
+            </div>
+            <div class="tool-item">
+                <div class="tool-icon">🛒</div>
+                <div class="tool-label">电子商店</div>
+            </div>
+            <div class="tool-item">
+                <div class="tool-icon">📋</div>
+                <div class="tool-label">订单记录</div>
+            </div>
+            <div class="tool-item">
+                <div class="tool-icon">🔄</div>
+                <div class="tool-label">PRP兑换</div>
+            </div>
+            <div class="tool-item">
+                <div class="tool-icon">💰</div>
+                <div class="tool-label">奖金结算</div>
+            </div>
+            <div class="tool-item">
+                <div class="tool-icon">📅</div>
+                <div class="tool-label">活动报告</div>
+            </div>
+            <div class="tool-item">
+                <div class="tool-icon">📈</div>
+                <div class="tool-label">BV资料</div>
+            </div>
+            <div class="tool-item">
+                <div class="tool-icon">💱</div>
+                <div class="tool-label">BV转移</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 非模态提示框 -->
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        // 显示非模态提示框
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+        
+        // 替换所有alert为showToast
+        window.alert = function(message) {
+            showToast(message);
+        };
+        
+        // 头像上传和裁剪功能
+        document.getElementById('avatar-upload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const avatar = document.getElementById('avatar');
+                    // 创建一个新的img元素来显示上传的图片
+                    const img = document.createElement('img');
+                    img.src = event.target.result;
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '50%';
+                    // 清空原有内容并添加新图片
+                    avatar.innerHTML = '';
+                    avatar.appendChild(img);
+                    // 保存头像到本地存储
+                    localStorage.setItem('avatar', event.target.result);
+                    // 显示上传成功提示
+                    showToast('头像上传成功');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // 页面加载时从本地存储加载头像
+        window.addEventListener('load', function() {
+            const savedAvatar = localStorage.getItem('avatar');
+            if (savedAvatar) {
+                const avatar = document.getElementById('avatar');
+                const img = document.createElement('img');
+                img.src = savedAvatar;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                img.style.borderRadius = '50%';
+                avatar.innerHTML = '';
+                avatar.appendChild(img);
+            }
+        });
+        
+        // 分享名片
+        function shareCard() {
+            openCardModal();
+        }
+        
+        // 打开客服
+        function openCustomerService() {
+            showToast('客服功能开发中');
+        }
+        
+        // 系统分享菜单
+        function systemShare() {
+            const modal = document.createElement('div');
+            modal.className = 'share-sheet-overlay';
+            modal.innerHTML = `
+                <div class="share-sheet">
+                    <div class="share-sheet-header">
+                        <span>分享到</span>
+                        <button class="share-sheet-close" onclick="closeShareSheet(this)">取消</button>
+                    </div>
+                    <div class="share-sheet-content">
+                        <button class="share-option" onclick="shareVia('whatsapp')">
+                            <div class="share-icon whatsapp-icon">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                                </svg>
+                            </div>
+                            <span>WhatsApp</span>
+                        </button>
+                        <button class="share-option" onclick="shareVia('facebook')">
+                            <div class="share-icon facebook-icon">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                </svg>
+                            </div>
+                            <span>Facebook</span>
+                        </button>
+                        <button class="share-option" onclick="shareVia('copy')">
+                            <div class="share-icon copy-icon">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+                                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                                </svg>
+                            </div>
+                            <span>复制链接</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            setTimeout(() => {
+                modal.classList.add('show');
+            }, 10);
+            
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeShareSheet(modal.querySelector('.share-sheet'));
+                }
+            });
+        }
+        
+        function closeShareSheet(element) {
+            const modal = element.closest('.share-sheet-overlay');
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.remove();
+                }, 300);
+            }
+        }
+        
+        function shareVia(platform) {
+            const shareUrl = 'https://elken.com/ref/10000522701';
+            const shareText = '查看我的ELKEN名片：';
+            
+            switch(platform) {
+                case 'whatsapp':
+                    window.open(`https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`, '_blank');
+                    break;
+                case 'facebook':
+                    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank');
+                    break;
+                case 'copy':
+                    navigator.clipboard.writeText(shareUrl).then(() => {
+                        showToast('链接已复制到剪贴板');
+                    }).catch(() => {
+                        showToast('复制失败');
+                    });
+                    break;
+            }
+            
+            const modal = document.querySelector('.share-sheet-overlay');
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.remove();
+                }, 300);
+            }
+        }
+        
+        // 打开名片弹窗
+        function openCardModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content card-modal">
+                    <div class="modal-header">
+                        <h2>我的名片</h2>
+                        <button class="modal-close" onclick="closeCardModal(this)">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="card-preview elken-card">
+                            <div class="card-share-icon" onclick="systemShare()">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="#333">
+                                    <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/>
+                                </svg>
+                            </div>
+                            <div class="card-header">
+                                <h2>ELKEN</h2>
+                            </div>
+                            <div class="card-avatar">
+                                <div class="avatar-circle">
+                                    <svg width="60" height="60" viewBox="0 0 24 24" fill="white">
+                                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="card-title">Company Distributor</div>
+                            <div class="card-info">
+                                <div class="info-item">
+                                    <span class="info-label">Member ID:</span>
+                                    <span class="info-value">0</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Expiry Date:</span>
+                                    <span class="info-value">01 Jan 2027</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.style.display = 'flex';
+
+            setTimeout(() => {
+                modal.classList.add('show');
+            }, 10);
+        }
+        
+        // 系统分享菜单
+        function systemShare() {
+            const shareUrl = 'https://elken.com/ref/10000522701';
+            const shareText = '查看我的ELKEN名片：';
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'ELKEN 名片',
+                    text: shareText,
+                    url: shareUrl
+                }).catch(err => {
+                    console.log('分享取消或失败');
+                });
+            } else {
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    showToast('链接已复制到剪贴板');
+                }).catch(() => {
+                    showToast('复制失败');
+                });
+            }
+        }
+        
+        // 关闭名片弹窗
+        function closeCardModal(closeBtn) {
+            const modal = closeBtn.closest('.modal-overlay');
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.remove();
+                }, 300);
+            }
+        }
+    </script>
+
+    <!-- Language Selector -->
+    <div id="langSelector" class="lang-selector">
+        <div class="lang-btn" id="langBtn">
+            <span>🌐</span>
+        </div>
+        <div class="lang-dropdown" id="langDropdown">
+            <div class="lang-option" data-lang="en">English</div>
+            <div class="lang-option" data-lang="ms">Bahasa Malaysia</div>
+            <div class="lang-option" data-lang="zh-CN">简体中文</div>
+            <div class="lang-option" data-lang="zh-TW">繁體中文 (台灣)</div>
+            <div class="lang-option" data-lang="zh-HK">繁體中文 (香港)</div>
+            <div class="lang-option" data-lang="id">Bahasa Indonesia</div>
+            <div class="lang-option" data-lang="th">ไทย</div>
+            <div class="lang-option" data-lang="km">ខ្មែរ</div>
+        </div>
+    </div>
+
+    <style>
+        .lang-selector {
+            position: fixed;
+            z-index: 9999;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .lang-btn {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            font-size: 24px;
+            user-select: none;
+            transition: transform 0.2s ease;
+        }
+
+        .lang-btn:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+
+        .lang-dropdown {
+            display: none;
+            position: absolute;
+            bottom: 60px;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            overflow: hidden;
+            min-width: 180px;
+        }
+
+        .lang-dropdown.show {
+            display: block;
+            animation: slideUp 0.2s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .lang-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .lang-option:hover {
+            background-color: #f5f5f5;
+        }
+
+        .lang-option.active {
+            background-color: #667eea;
+            color: white;
+        }
+    </style>
+
+    <script>
+        (function() {
+            const translations = {
+                en: {
+                    '我的Elken业务': 'My Elken Business',
+                    '我的名片': 'My Card',
+                    'Member ID': 'Member ID',
+                    'Expiry Date': 'Expiry Date',
+                    'Company Distributor': 'Company Distributor'
+                },
+                ms: {
+                    '我的Elken业务': 'Perniagaan Elken Saya',
+                    '我的名片': 'Kad Saya',
+                    'Member ID': 'ID Ahli',
+                    'Expiry Date': 'Tarikh Tamat',
+                    'Company Distributor': 'Pengedar Syarikat'
+                },
+                'zh-CN': {
+                    '我的Elken业务': '我的Elken业务',
+                    '我的名片': '我的名片',
+                    'Member ID': '会员ID',
+                    'Expiry Date': '到期日期',
+                    'Company Distributor': '公司经销商'
+                },
+                'zh-TW': {
+                    '我的Elken业务': '我的Elken業務',
+                    '我的名片': '我的名片',
+                    'Member ID': '會員ID',
+                    'Expiry Date': '到期日期',
+                    'Company Distributor': '公司經銷商'
+                },
+                'zh-HK': {
+                    '我的Elken业务': '我的Elken業務',
+                    '我的名片': '我的名片',
+                    'Member ID': '會員ID',
+                    'Expiry Date': '到期日',
+                    'Company Distributor': '公司經銷商'
+                },
+                id: {
+                    '我的Elken业务': 'Bisnis Elken Saya',
+                    '我的名片': 'Kartu Saya',
+                    'Member ID': 'ID Anggota',
+                    'Expiry Date': 'Tanggal Kadaluarsa',
+                    'Company Distributor': 'Distributor Perusahaan'
+                },
+                th: {
+                    '我的Elken业务': 'ธุรกิจ Elken ของฉัน',
+                    '我的名片': 'บัตรของฉัน',
+                    'Member ID': 'รหัสสมาชิก',
+                    'Expiry Date': 'วันหมดอายุ',
+                    'Company Distributor': 'ตัวแทนจำหน่ายบริษัท'
+                },
+                km: {
+                    '我的Elken业务': 'អាជីវកម្ម Elken របស់ខ្ញុំ',
+                    '我的名片': 'ប័ណ្ណរបស់ខ្ញុំ',
+                    'Member ID': 'លេខសម្គាល់សមាជិក',
+                    'Expiry Date': 'កាលបរិច្ឆេទផុតកំណត់',
+                    'Company Distributor': 'ភ្នាក់ងារចែកចាយក្រុមហ៊ុន'
+                }
+            };
+
+            function translatePage(lang) {
+                const t = translations[lang] || translations['en'];
+                
+                function translateTextNodes(element) {
+                    const walker = document.createTreeWalker(
+                        element,
+                        NodeFilter.SHOW_TEXT,
+                        {
+                            acceptNode: function(node) {
+                                if (node.parentElement.tagName === 'SCRIPT' ||
+                                    node.parentElement.tagName === 'STYLE' ||
+                                    node.parentElement.tagName === 'NOSCRIPT') {
+                                    return NodeFilter.FILTER_REJECT;
+                                }
+                                if (node.parentElement.id === 'langSelector' ||
+                                    node.parentElement.closest('#langSelector')) {
+                                    return NodeFilter.FILTER_REJECT;
+                                }
+                                return NodeFilter.FILTER_ACCEPT;
+                            }
+                        }
+                    );
+
+                    const nodesToTranslate = [];
+                    while (walker.nextNode()) {
+                        const node = walker.currentNode;
+                        const text = node.textContent.trim();
+                        if (text && t[text]) {
+                            nodesToTranslate.push({node: node, text: text});
+                        }
+                    }
+
+                    nodesToTranslate.forEach(item => {
+                        item.node.textContent = t[item.text];
+                    });
+                }
+
+                translateTextNodes(document.body);
+            }
+
+            const langBtn = document.getElementById('langBtn');
+            const langDropdown = document.getElementById('langDropdown');
+            const langSelector = document.getElementById('langSelector');
+            const langOptions = document.querySelectorAll('.lang-option');
+
+            let isDragging = false;
+            let startX, startY, initialX, initialY;
+            let hasDragged = false;
+
+            const savedLang = localStorage.getItem('selectedLanguage') || 'en';
+            document.querySelector(`.lang-option[data-lang="${savedLang}"]`).classList.add('active');
+            translatePage(savedLang);
+
+            langBtn.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                hasDragged = false;
+                startX = e.clientX;
+                startY = e.clientY;
+                const rect = langSelector.getBoundingClientRect();
+                initialX = rect.left;
+                initialY = rect.top;
+                langBtn.style.cursor = 'grabbing';
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+
+                const deltaX = e.clientX - startX;
+                const deltaY = e.clientY - startY;
+
+                if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+                    hasDragged = true;
+                }
+
+                langSelector.style.left = (initialX + deltaX) + 'px';
+                langSelector.style.top = (initialY + deltaY) + 'px';
+                langSelector.style.right = 'auto';
+            });
+
+            document.addEventListener('mouseup', function() {
+                if (isDragging) {
+                    isDragging = false;
+                    langBtn.style.cursor = 'grab';
+                }
+            });
+
+            langBtn.addEventListener('click', function(e) {
+                if (hasDragged) {
+                    e.stopPropagation();
+                    hasDragged = false;
+                    return;
+                }
+                langDropdown.classList.toggle('show');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!langSelector.contains(e.target)) {
+                    langDropdown.classList.remove('show');
+                }
+            });
+
+            langOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    langOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    const lang = this.getAttribute('data-lang');
+                    localStorage.setItem('selectedLanguage', lang);
+                    langDropdown.classList.remove('show');
+                    location.reload();
+                });
+            });
+
+            langSelector.style.left = '20px';
+            langSelector.style.top = 'auto';
+            langSelector.style.bottom = '20px';
+        })();
+    </script>
+</body>
+</html>

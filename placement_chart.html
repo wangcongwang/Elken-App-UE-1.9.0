@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>安置图谱</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(180deg, #f7f8fb 0%, #f1f3f6 55%, #edf1f5 100%);
+            color: #111827;
+            min-width: 1180px;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            background-color: #007aff;
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .back-arrow {
+            font-size: 20px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .header-right {
+            font-size: 20px;
+        }
+        
+        .content {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 64px 32px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .tree-viewport {
+            width: 100%;
+            height: calc(100vh - 60px);
+            overflow: hidden;
+            position: relative;
+            cursor: grab;
+        }
+        
+        .tree-viewport:active {
+            cursor: grabbing;
+        }
+        
+        .tree-wrapper {
+            position: absolute;
+            transform-origin: center center;
+            transition: transform 0.1s ease-out;
+        }
+        
+        .zoom-controls {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 50;
+        }
+        
+        .zoom-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: white;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            color: #333;
+            transition: all 0.2s ease;
+        }
+        
+        .zoom-btn:hover {
+            background-color: #f5f5f5;
+            transform: scale(1.05);
+        }
+        
+        .zoom-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .zoom-level {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            background-color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100vh;
+            background-color: white;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+            z-index: 2000;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+        }
+        
+        .drawer.open {
+            right: 0;
+        }
+        
+        .drawer-header {
+            background-color: #007aff;
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .drawer-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .drawer-close {
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .drawer-content {
+            padding: 20px;
+        }
+        
+        .drawer-avatar {
+            width: 60px;
+            height: 60px;
+            background-color: #e0e0e0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            margin: 0 auto 20px;
+        }
+        
+        .drawer-section {
+            margin-bottom: 20px;
+        }
+        
+        .drawer-info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .drawer-info-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .drawer-info-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 600;
+            background-color: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #bbdefb;
+        }
+        
+        .type-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 600;
+            background-color: #e8f5e8;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+        
+        .rank-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 600;
+            background-color: #fff3e0;
+            color: #ef6c00;
+            border: 1px solid #ffcc80;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1999;
+            display: none;
+        }
+        
+        .overlay.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="back-arrow" onclick="window.history.back()">&larr;</div>
+            <div class="header-title">安置图谱</div>
+        </div>
+        <div class="header-right"></div>
+    </div>
+    
+    <div class="content">
+        <div class="tree-viewport" id="treeViewport">
+            <div class="tree-wrapper" id="treeWrapper">
+                <div class="relative w-[1120px] transition-all duration-500 ease-out" id="treeContainer" style="height: 3546px;">
+                    <!-- 根节点 -->
+                    <div class="absolute left-[422px] top-0">
+                        <div class="relative h-[238px] w-[278px] overflow-hidden border border-black/5 bg-white/95 cursor-pointer" style="border-radius: 28px; box-shadow: 0 26px 56px rgba(62, 73, 105, 0.14), 0 4px 14px rgba(79, 92, 243, 0.08); backdrop-filter: blur(8px);" onclick="openNodeDrawer('MYS-0000000000', 'COMPANY DISTRIBUTOR', 0)">
+                            <div class="absolute inset-x-0 top-0 h-2" style="background: linear-gradient(90deg, #3b82f6 0%, #4f46e5 100%); border-radius: 28px 28px 0 0;"></div>
+                            
+                            <button type="button" class="absolute right-8 top-[104px] z-10 rounded-full p-1 transition-colors duration-200 hover:bg-slate-100" onclick="event.stopPropagation(); toggleNode('root')">
+                                <svg viewBox="0 0 24 24" class="h-6 w-6 text-slate-400 transition-transform duration-300" id="rootToggleIcon" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="m6 9 6 6 6-6" />
+                                </svg>
+                            </button>
+                            
+                            <div class="flex h-full flex-col items-center justify-center gap-5 px-8 text-center">
+                                <div class="flex h-[64px] w-[64px] items-center justify-center rounded-full text-white" style="background: linear-gradient(180deg, #4f7cff 0%, #4a4df3 100%); box-shadow: 0 14px 30px rgba(79, 92, 243, 0.30);">
+                                    <svg viewBox="0 0 24 24" class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 19c-1.7-1.5-3.5-2.2-5.8-2.2A2.2 2.2 0 0 1 4 14.6V7.3A2.3 2.3 0 0 1 6.3 5c2.4 0 4.4.8 5.7 2.4C13.3 5.8 15.3 5 17.7 5A2.3 2.3 0 0 1 20 7.3v7.3a2.2 2.2 0 0 1-2.2 2.2c-2.3 0-4.1.7-5.8 2.2Z" />
+                                        <path d="M12 7.4V19" />
+                                    </svg>
+                                </div>
+                                
+                                <div class="space-y-1.5">
+                                    <h2 class="text-[22px] font-bold leading-none tracking-[0.02em] text-[#182235]">MYS-0000000000</h2>
+                                    <p class="text-[18px] font-semibold tracking-[0.01em] text-[#7b8494]">COMPANY DISTRIBUTOR</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 1级节点容器 -->
+                    <div class="absolute left-0 top-[246px] h-[624px] w-full transition-all duration-500 ease-out" id="rootChildren">
+                        <div class="absolute left-[560px] top-0 h-[56px] w-px bg-[#d7dce3]"></div>
+                        <div class="absolute left-[179px] top-[56px] h-px w-[591px] bg-[#d7dce3]"></div>
+                        <div class="absolute left-[552px] top-[48px] h-4 w-4 rounded-full bg-[#c8cdd6]"></div>
+                        
+                        <!-- 1级左侧节点 -->
+                        <div class="absolute left-[40px] top-[72px]">
+                            <div class="relative h-[238px] w-[278px] overflow-hidden border border-black/5 bg-white/95 cursor-pointer" style="border-radius: 28px; box-shadow: 0 26px 56px rgba(27, 89, 78, 0.12), 0 4px 14px rgba(16, 185, 129, 0.07); backdrop-filter: blur(8px);" onclick="openNodeDrawer('MYS-0000000001', 'AT PEAK SDN BHD', 1)">
+                                <div class="absolute inset-x-0 top-0 h-2" style="background: linear-gradient(90deg, #10b981 0%, #0ea5a4 100%); border-radius: 28px 28px 0 0;"></div>
+                                
+                                <button type="button" class="absolute right-8 top-[104px] z-10 rounded-full p-1 transition-colors duration-200 hover:bg-slate-100" onclick="event.stopPropagation(); toggleNode('level1Left')">
+                                    <svg viewBox="0 0 24 24" class="h-6 w-6 text-slate-400 transition-transform duration-300" id="level1LeftToggleIcon" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="m6 9 6 6 6-6" />
+                                    </svg>
+                                </button>
+                                
+                                <div class="flex h-full flex-col items-center justify-center gap-5 px-8 text-center">
+                                    <div class="flex h-[64px] w-[64px] items-center justify-center rounded-full text-white" style="background: linear-gradient(180deg, #13c79d 0%, #0aa989 100%); box-shadow: 0 14px 28px rgba(16, 185, 129, 0.28);">
+                                        <svg viewBox="0 0 24 24" class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M10 3h4" />
+                                            <path d="M10 3v4.2l-5.2 9.1A2.6 2.6 0 0 0 7.1 20h9.8a2.6 2.6 0 0 0 2.3-3.7L14 7.2V3" />
+                                            <path d="M8.2 14h7.6" />
+                                        </svg>
+                                    </div>
+                                    
+                                    <div class="space-y-1.5">
+                                        <h2 class="text-[22px] font-bold leading-none tracking-[0.02em] text-[#182235]">MYS-0000000001</h2>
+                                        <p class="text-[18px] font-semibold tracking-[0.01em] text-[#7b8494]">AT PEAK SDN BHD</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 1级右侧节点 -->
+                        <div class="absolute left-[631px] top-[72px]">
+                            <div class="relative h-[238px] w-[278px] overflow-hidden border border-black/5 bg-white/95 cursor-pointer" style="border-radius: 28px; box-shadow: 0 26px 56px rgba(111, 80, 27, 0.12), 0 4px 14px rgba(249, 115, 22, 0.07); backdrop-filter: blur(8px);" onclick="openNodeDrawer('MYS-0000000002', 'SUN WINNER MARKETING SDN BHD', 1)">
+                                <div class="absolute inset-x-0 top-0 h-2" style="background: linear-gradient(90deg, #eab308 0%, #f97316 100%); border-radius: 28px 28px 0 0;"></div>
+                                
+                                <button type="button" class="absolute right-8 top-[104px] z-10 rounded-full p-1 transition-colors duration-200 hover:bg-slate-100" onclick="event.stopPropagation(); toggleNode('right')">
+                                    <svg viewBox="0 0 24 24" class="h-6 w-6 text-slate-400 transition-transform duration-300" id="rightToggleIcon" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="m6 9 6 6 6-6" />
+                                    </svg>
+                                </button>
+                                
+                                <div class="flex h-full flex-col items-center justify-center gap-5 px-8 text-center">
+                                    <div class="flex h-[64px] w-[64px] items-center justify-center rounded-full text-white" style="background: linear-gradient(180deg, #f6a300 0%, #ff7a00 100%); box-shadow: 0 14px 28px rgba(249, 115, 22, 0.26);">
+                                        <svg viewBox="0 0 24 24" class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 4.5c-4.9 0-8.8 3.5-8.8 8 0 4.1 3 7 6.5 7 .8 0 1.5-.7 1.5-1.5 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.1 0-1.3 1.1-2.4 2.4-2.4h1.8c3.3 0 6.1-2.5 6.1-5.8 0-4.2-3.8-7-8.5-7Z" />
+                                            <circle cx="7.7" cy="11.2" r="1" fill="currentColor" stroke="none" />
+                                            <circle cx="10.4" cy="8.1" r="1" fill="currentColor" stroke="none" />
+                                            <circle cx="14.2" cy="8" r="1" fill="currentColor" stroke="none" />
+                                            <circle cx="16.3" cy="11" r="1" fill="currentColor" stroke="none" />
+                                        </svg>
+                                    </div>
+                                    
+                                    <div class="space-y-1.5">
+                                        <h2 class="text-[22px] font-bold leading-none tracking-[0.02em] text-[#182235]">MYS-0000000002</h2>
+                                        <p class="text-[18px] font-semibold tracking-[0.01em] text-[#7b8494]">SUN WINNER MARKETING SDN BHD</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 2级节点容器 -->
+                        <div class="absolute inset-x-0 top-[310px] h-[314px] transition-all duration-500 ease-out" id="rightChildren">
+                            <div class="absolute left-[770px] top-0 h-[54px] w-px bg-[#d7dce3]"></div>
+                            <div class="absolute left-[551px] top-[54px] h-px w-[376px] bg-[#d7dce3]"></div>
+                            <div class="absolute left-[762px] top-[46px] h-4 w-4 rounded-full bg-[#c8cdd6]"></div>
+                            
+                            <!-- 2级左侧节点 -->
+                            <div class="absolute left-[412px] top-[72px]">
+                                <div class="relative h-[238px] w-[278px] overflow-hidden border border-black/5 bg-white/95 cursor-pointer" style="border-radius: 28px; box-shadow: 0 26px 56px rgba(114, 51, 117, 0.12), 0 4px 14px rgba(219, 39, 119, 0.07); backdrop-filter: blur(8px);" onclick="openNodeDrawer('MYS-0000000003', 'GOLDEN STAR SDN BHD', 2)">
+                                    <div class="absolute inset-x-0 top-0 h-2" style="background: linear-gradient(90deg, #a855f7 0%, #ec4899 100%); border-radius: 28px 28px 0 0;"></div>
+                                    
+                                    <button type="button" class="absolute right-8 top-[104px] z-10 rounded-full p-1 transition-colors duration-200 hover:bg-slate-100" onclick="event.stopPropagation(); toggleNode('level2Left')">
+                                        <svg viewBox="0 0 24 24" class="h-6 w-6 text-slate-400 transition-transform duration-300" id="level2LeftToggleIcon" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="m6 9 6 6 6-6" />
+                                        </svg>
+                                    </button>
+                                    
+                                    <div class="flex h-full flex-col items-center justify-center gap-5 px-8 text-center">
+                                        <div class="flex h-[64px] w-[64px] items-center justify-center rounded-full text-white" style="background: linear-gradient(180deg, #c36bf1 0%, #df3ea8 100%); box-shadow: 0 14px 28px rgba(219, 39, 119, 0.24);">
+                                            <svg viewBox="0 0 24 24" class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M12 4.5c-4.9 0-8.8 3.5-8.8 8 0 4.1 3 7 6.5 7 .8 0 1.5-.7 1.5-1.5 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.1 0-1.3 1.1-2.4 2.4-2.4h1.8c3.3 0 6.1-2.5 6.1-5.8 0-4.2-3.8-7-8.5-7Z" />
+                                                <circle cx="7.7" cy="11.2" r="1" fill="currentColor" stroke="none" />
+                                                <circle cx="10.4" cy="8.1" r="1" fill="currentColor" stroke="none" />
+                                                <circle cx="14.2" cy="8" r="1" fill="currentColor" stroke="none" />
+                                                <circle cx="16.3" cy="11" r="1" fill="currentColor" stroke="none" />
+                                            </svg>
+                                        </div>
+                                        
+                                        <div class="space-y-1.5">
+                                            <h2 class="text-[22px] font-bold leading-none tracking-[0.02em] text-[#182235]">MYS-0000000003</h2>
+                                            <p class="text-[18px] font-semibold tracking-[0.01em] text-[#7b8494]">GOLDEN STAR SDN BHD</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 2级右侧节点 -->
+                            <div class="absolute left-[788px] top-[72px]">
+                                <div class="relative h-[238px] w-[278px] overflow-hidden border border-black/5 bg-white/95 cursor-pointer" style="border-radius: 28px; box-shadow: 0 26px 56px rgba(127, 43, 59, 0.12), 0 4px 14px rgba(255, 23, 60, 0.07); backdrop-filter: blur(8px);" onclick="openNodeDrawer('MYS-0000000004', 'BLUE OCEAN SDN BHD', 2)">
+                                    <div class="absolute inset-x-0 top-0 h-2" style="background: linear-gradient(90deg, #fb7185 0%, #ff0033 100%); border-radius: 28px 28px 0 0;"></div>
+                                    
+                                    <button type="button" class="absolute right-8 top-[104px] z-10 rounded-full p-1 transition-colors duration-200 hover:bg-slate-100" onclick="event.stopPropagation(); toggleNode('level2Right')">
+                                        <svg viewBox="0 0 24 24" class="h-6 w-6 text-slate-400 transition-transform duration-300" id="level2RightToggleIcon" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="m6 9 6 6 6-6" />
+                                        </svg>
+                                    </button>
+                                    
+                                    <div class="flex h-full flex-col items-center justify-center gap-5 px-8 text-center">
+                                        <div class="flex h-[64px] w-[64px] items-center justify-center rounded-full text-white" style="background: linear-gradient(180deg, #ff5a72 0%, #ff173c 100%); box-shadow: 0 14px 28px rgba(255, 23, 60, 0.24);">
+                                            <svg viewBox="0 0 24 24" class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="m14.8 5.2 4 4" />
+                                                <path d="M8.8 11.2 4.5 18l1.5 1.5 6.8-4.3" />
+                                                <path d="m10.1 9.9 3.1-3.1c.8-.8 2-.9 3-.4l2.2 1.1c.5.3 1.1.2 1.5-.2l.3-.3-3.7-3.7-.3.3c-.4.4-.5 1-.2 1.5l1.1 2.2c.5 1 .4 2.2-.4 3l-3.1 3.1" />
+                                            </svg>
+                                        </div>
+                                        
+                                        <div class="space-y-1.5">
+                                            <h2 class="text-[22px] font-bold leading-none tracking-[0.02em] text-[#182235]">MYS-0000000004</h2>
+                                            <p class="text-[18px] font-semibold tracking-[0.01em] text-[#7b8494]">BLUE OCEAN SDN BHD</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 3级节点容器 -->
+                            <div class="absolute inset-x-0 top-[310px] h-[314px] transition-all duration-500 ease-out" id="level3Children">
+                                <div class="absolute left-[928px] top-0 h-[54px] w-px bg-[#d7dce3]"></div>
+                                <div class="absolute left-[709px] top-[54px] h-px w-[376px] bg-[#d7dce3]"></div>
+                                <div class="absolute left-[920px] top-[46px] h-4 w-4 rounded-full bg-[#c8cdd6]"></div>
+                                
+                                <!-- 3级左侧节点 -->
+                                <div class="absolute left-[570px] top-[72px]">
+                                    <div class="relative h-[238px] w-[278px] overflow-hidden border border-black/5 bg-white/95 cursor-pointer" style="border-radius: 28px; box-shadow: 0 26px 56px rgba(59, 130, 246, 0.12), 0 4px 14px rgba(59, 130, 246, 0.07); backdrop-filter: blur(8px);" onclick="openNodeDrawer('MYS-0000000005', 'FUTURE VENTURES SDN BHD', 3)">
+                                        <div class="absolute inset-x-0 top-0 h-2" style="background: linear-gradient(90deg, #3b82f6 0%, #6366f1 100%); border-radius: 28px 28px 0 0;"></div>
+                                        
+                                        <button type="button" class="absolute right-8 top-[104px] z-10 rounded-full p-1 transition-colors duration-200 hover:bg-slate-100" onclick="event.stopPropagation(); toggleNode('level3Left')">
+                                            <svg viewBox="0 0 24 24" class="h-6 w-6 text-slate-400 transition-transform duration-300" id="level3LeftToggleIcon" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="m6 9 6 6 6-6" />
+                                            </svg>
+                                        </button>
+                                        
+                                        <div class="flex h-full flex-col items-center justify-center gap-5 px-8 text-center">
+                                            <div class="flex h-[64px] w-[64px] items-center justify-center rounded-full text-white" style="background: linear-gradient(180deg, #4f7cff 0%, #4a4df3 100%); box-shadow: 0 14px 28px rgba(59, 130, 246, 0.24);">
+                                                <svg viewBox="0 0 24 24" class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M12 19c-1.7-1.5-3.5-2.2-5.8-2.2A2.2 2.2 0 0 1 4 14.6V7.3A2.3 2.3 0 0 1 6.3 5c2.4 0 4.4.8 5.7 2.4C13.3 5.8 15.3 5 17.7 5A2.3 2.3 0 0 1 20 7.3v7.3a2.2 2.2 0 0 1-2.2 2.2c-2.3 0-4.1.7-5.8 2.2Z" />
+                                                    <path d="M12 7.4V19" />
+                                                </svg>
+                                            </div>
+                                            
+                                            <div class="space-y-1.5">
+                                                <h2 class="text-[22px] font-bold leading-none tracking-[0.02em] text-[#182235]">MYS-0000000005</h2>
+                                                <p class="text-[18px] font-semibold tracking-[0.01em] text-[#7b8494]">FUTURE VENTURES SDN BHD</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 3级右侧节点 -->
+                                <div class="absolute left-[946px] top-[72px]">
+                                    <div class="relative h-[238px] w-[278px] overflow-hidden border border-black/5 bg-white/95 cursor-pointer" style="border-radius: 28px; box-shadow: 0 26px 56px rgba(16, 185, 129, 0.12), 0 4px 14px rgba(16, 185, 129, 0.07); backdrop-filter: blur(8px);" onclick="openNodeDrawer('MYS-0000000006', 'GREEN HORIZON SDN BHD', 3)">
+                                        <div class="absolute inset-x-0 top-0 h-2" style="background: linear-gradient(90deg, #10b981 0%, #0ea5a4 100%); border-radius: 28px 28px 0 0;"></div>
+                                        
+                                        <button type="button" class="absolute right-8 top-[104px] z-10 rounded-full p-1 transition-colors duration-200 hover:bg-slate-100" onclick="event.stopPropagation(); toggleNode('level3Right')">
+                                            <svg viewBox="0 0 24 24" class="h-6 w-6 text-slate-400 transition-transform duration-300" id="level3RightToggleIcon" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="m6 9 6 6 6-6" />
+                                            </svg>
+                                        </button>
+                                        
+                                        <div class="flex h-full flex-col items-center justify-center gap-5 px-8 text-center">
+                                            <div class="flex h-[64px] w-[64px] items-center justify-center rounded-full text-white" style="background: linear-gradient(180deg, #13c79d 0%, #0aa989 100%); box-shadow: 0 14px 28px rgba(16, 185, 129, 0.24);">
+                                                <svg viewBox="0 0 24 24" class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M10 3h4" />
+                                                    <path d="M10 3v4.2l-5.2 9.1A2.6 2.6 0 0 0 7.1 20h9.8a2.6 2.6 0 0 0 2.3-3.7L14 7.2V3" />
+                                                    <path d="M8.2 14h7.6" />
+                                                </svg>
+                                            </div>
+                                            
+                                            <div class="space-y-1.5">
+                                                <h2 class="text-[22px] font-bold leading-none tracking-[0.02em] text-[#182235]">MYS-0000000006</h2>
+                                                <p class="text-[18px] font-semibold tracking-[0.01em] text-[#7b8494]">GREEN HORIZON SDN BHD</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 3级右侧节点子容器 -->
+                                <div class="absolute inset-x-0 top-[310px] h-[314px] transition-all duration-500 ease-out" id="level3RightChildren">
+                                    <div class="absolute left-[1085px] top-0 h-[54px] w-px bg-[#d7dce3]"></div>
+                                    <div class="absolute left-[1085px] top-[54px] h-px w-[169px] bg-[#d7dce3]"></div>
+                                    <div class="absolute left-[1077px] top-[46px] h-4 w-4 rounded-full bg-[#c8cdd6]"></div>
+                                </div>
+                                
+                                <!-- 3级左侧节点子容器 -->
+                                <div class="absolute inset-x-0 top-[310px] h-[314px] transition-all duration-500 ease-out" id="level3LeftChildren">
+                                    <div class="absolute left-[709px] top-0 h-[54px] w-px bg-[#d7dce3]"></div>
+                                    <div class="absolute left-[709px] top-[54px] h-px w-[169px] bg-[#d7dce3]"></div>
+                                    <div class="absolute left-[701px] top-[46px] h-4 w-4 rounded-full bg-[#c8cdd6]"></div>
+                                    
+                                    <!-- 4级左侧节点 -->
+                                    <div class="absolute left-[728px] top-[72px]">
+                                        <div class="relative h-[238px] w-[278px] overflow-hidden border border-black/5 bg-white/95 cursor-pointer" style="border-radius: 28px; box-shadow: 0 26px 56px rgba(234, 179, 8, 0.12), 0 4px 14px rgba(234, 179, 8, 0.07); backdrop-filter: blur(8px);" onclick="openNodeDrawer('MYS-0000000007', 'SUNSHINE GROUP SDN BHD', 4)">
+                                            <div class="absolute inset-x-0 top-0 h-2" style="background: linear-gradient(90deg, #eab308 0%, #f97316 100%); border-radius: 28px 28px 0 0;"></div>
+                                            
+                                            <button type="button" class="absolute right-8 top-[104px] z-10 rounded-full p-1 transition-colors duration-200 hover:bg-slate-100" onclick="event.stopPropagation(); toggleNode('level4Left')">
+                                                <svg viewBox="0 0 24 24" class="h-6 w-6 text-slate-400 transition-transform duration-300" id="level4LeftToggleIcon" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="m6 9 6 6 6-6" />
+                                                </svg>
+                                            </button>
+                                            
+                                            <div class="flex h-full flex-col items-center justify-center gap-5 px-8 text-center">
+                                                <div class="flex h-[64px] w-[64px] items-center justify-center rounded-full text-white" style="background: linear-gradient(180deg, #f6a300 0%, #ff7a00 100%); box-shadow: 0 14px 28px rgba(234, 179, 8, 0.24);">
+                                                    <svg viewBox="0 0 24 24" class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M12 4.5c-4.9 0-8.8 3.5-8.8 8 0 4.1 3 7 6.5 7 .8 0 1.5-.7 1.5-1.5 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.1 0-1.3 1.1-2.4 2.4-2.4h1.8c3.3 0 6.1-2.5 6.1-5.8 0-4.2-3.8-7-8.5-7Z" />
+                                                        <circle cx="7.7" cy="11.2" r="1" fill="currentColor" stroke="none" />
+                                                        <circle cx="10.4" cy="8.1" r="1" fill="currentColor" stroke="none" />
+                                                        <circle cx="14.2" cy="8" r="1" fill="currentColor" stroke="none" />
+                                                        <circle cx="16.3" cy="11" r="1" fill="currentColor" stroke="none" />
+                                                    </svg>
+                                                </div>
+                                                
+                                                <div class="space-y-1.5">
+                                                    <h2 class="text-[22px] font-bold leading-none tracking-[0.02em] text-[#182235]">MYS-0000000007</h2>
+                                                    <p class="text-[18px] font-semibold tracking-[0.01em] text-[#7b8494]">SUNSHINE GROUP SDN BHD</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 4级右侧节点 -->
+                                    <div class="absolute left-[1104px] top-[72px]">
+                                        <div class="relative h-[238px] w-[278px] overflow-hidden border border-black/5 bg-white/95 cursor-pointer" style="border-radius: 28px; box-shadow: 0 26px 56px rgba(168, 85, 247, 0.12), 0 4px 14px rgba(168, 85, 247, 0.07); backdrop-filter: blur(8px);" onclick="openNodeDrawer('MYS-0000000008', 'PURPLE DREAM SDN BHD', 4)">
+                                            <div class="absolute inset-x-0 top-0 h-2" style="background: linear-gradient(90deg, #a855f7 0%, #ec4899 100%); border-radius: 28px 28px 0 0;"></div>
+                                            
+                                            <button type="button" class="absolute right-8 top-[104px] z-10 rounded-full p-1 transition-colors duration-200 hover:bg-slate-100" onclick="event.stopPropagation(); toggleNode('level4Right')">
+                                                <svg viewBox="0 0 24 24" class="h-6 w-6 text-slate-400 transition-transform duration-300" id="level4RightToggleIcon" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="m6 9 6 6 6-6" />
+                                                </svg>
+                                            </button>
+                                            
+                                            <div class="flex h-full flex-col items-center justify-center gap-5 px-8 text-center">
+                                                <div class="flex h-[64px] w-[64px] items-center justify-center rounded-full text-white" style="background: linear-gradient(180deg, #c36bf1 0%, #df3ea8 100%); box-shadow: 0 14px 28px rgba(168, 85, 247, 0.24);">
+                                                    <svg viewBox="0 0 24 24" class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M12 4.5c-4.9 0-8.8 3.5-8.8 8 0 4.1 3 7 6.5 7 .8 0 1.5-.7 1.5-1.5 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.1 0-1.3 1.1-2.4 2.4-2.4h1.8c3.3 0 6.1-2.5 6.1-5.8 0-4.2-3.8-7-8.5-7Z" />
+                                                        <circle cx="7.7" cy="11.2" r="1" fill="currentColor" stroke="none" />
+                                                        <circle cx="10.4" cy="8.1" r="1" fill="currentColor" stroke="none" />
+                                                        <circle cx="14.2" cy="8" r="1" fill="currentColor" stroke="none" />
+                                                        <circle cx="16.3" cy="11" r="1" fill="currentColor" stroke="none" />
+                                                    </svg>
+                                                </div>
+                                                
+                                                <div class="space-y-1.5">
+                                                    <h2 class="text-[22px] font-bold leading-none tracking-[0.02em] text-[#182235]">MYS-0000000008</h2>
+                                                    <p class="text-[18px] font-semibold tracking-[0.01em] text-[#7b8494]">PURPLE DREAM SDN BHD</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 5级节点容器 -->
+                                    <div class="absolute inset-x-0 top-[310px] h-[314px] transition-all duration-500 ease-out" id="level5Children">
+                                        <div class="absolute left-[1244px] top-0 h-[54px] w-px bg-[#d7dce3]"></div>
+                                        <div class="absolute left-[1025px] top-[54px] h-px w-[376px] bg-[#d7dce3]"></div>
+                                        <div class="absolute left-[1236px] top-[46px] h-4 w-4 rounded-full bg-[#c8cdd6]"></div>
+                                        
+                                        <!-- 5级左侧节点 -->
+                                        <div class="absolute left-[886px] top-[72px]">
+                                            <div class="relative h-[238px] w-[278px] overflow-hidden border border-black/5 bg-white/95 cursor-pointer" style="border-radius: 28px; box-shadow: 0 26px 56px rgba(251, 113, 133, 0.12), 0 4px 14px rgba(251, 113, 133, 0.07); backdrop-filter: blur(8px);" onclick="openNodeDrawer('MYS-0000000009', 'ROSE PETAL SDN BHD', 5)">
+                                                <div class="absolute inset-x-0 top-0 h-2" style="background: linear-gradient(90deg, #fb7185 0%, #ff0033 100%); border-radius: 28px 28px 0 0;"></div>
+                                                
+                                                <button type="button" class="absolute right-8 top-[104px] z-10 rounded-full p-1 transition-colors duration-200 hover:bg-slate-100" onclick="event.stopPropagation(); toggleNode('level5Left')">
+                                                    <svg viewBox="0 0 24 24" class="h-6 w-6 text-slate-400 transition-transform duration-300" id="level5LeftToggleIcon" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="m6 9 6 6 6-6" />
+                                                    </svg>
+                                                </button>
+                                                
+                                                <div class="flex h-full flex-col items-center justify-center gap-5 px-8 text-center">
+                                                    <div class="flex h-[64px] w-[64px] items-center justify-center rounded-full text-white" style="background: linear-gradient(180deg, #ff5a72 0%, #ff173c 100%); box-shadow: 0 14px 28px rgba(251, 113, 133, 0.24);">
+                                                        <svg viewBox="0 0 24 24" class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                                            <path d="m14.8 5.2 4 4" />
+                                                            <path d="M8.8 11.2 4.5 18l1.5 1.5 6.8-4.3" />
+                                                            <path d="m10.1 9.9 3.1-3.1c.8-.8 2-.9 3-.4l2.2 1.1c.5.3 1.1.2 1.5-.2l.3-.3-3.7-3.7-.3.3c-.4.4-.5 1-.2 1.5l1.1 2.2c.5 1 .4 2.2-.4 3l-3.1 3.1" />
+                                                        </svg>
+                                                    </div>
+                                                    
+                                                    <div class="space-y-1.5">
+                                                        <h2 class="text-[22px] font-bold leading-none tracking-[0.02em] text-[#182235]">MYS-0000000009</h2>
+                                                        <p class="text-[18px] font-semibold tracking-[0.01em] text-[#7b8494]">ROSE PETAL SDN BHD</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- 5级右侧节点 -->
+                                        <div class="absolute left-[1262px] top-[72px]">
+                                            <div class="relative h-[238px] w-[278px] overflow-hidden border border-black/5 bg-white/95 cursor-pointer" style="border-radius: 28px; box-shadow: 0 26px 56px rgba(6, 182, 212, 0.12), 0 4px 14px rgba(6, 182, 212, 0.07); backdrop-filter: blur(8px);" onclick="openNodeDrawer('MYS-0000000010', 'OCEAN BLUE SDN BHD', 5)">
+                                                <div class="absolute inset-x-0 top-0 h-2" style="background: linear-gradient(90deg, #06b6d4 0%, #0891b2 100%); border-radius: 28px 28px 0 0;"></div>
+                                                
+                                                <button type="button" class="absolute right-8 top-[104px] z-10 rounded-full p-1 transition-colors duration-200 hover:bg-slate-100" onclick="event.stopPropagation(); toggleNode('level5Right')">
+                                                    <svg viewBox="0 0 24 24" class="h-6 w-6 text-slate-400 transition-transform duration-300" id="level5RightToggleIcon" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="m6 9 6 6 6-6" />
+                                                    </svg>
+                                                </button>
+                                                
+                                                <div class="flex h-full flex-col items-center justify-center gap-5 px-8 text-center">
+                                                    <div class="flex h-[64px] w-[64px] items-center justify-center rounded-full text-white" style="background: linear-gradient(180deg, #06b6d4 0%, #0891b2 100%); box-shadow: 0 14px 28px rgba(6, 182, 212, 0.24);">
+                                                        <svg viewBox="0 0 24 24" class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                                            <path d="M12 19c-1.7-1.5-3.5-2.2-5.8-2.2A2.2 2.2 0 0 1 4 14.6V7.3A2.3 2.3 0 0 1 6.3 5c2.4 0 4.4.8 5.7 2.4C13.3 5.8 15.3 5 17.7 5A2.3 2.3 0 0 1 20 7.3v7.3a2.2 2.2 0 0 1-2.2 2.2c-2.3 0-4.1.7-5.8 2.2Z" />
+                                                            <path d="M12 7.4V19" />
+                                                        </svg>
+                                                    </div>
+                                                    
+                                                    <div class="space-y-1.5">
+                                                        <h2 class="text-[22px] font-bold leading-none tracking-[0.02em] text-[#182235]">MYS-0000000010</h2>
+                                                        <p class="text-[18px] font-semibold tracking-[0.01em] text-[#7b8494]">OCEAN BLUE SDN BHD</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- 6级节点容器 -->
+                                        <div class="absolute inset-x-0 top-[310px] h-[314px] transition-all duration-500 ease-out" id="level6Children">
+                                            <div class="absolute left-[1402px] top-0 h-[54px] w-px bg-[#d7dce3]"></div>
+                                            <div class="absolute left-[1183px] top-[54px] h-px w-[376px] bg-[#d7dce3]"></div>
+                                            <div class="absolute left-[1394px] top-[46px] h-4 w-4 rounded-full bg-[#c8cdd6]"></div>
+                                            
+                                            <!-- 6级左侧节点 -->
+                                            <div class="absolute left-[1044px] top-[72px]">
+                                                <div class="relative h-[238px] w-[278px] overflow-hidden border border-black/5 bg-white/95 cursor-pointer" style="border-radius: 28px; box-shadow: 0 26px 56px rgba(34, 197, 94, 0.12), 0 4px 14px rgba(34, 197, 94, 0.07); backdrop-filter: blur(8px);" onclick="openNodeDrawer('MYS-0000000011', 'FOREST GREEN SDN BHD', 6)">
+                                                    <div class="absolute inset-x-0 top-0 h-2" style="background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%); border-radius: 28px 28px 0 0;"></div>
+                                                    
+                                                    <button type="button" class="absolute right-8 top-[104px] z-10 rounded-full p-1 transition-colors duration-200 hover:bg-slate-100" onclick="event.stopPropagation(); toggleNode('level6Left')">
+                                                        <svg viewBox="0 0 24 24" class="h-6 w-6 text-slate-400 transition-transform duration-300" id="level6LeftToggleIcon" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                                            <path d="m6 9 6 6 6-6" />
+                                                        </svg>
+                                                    </button>
+                                                    
+                                                    <div class="flex h-full flex-col items-center justify-center gap-5 px-8 text-center">
+                                                        <div class="flex h-[64px] w-[64px] items-center justify-center rounded-full text-white" style="background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%); box-shadow: 0 14px 28px rgba(34, 197, 94, 0.24);">
+                                                            <svg viewBox="0 0 24 24" class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                                                <path d="M10 3h4" />
+                                                                <path d="M10 3v4.2l-5.2 9.1A2.6 2.6 0 0 0 7.1 20h9.8a2.6 2.6 0 0 0 2.3-3.7L14 7.2V3" />
+                                                                <path d="M8.2 14h7.6" />
+                                                            </svg>
+                                                        </div>
+                                                        
+                                                        <div class="space-y-1.5">
+                                                            <h2 class="text-[22px] font-bold leading-none tracking-[0.02em] text-[#182235]">MYS-0000000011</h2>
+                                                            <p class="text-[18px] font-semibold tracking-[0.01em] text-[#7b8494]">FOREST GREEN SDN BHD</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- 6级右侧节点 -->
+                                            <div class="absolute left-[1420px] top-[72px]">
+                                                <div class="relative h-[238px] w-[278px] overflow-hidden border border-black/5 bg-white/95 cursor-pointer" style="border-radius: 28px; box-shadow: 0 26px 56px rgba(236, 72, 153, 0.12), 0 4px 14px rgba(236, 72, 153, 0.07); backdrop-filter: blur(8px);" onclick="openNodeDrawer('MYS-0000000012', 'PINK PARADISE SDN BHD', 6)">
+                                                    <div class="absolute inset-x-0 top-0 h-2" style="background: linear-gradient(90deg, #ec4899 0%, #db2777 100%); border-radius: 28px 28px 0 0;"></div>
+                                                    
+                                                    <button type="button" class="absolute right-8 top-[104px] z-10 rounded-full p-1 transition-colors duration-200 hover:bg-slate-100" onclick="event.stopPropagation(); toggleNode('level6Right')">
+                                                        <svg viewBox="0 0 24 24" class="h-6 w-6 text-slate-400 transition-transform duration-300" id="level6RightToggleIcon" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                                            <path d="m6 9 6 6 6-6" />
+                                                        </svg>
+                                                    </button>
+                                                    
+                                                    <div class="flex h-full flex-col items-center justify-center gap-5 px-8 text-center">
+                                                        <div class="flex h-[64px] w-[64px] items-center justify-center rounded-full text-white" style="background: linear-gradient(180deg, #ec4899 0%, #db2777 100%); box-shadow: 0 14px 28px rgba(236, 72, 153, 0.24);">
+                                                            <svg viewBox="0 0 24 24" class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                                                <path d="M12 4.5c-4.9 0-8.8 3.5-8.8 8 0 4.1 3 7 6.5 7 .8 0 1.5-.7 1.5-1.5 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.1 0-1.3 1.1-2.4 2.4-2.4h1.8c3.3 0 6.1-2.5 6.1-5.8 0-4.2-3.8-7-8.5-7Z" />
+                                                                <circle cx="7.7" cy="11.2" r="1" fill="currentColor" stroke="none" />
+                                                                <circle cx="10.4" cy="8.1" r="1" fill="currentColor" stroke="none" />
+                                                                <circle cx="14.2" cy="8" r="1" fill="currentColor" stroke="none" />
+                                                                <circle cx="16.3" cy="11" r="1" fill="currentColor" stroke="none" />
+                                                            </svg>
+                                                        </div>
+                                                        
+                                                        <div class="space-y-1.5">
+                                                            <h2 class="text-[22px] font-bold leading-none tracking-[0.02em] text-[#182235]">MYS-0000000012</h2>
+                                                            <p class="text-[18px] font-semibold tracking-[0.01em] text-[#7b8494]">PINK PARADISE SDN BHD</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- 7级节点容器 -->
+                                            <div class="absolute inset-x-0 top-[310px] h-[314px] transition-all duration-500 ease-out" id="level7Children">
+                                                <div class="absolute left-[1560px] top-0 h-[54px] w-px bg-[#d7dce3]"></div>
+                                                <div class="absolute left-[1341px] top-[54px] h-px w-[376px] bg-[#d7dce3]"></div>
+                                                <div class="absolute left-[1552px] top-[46px] h-4 w-4 rounded-full bg-[#c8cdd6]"></div>
+                                                
+                                                <!-- 7级左侧节点 -->
+                                                <div class="absolute left-[1202px] top-[72px]">
+                                                    <div class="relative h-[238px] w-[278px] overflow-hidden border border-black/5 bg-white/95 cursor-pointer" style="border-radius: 28px; box-shadow: 0 26px 56px rgba(251, 146, 60, 0.12), 0 4px 14px rgba(251, 146, 60, 0.07); backdrop-filter: blur(8px);" onclick="openNodeDrawer('MYS-0000000013', 'ORANGE BLOSSOM SDN BHD', 7)">
+                                                        <div class="absolute inset-x-0 top-0 h-2" style="background: linear-gradient(90deg, #fb923c 0%, #ea580c 100%); border-radius: 28px 28px 0 0;"></div>
+                                                        
+                                                        <button type="button" class="absolute right-8 top-[104px] z-10 rounded-full p-1 transition-colors duration-200 hover:bg-slate-100" onclick="event.stopPropagation(); toggleNode('level7Left')">
+                                                            <svg viewBox="0 0 24 24" class="h-6 w-6 text-slate-400 transition-transform duration-300" id="level7LeftToggleIcon" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                                                <path d="m6 9 6 6 6-6" />
+                                                            </svg>
+                                                        </button>
+                                                        
+                                                        <div class="flex h-full flex-col items-center justify-center gap-5 px-8 text-center">
+                                                            <div class="flex h-[64px] w-[64px] items-center justify-center rounded-full text-white" style="background: linear-gradient(180deg, #fb923c 0%, #ea580c 100%); box-shadow: 0 14px 28px rgba(251, 146, 60, 0.24);">
+                                                                <svg viewBox="0 0 24 24" class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                                                    <path d="M12 4.5c-4.9 0-8.8 3.5-8.8 8 0 4.1 3 7 6.5 7 .8 0 1.5-.7 1.5-1.5 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.1 0-1.3 1.1-2.4 2.4-2.4h1.8c3.3 0 6.1-2.5 6.1-5.8 0-4.2-3.8-7-8.5-7Z" />
+                                                                    <circle cx="7.7" cy="11.2" r="1" fill="currentColor" stroke="none" />
+                                                                    <circle cx="10.4" cy="8.1" r="1" fill="currentColor" stroke="none" />
+                                                                    <circle cx="14.2" cy="8" r="1" fill="currentColor" stroke="none" />
+                                                                    <circle cx="16.3" cy="11" r="1" fill="currentColor" stroke="none" />
+                                                                </svg>
+                                                            </div>
+                                                            
+                                                            <div class="space-y-1.5">
+                                                                <h2 class="text-[22px] font-bold leading-none tracking-[0.02em] text-[#182235]">MYS-0000000013</h2>
+                                                                <p class="text-[18px] font-semibold tracking-[0.01em] text-[#7b8494]">ORANGE BLOSSOM SDN BHD</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- 7级右侧节点 -->
+                                                <div class="absolute left-[1578px] top-[72px]">
+                                                    <div class="relative h-[238px] w-[278px] overflow-hidden border border-black/5 bg-white/95 cursor-pointer" style="border-radius: 28px; box-shadow: 0 26px 56px rgba(99, 102, 241, 0.12), 0 4px 14px rgba(99, 102, 241, 0.07); backdrop-filter: blur(8px);" onclick="openNodeDrawer('MYS-0000000014', 'INDIGO SKY SDN BHD', 7)">
+                                                        <div class="absolute inset-x-0 top-0 h-2" style="background: linear-gradient(90deg, #6366f1 0%, #4f46e5 100%); border-radius: 28px 28px 0 0;"></div>
+                                                        
+                                                        <button type="button" class="absolute right-8 top-[104px] z-10 rounded-full p-1 transition-colors duration-200 hover:bg-slate-100" onclick="event.stopPropagation(); toggleNode('level7Right')">
+                                                            <svg viewBox="0 0 24 24" class="h-6 w-6 text-slate-400 transition-transform duration-300" id="level7RightToggleIcon" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                                                <path d="m6 9 6 6 6-6" />
+                                                            </svg>
+                                                        </button>
+                                                        
+                                                        <div class="flex h-full flex-col items-center justify-center gap-5 px-8 text-center">
+                                                            <div class="flex h-[64px] w-[64px] items-center justify-center rounded-full text-white" style="background: linear-gradient(180deg, #6366f1 0%, #4f46e5 100%); box-shadow: 0 14px 28px rgba(99, 102, 241, 0.24);">
+                                                                <svg viewBox="0 0 24 24" class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                                                    <path d="M12 19c-1.7-1.5-3.5-2.2-5.8-2.2A2.2 2.2 0 0 1 4 14.6V7.3A2.3 2.3 0 0 1 6.3 5c2.4 0 4.4.8 5.7 2.4C13.3 5.8 15.3 5 17.7 5A2.3 2.3 0 0 1 20 7.3v7.3a2.2 2.2 0 0 1-2.2 2.2c-2.3 0-4.1.7-5.8 2.2Z" />
+                                                                    <path d="M12 7.4V19" />
+                                                                </svg>
+                                                            </div>
+                                                            
+                                                            <div class="space-y-1.5">
+                                                                <h2 class="text-[22px] font-bold leading-none tracking-[0.02em] text-[#182235]">MYS-0000000014</h2>
+                                                                <p class="text-[18px] font-semibold tracking-[0.01em] text-[#7b8494]">INDIGO SKY SDN BHD</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- 8级节点容器 -->
+                                                <div class="absolute inset-x-0 top-[310px] h-[314px] transition-all duration-500 ease-out" id="level8Children">
+                                                    <div class="absolute left-[1718px] top-0 h-[54px] w-px bg-[#d7dce3]"></div>
+                                                    <div class="absolute left-[1499px] top-[54px] h-px w-[376px] bg-[#d7dce3]"></div>
+                                                    <div class="absolute left-[1710px] top-[46px] h-4 w-4 rounded-full bg-[#c8cdd6]"></div>
+                                                    
+                                                    <!-- 8级左侧节点 -->
+                                                    <div class="absolute left-[1360px] top-[72px]">
+                                                        <div class="relative h-[238px] w-[278px] overflow-hidden border border-black/5 bg-white/95 cursor-pointer" style="border-radius: 28px; box-shadow: 0 26px 56px rgba(20, 184, 166, 0.12), 0 4px 14px rgba(20, 184, 166, 0.07); backdrop-filter: blur(8px);" onclick="openNodeDrawer('MYS-0000000015', 'TEAL WAVE SDN BHD', 8)">
+                                                            <div class="absolute inset-x-0 top-0 h-2" style="background: linear-gradient(90deg, #14b8a6 0%, #0d9488 100%); border-radius: 28px 28px 0 0;"></div>
+                                                            
+                                                            <button type="button" class="absolute right-8 top-[104px] z-10 rounded-full p-1 transition-colors duration-200 hover:bg-slate-100" onclick="event.stopPropagation(); toggleNode('level8Left')">
+                                                                <svg viewBox="0 0 24 24" class="h-6 w-6 text-slate-400 transition-transform duration-300" id="level8LeftToggleIcon" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                                                    <path d="m6 9 6 6 6-6" />
+                                                                </svg>
+                                                            </button>
+                                                            
+                                                            <div class="flex h-full flex-col items-center justify-center gap-5 px-8 text-center">
+                                                                <div class="flex h-[64px] w-[64px] items-center justify-center rounded-full text-white" style="background: linear-gradient(180deg, #14b8a6 0%, #0d9488 100%); box-shadow: 0 14px 28px rgba(20, 184, 166, 0.24);">
+                                                                    <svg viewBox="0 0 24 24" class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                                                        <path d="M10 3h4" />
+                                                                        <path d="M10 3v4.2l-5.2 9.1A2.6 2.6 0 0 0 7.1 20h9.8a2.6 2.6 0 0 0 2.3-3.7L14 7.2V3" />
+                                                                        <path d="M8.2 14h7.6" />
+                                                                    </svg>
+                                                                </div>
+                                                                
+                                                                <div class="space-y-1.5">
+                                                                    <h2 class="text-[22px] font-bold leading-none tracking-[0.02em] text-[#182235]">MYS-0000000015</h2>
+                                                                    <p class="text-[18px] font-semibold tracking-[0.01em] text-[#7b8494]">TEAL WAVE SDN BHD</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- 8级右侧节点 -->
+                                                    <div class="absolute left-[1736px] top-[72px]">
+                                                        <div class="relative h-[238px] w-[278px] overflow-hidden border border-black/5 bg-white/95 cursor-pointer" style="border-radius: 28px; box-shadow: 0 26px 56px rgba(168, 85, 247, 0.12), 0 4px 14px rgba(168, 85, 247, 0.07); backdrop-filter: blur(8px);" onclick="openNodeDrawer('MYS-0000000016', 'VIOLET GLOW SDN BHD', 8)">
+                                                            <div class="absolute inset-x-0 top-0 h-2" style="background: linear-gradient(90deg, #a855f7 0%, #7c3aed 100%); border-radius: 28px 28px 0 0;"></div>
+                                                            
+                                                            <button type="button" class="absolute right-8 top-[104px] z-10 rounded-full p-1 transition-colors duration-200 hover:bg-slate-100" onclick="event.stopPropagation(); toggleNode('level8Right')">
+                                                                <svg viewBox="0 0 24 24" class="h-6 w-6 text-slate-400 transition-transform duration-300" id="level8RightToggleIcon" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                                                    <path d="m6 9 6 6 6-6" />
+                                                                </svg>
+                                                            </button>
+                                                            
+                                                            <div class="flex h-full flex-col items-center justify-center gap-5 px-8 text-center">
+                                                                <div class="flex h-[64px] w-[64px] items-center justify-center rounded-full text-white" style="background: linear-gradient(180deg, #a855f7 0%, #7c3aed 100%); box-shadow: 0 14px 28px rgba(168, 85, 247, 0.24);">
+                                                                    <svg viewBox="0 0 24 24" class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                                                        <path d="M12 4.5c-4.9 0-8.8 3.5-8.8 8 0 4.1 3 7 6.5 7 .8 0 1.5-.7 1.5-1.5 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.1 0-1.3 1.1-2.4 2.4-2.4h1.8c3.3 0 6.1-2.5 6.1-5.8 0-4.2-3.8-7-8.5-7Z" />
+                                                                        <circle cx="7.7" cy="11.2" r="1" fill="currentColor" stroke="none" />
+                                                                        <circle cx="10.4" cy="8.1" r="1" fill="currentColor" stroke="none" />
+                                                                        <circle cx="14.2" cy="8" r="1" fill="currentColor" stroke="none" />
+                                                                        <circle cx="16.3" cy="11" r="1" fill="currentColor" stroke="none" />
+                                                                    </svg>
+                                                                </div>
+                                                                
+                                                                <div class="space-y-1.5">
+                                                                    <h2 class="text-[22px] font-bold leading-none tracking-[0.02em] text-[#182235]">MYS-0000000016</h2>
+                                                                    <p class="text-[18px] font-semibold tracking-[0.01em] text-[#7b8494]">VIOLET GLOW SDN BHD</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- 9级节点容器 -->
+                                                    <div class="absolute inset-x-0 top-[310px] h-[314px] transition-all duration-500 ease-out" id="level9Children">
+                                                        <div class="absolute left-[1876px] top-0 h-[54px] w-px bg-[#d7dce3]"></div>
+                                                        <div class="absolute left-[1657px] top-[54px] h-px w-[376px] bg-[#d7dce3]"></div>
+                                                        <div class="absolute left-[1868px] top-[46px] h-4 w-4 rounded-full bg-[#c8cdd6]"></div>
+                                                        
+                                                        <!-- 9级左侧节点 -->
+                                                        <div class="absolute left-[1518px] top-[72px]">
+                                                            <div class="relative h-[238px] w-[278px] overflow-hidden border border-black/5 bg-white/95 cursor-pointer" style="border-radius: 28px; box-shadow: 0 26px 56px rgba(244, 63, 94, 0.12), 0 4px 14px rgba(244, 63, 94, 0.07); backdrop-filter: blur(8px);" onclick="openNodeDrawer('MYS-0000000017', 'CRIMSON TIDE SDN BHD', 9)">
+                                                                <div class="absolute inset-x-0 top-0 h-2" style="background: linear-gradient(90deg, #f43f5e 0%, #e11d48 100%); border-radius: 28px 28px 0 0;"></div>
+                                                                
+                                                                <button type="button" class="absolute right-8 top-[104px] z-10 rounded-full p-1 transition-colors duration-200 hover:bg-slate-100" onclick="event.stopPropagation(); toggleNode('level9Left')">
+                                                                    <svg viewBox="0 0 24 24" class="h-6 w-6 text-slate-400 transition-transform duration-300" id="level9LeftToggleIcon" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                                                        <path d="m6 9 6 6 6-6" />
+                                                                    </svg>
+                                                                </button>
+                                                                
+                                                                <div class="flex h-full flex-col items-center justify-center gap-5 px-8 text-center">
+                                                                    <div class="flex h-[64px] w-[64px] items-center justify-center rounded-full text-white" style="background: linear-gradient(180deg, #f43f5e 0%, #e11d48 100%); box-shadow: 0 14px 28px rgba(244, 63, 94, 0.24);">
+                                                                        <svg viewBox="0 0 24 24" class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                                                            <path d="m14.8 5.2 4 4" />
+                                                                            <path d="M8.8 11.2 4.5 18l1.5 1.5 6.8-4.3" />
+                                                                            <path d="m10.1 9.9 3.1-3.1c.8-.8 2-.9 3-.4l2.2 1.1c.5.3 1.1.2 1.5-.2l.3-.3-3.7-3.7-.3.3c-.4.4-.5 1-.2 1.5l1.1 2.2c.5 1 .4 2.2-.4 3l-3.1 3.1" />
+                                                                        </svg>
+                                                                    </div>
+                                                                    
+                                                                    <div class="space-y-1.5">
+                                                                        <h2 class="text-[22px] font-bold leading-none tracking-[0.02em] text-[#182235]">MYS-0000000017</h2>
+                                                                        <p class="text-[18px] font-semibold tracking-[0.01em] text-[#7b8494]">CRIMSON TIDE SDN BHD</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <!-- 9级右侧节点 -->
+                                                        <div class="absolute left-[1894px] top-[72px]">
+                                                            <div class="relative h-[238px] w-[278px] overflow-hidden border border-black/5 bg-white/95 cursor-pointer" style="border-radius: 28px; box-shadow: 0 26px 56px rgba(34, 211, 238, 0.12), 0 4px 14px rgba(34, 211, 238, 0.07); backdrop-filter: blur(8px);" onclick="openNodeDrawer('MYS-0000000018', 'CYAN BREEZE SDN BHD', 9)">
+                                                                <div class="absolute inset-x-0 top-0 h-2" style="background: linear-gradient(90deg, #22d3ee 0%, #06b6d4 100%); border-radius: 28px 28px 0 0;"></div>
+                                                                
+                                                                <button type="button" class="absolute right-8 top-[104px] z-10 rounded-full p-1 transition-colors duration-200 hover:bg-slate-100" onclick="event.stopPropagation(); toggleNode('level9Right')">
+                                                                    <svg viewBox="0 0 24 24" class="h-6 w-6 text-slate-400 transition-transform duration-300" id="level9RightToggleIcon" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                                                        <path d="m6 9 6 6 6-6" />
+                                                                    </svg>
+                                                                </button>
+                                                                
+                                                                <div class="flex h-full flex-col items-center justify-center gap-5 px-8 text-center">
+                                                                    <div class="flex h-[64px] w-[64px] items-center justify-center rounded-full text-white" style="background: linear-gradient(180deg, #22d3ee 0%, #06b6d4 100%); box-shadow: 0 14px 28px rgba(34, 211, 238, 0.24);">
+                                                                        <svg viewBox="0 0 24 24" class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                                                            <path d="M12 19c-1.7-1.5-3.5-2.2-5.8-2.2A2.2 2.2 0 0 1 4 14.6V7.3A2.3 2.3 0 0 1 6.3 5c2.4 0 4.4.8 5.7 2.4C13.3 5.8 15.3 5 17.7 5A2.3 2.3 0 0 1 20 7.3v7.3a2.2 2.2 0 0 1-2.2 2.2c-2.3 0-4.1.7-5.8 2.2Z" />
+                                                                            <path d="M12 7.4V19" />
+                                                                        </svg>
+                                                                    </div>
+                                                                    
+                                                                    <div class="space-y-1.5">
+                                                                        <h2 class="text-[22px] font-bold leading-none tracking-[0.02em] text-[#182235]">MYS-0000000018</h2>
+                                                                        <p class="text-[18px] font-semibold tracking-[0.01em] text-[#7b8494]">CYAN BREEZE SDN BHD</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <!-- 10级节点容器 -->
+                                                        <div class="absolute inset-x-0 top-[310px] h-[314px] transition-all duration-500 ease-out" id="level10Children">
+                                                            <div class="absolute left-[2034px] top-0 h-[54px] w-px bg-[#d7dce3]"></div>
+                                                            <div class="absolute left-[1815px] top-[54px] h-px w-[376px] bg-[#d7dce3]"></div>
+                                                            <div class="absolute left-[2026px] top-[46px] h-4 w-4 rounded-full bg-[#c8cdd6]"></div>
+                                                            
+                                                            <!-- 10级左侧节点 -->
+                                                            <div class="absolute left-[1676px] top-[72px]">
+                                                                <div class="relative h-[238px] w-[278px] overflow-hidden border border-black/5 bg-white/95 cursor-default" style="border-radius: 28px; box-shadow: 0 26px 56px rgba(132, 204, 22, 0.12), 0 4px 14px rgba(132, 204, 22, 0.07); backdrop-filter: blur(8px);" onclick="openNodeDrawer('MYS-0000000019', 'LIME SPARK SDN BHD', 10)">
+                                                                    <div class="absolute inset-x-0 top-0 h-2" style="background: linear-gradient(90deg, #84cc16 0%, #65a30d 100%); border-radius: 28px 28px 0 0;"></div>
+                                                                    
+                                                                    <div class="flex h-full flex-col items-center justify-center gap-5 px-8 text-center">
+                                                                        <div class="flex h-[64px] w-[64px] items-center justify-center rounded-full text-white" style="background: linear-gradient(180deg, #84cc16 0%, #65a30d 100%); box-shadow: 0 14px 28px rgba(132, 204, 22, 0.24);">
+                                                                            <svg viewBox="0 0 24 24" class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                                                                <path d="M10 3h4" />
+                                                                                <path d="M10 3v4.2l-5.2 9.1A2.6 2.6 0 0 0 7.1 20h9.8a2.6 2.6 0 0 0 2.3-3.7L14 7.2V3" />
+                                                                                <path d="M8.2 14h7.6" />
+                                                                            </svg>
+                                                                        </div>
+                                                                        
+                                                                        <div class="space-y-1.5">
+                                                                            <h2 class="text-[22px] font-bold leading-none tracking-[0.02em] text-[#182235]">MYS-0000000019</h2>
+                                                                            <p class="text-[18px] font-semibold tracking-[0.01em] text-[#7b8494]">LIME SPARK SDN BHD</p>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <!-- 10级右侧节点 -->
+                                                            <div class="absolute left-[2052px] top-[72px]">
+                                                                <div class="relative h-[238px] w-[278px] overflow-hidden border border-black/5 bg-white/95 cursor-default" style="border-radius: 28px; box-shadow: 0 26px 56px rgba(250, 204, 21, 0.12), 0 4px 14px rgba(250, 204, 21, 0.07); backdrop-filter: blur(8px);" onclick="openNodeDrawer('MYS-0000000020', 'GOLDEN RAY SDN BHD', 10)">
+                                                                    <div class="absolute inset-x-0 top-0 h-2" style="background: linear-gradient(90deg, #facc15 0%, #eab308 100%); border-radius: 28px 28px 0 0;"></div>
+                                                                    
+                                                                    <div class="flex h-full flex-col items-center justify-center gap-5 px-8 text-center">
+                                                                        <div class="flex h-[64px] w-[64px] items-center justify-center rounded-full text-white" style="background: linear-gradient(180deg, #facc15 0%, #eab308 100%); box-shadow: 0 14px 28px rgba(250, 204, 21, 0.24);">
+                                                                            <svg viewBox="0 0 24 24" class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                                                                <path d="M12 4.5c-4.9 0-8.8 3.5-8.8 8 0 4.1 3 7 6.5 7 .8 0 1.5-.7 1.5-1.5 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.1 0-1.3 1.1-2.4 2.4-2.4h1.8c3.3 0 6.1-2.5 6.1-5.8 0-4.2-3.8-7-8.5-7Z" />
+                                                                                <circle cx="7.7" cy="11.2" r="1" fill="currentColor" stroke="none" />
+                                                                                <circle cx="10.4" cy="8.1" r="1" fill="currentColor" stroke="none" />
+                                                                                <circle cx="14.2" cy="8" r="1" fill="currentColor" stroke="none" />
+                                                                                <circle cx="16.3" cy="11" r="1" fill="currentColor" stroke="none" />
+                                                                            </svg>
+                                                                        </div>
+                                                                        
+                                                                        <div class="space-y-1.5">
+                                                                            <h2 class="text-[22px] font-bold leading-none tracking-[0.02em] text-[#182235]">MYS-0000000020</h2>
+                                                                            <p class="text-[18px] font-semibold tracking-[0.01em] text-[#7b8494]">GOLDEN RAY SDN BHD</p>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 缩放控制按钮 -->
+    <div class="zoom-controls">
+        <div class="zoom-btn" onclick="zoomIn()" title="放大">+</div>
+        <div class="zoom-level" id="zoomLevel">100%</div>
+        <div class="zoom-btn" onclick="zoomOut()" title="缩小">-</div>
+        <div class="zoom-btn" onclick="resetZoom()" title="重置">⟲</div>
+    </div>
+    
+    <!-- 抽屉结构 -->
+    <div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+    <div class="drawer" id="drawer">
+        <div class="drawer-header">
+            <div class="drawer-title">节点详情</div>
+            <div class="drawer-close" onclick="closeDrawer()">&times;</div>
+        </div>
+        <div class="drawer-content">
+            <div class="drawer-avatar" id="drawerAvatar">👤</div>
+            <div class="drawer-section">
+                <div class="drawer-info-item">
+                    <span class="drawer-info-label">Member ID:</span>
+                    <span class="drawer-info-value" id="drawerId">10800000001</span>
+                </div>
+                <div class="drawer-info-item">
+                    <span class="drawer-info-label">Member Name:</span>
+                    <span class="drawer-info-value" id="drawerCompany">AT PEAK SDN BHD</span>
+                </div>
+                <div class="drawer-info-item">
+                    <span class="drawer-info-label">Membership Status:</span>
+                    <span class="drawer-info-value status-badge">VALID</span>
+                </div>
+                <div class="drawer-info-item">
+                    <span class="drawer-info-label">Joined Date:</span>
+                    <span class="drawer-info-value">2016-02-16</span>
+                </div>
+                <div class="drawer-info-item">
+                    <span class="drawer-info-label">PC 2026-03:</span>
+                    <span class="drawer-info-value status-badge">ACTIVE</span>
+                </div>
+                <div class="drawer-info-item">
+                    <span class="drawer-info-label">PC 2026-02:</span>
+                    <span class="drawer-info-value status-badge">ACTIVE</span>
+                </div>
+                <div class="drawer-info-item">
+                    <span class="drawer-info-label">Membership Type:</span>
+                    <span class="drawer-info-value type-badge">PD</span>
+                </div>
+                <div class="drawer-info-item">
+                    <span class="drawer-info-label">Highest Rank:</span>
+                    <span class="drawer-info-value rank-badge">3-STAR CROWN</span>
+                </div>
+                <div class="drawer-info-item">
+                    <span class="drawer-info-label">Effective Rank:</span>
+                    <span class="drawer-info-value rank-badge">DEALER</span>
+                </div>
+                <div class="drawer-info-item">
+                    <span class="drawer-info-label">Personal Sales BV:</span>
+                    <span class="drawer-info-value">30.00</span>
+                </div>
+                <div class="drawer-info-item">
+                    <span class="drawer-info-label">Power Leg GCV:</span>
+                    <span class="drawer-info-value">11,757,610.45</span>
+                </div>
+                <div class="drawer-info-item">
+                    <span class="drawer-info-label">Pay leg GCV:</span>
+                    <span class="drawer-info-value">1,962.80</span>
+                </div>
+                <div class="drawer-info-item">
+                    <span class="drawer-info-label">C/Fwd Power Leg:</span>
+                    <span class="drawer-info-value">11,757,610.45</span>
+                </div>
+                <div class="drawer-info-item">
+                    <span class="drawer-info-label">Left Group BV:</span>
+                    <span class="drawer-info-value">11760142.95</span>
+                </div>
+                <div class="drawer-info-item">
+                    <span class="drawer-info-label">Right Group BV:</span>
+                    <span class="drawer-info-value">1962.80</span>
+                </div>
+                <div class="drawer-info-item">
+                    <span class="drawer-info-label">Sponsor ID:</span>
+                    <span class="drawer-info-value">0</span>
+                </div>
+                <div class="drawer-info-item">
+                    <span class="drawer-info-label">Sponsor Name:</span>
+                    <span class="drawer-info-value">COMPANY DISTRIBUTOR</span>
+                </div>
+                <div class="drawer-info-item">
+                    <span class="drawer-info-label">Position of Sponsor:</span>
+                    <span class="drawer-info-value">LEFT</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 缩放和拖拽相关变量
+        let scale = 1;
+        let translateX = 0;
+        let translateY = 0;
+        let isDragging = false;
+        let startX, startY;
+        const minScale = 0.25;
+        const maxScale = 3;
+        const scaleStep = 0.1;
+        
+        const treeViewport = document.getElementById('treeViewport');
+        const treeWrapper = document.getElementById('treeWrapper');
+        const zoomLevelDisplay = document.getElementById('zoomLevel');
+        
+        // 更新变换
+        function updateTransform() {
+            treeWrapper.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+            zoomLevelDisplay.textContent = Math.round(scale * 100) + '%';
+        }
+        
+        // 放大
+        function zoomIn() {
+            if (scale < maxScale) {
+                scale = Math.min(scale + scaleStep, maxScale);
+                updateTransform();
+            }
+        }
+        
+        // 缩小
+        function zoomOut() {
+            if (scale > minScale) {
+                scale = Math.max(scale - scaleStep, minScale);
+                updateTransform();
+            }
+        }
+        
+        // 重置缩放
+        function resetZoom() {
+            scale = 1;
+            translateX = 0;
+            translateY = 0;
+            updateTransform();
+        }
+        
+        // 鼠标滚轮缩放
+        treeViewport.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -scaleStep : scaleStep;
+            const newScale = Math.max(minScale, Math.min(maxScale, scale + delta));
+            
+            // 以鼠标位置为中心缩放
+            const rect = treeViewport.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            const scaleChange = newScale / scale;
+            translateX = mouseX - (mouseX - translateX) * scaleChange;
+            translateY = mouseY - (mouseY - translateY) * scaleChange;
+            scale = newScale;
+            
+            updateTransform();
+        }, { passive: false });
+        
+        // 拖拽开始
+        treeViewport.addEventListener('mousedown', (e) => {
+            if (e.target.closest('.zoom-btn') || e.target.closest('.zoom-level')) return;
+            isDragging = true;
+            startX = e.clientX - translateX;
+            startY = e.clientY - translateY;
+            treeViewport.style.cursor = 'grabbing';
+        });
+        
+        // 拖拽移动
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            translateX = e.clientX - startX;
+            translateY = e.clientY - startY;
+            updateTransform();
+        });
+        
+        // 拖拽结束
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            treeViewport.style.cursor = 'grab';
+        });
+        
+        // 触摸支持
+        let touchStartDistance = 0;
+        let touchStartScale = 1;
+        
+        treeViewport.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 2) {
+                // 双指缩放
+                touchStartDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                touchStartScale = scale;
+            } else if (e.touches.length === 1) {
+                // 单指拖拽
+                isDragging = true;
+                startX = e.touches[0].clientX - translateX;
+                startY = e.touches[0].clientY - translateY;
+            }
+        }, { passive: false });
+        
+        treeViewport.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            
+            if (e.touches.length === 2) {
+                // 双指缩放
+                const currentDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                const newScale = Math.max(minScale, Math.min(maxScale, touchStartScale * (currentDistance / touchStartDistance)));
+                scale = newScale;
+                updateTransform();
+            } else if (e.touches.length === 1 && isDragging) {
+                // 单指拖拽
+                translateX = e.touches[0].clientX - startX;
+                translateY = e.touches[0].clientY - startY;
+                updateTransform();
+            }
+        }, { passive: false });
+        
+        treeViewport.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+        
+        // 节点展开状态
+        const nodeStates = {
+            root: true,
+            right: true,
+            level1Left: true,
+            level2Left: true,
+            level2Right: true,
+            level3Left: true,
+            level3Right: true,
+            level4Left: true,
+            level4Right: true,
+            level5Left: true,
+            level5Right: true,
+            level6Left: true,
+            level6Right: true,
+            level7Left: true,
+            level7Right: true,
+            level8Left: true,
+            level8Right: true,
+            level9Left: true,
+            level9Right: true
+        };
+        
+        // 切换节点展开/折叠状态
+        function toggleNode(nodeId) {
+            nodeStates[nodeId] = !nodeStates[nodeId];
+            const childrenContainer = document.getElementById(nodeId + 'Children');
+            const toggleIcon = document.getElementById(nodeId + 'ToggleIcon');
+            
+            if (childrenContainer) {
+                if (nodeStates[nodeId]) {
+                    childrenContainer.style.transform = 'translateY(0)';
+                    childrenContainer.style.opacity = '1';
+                    childrenContainer.style.pointerEvents = 'auto';
+                    if (toggleIcon) {
+                        toggleIcon.style.transform = 'rotate(0deg)';
+                    }
+                } else {
+                    childrenContainer.style.transform = 'translateY(-24px)';
+                    childrenContainer.style.opacity = '0';
+                    childrenContainer.style.pointerEvents = 'none';
+                    if (toggleIcon) {
+                        toggleIcon.style.transform = 'rotate(-90deg)';
+                    }
+                }
+            }
+            
+            // 调整容器高度
+            updateContainerHeight();
+        }
+        
+        // 更新容器高度
+        function updateContainerHeight() {
+            const treeContainer = document.getElementById('treeContainer');
+            
+            let height = 250;
+            
+            if (nodeStates.root) {
+                if (nodeStates.right) {
+                    if (nodeStates.level1Left) {
+                        if (nodeStates.level2Left) {
+                            if (nodeStates.level3Left) {
+                                if (nodeStates.level4Left) {
+                                    if (nodeStates.level5Left) {
+                                        if (nodeStates.level6Left) {
+                                            if (nodeStates.level7Left) {
+                                                if (nodeStates.level8Left) {
+                                                    if (nodeStates.level9Left) {
+                                                        height = 2310;
+                                                    } else {
+                                                        height = 2000;
+                                                    }
+                                                } else {
+                                                    height = 1690;
+                                                }
+                                            } else {
+                                                height = 1380;
+                                            }
+                                        } else {
+                                            height = 1070;
+                                        }
+                                    } else {
+                                        height = 760;
+                                    }
+                                } else {
+                                    height = 450;
+                                }
+                            } else {
+                                height = 870;
+                            }
+                        } else {
+                            height = 560;
+                        }
+                    } else {
+                        height = 870;
+                    }
+                } else {
+                    height = 560;
+                }
+            }
+            
+            treeContainer.style.height = height + 'px';
+        }
+        
+        // 打开节点详情抽屉
+        function openNodeDrawer(id, company, jiangxian) {
+            const drawer = document.getElementById('drawer');
+            const overlay = document.getElementById('overlay');
+            const drawerId = document.getElementById('drawerId');
+            const drawerCompany = document.getElementById('drawerCompany');
+            const drawerAvatar = document.getElementById('drawerAvatar');
+            
+            // 将 ID 格式化为 "国家代码 - Member ID"
+            const parts = id.split('-');
+            const countryCode = parts[0] || '';
+            const memberId = parts.slice(1).join('-') || id;
+            drawerId.textContent = countryCode + ' - ' + memberId;
+            
+            drawerCompany.textContent = company;
+            
+            // 根据荣衔等级设置不同的头像
+            const avatarIcons = ['👑', '⭐', '💎', '🏆', '🎯', '🔥', '🌟', '💫', '🎨', '🎭'];
+            drawerAvatar.textContent = avatarIcons[jiangxian] || '👤';
+            
+            drawer.classList.add('open');
+            overlay.classList.add('show');
+        }
+        
+        // 关闭抽屉
+        function closeDrawer() {
+            const drawer = document.getElementById('drawer');
+            const overlay = document.getElementById('overlay');
+            
+            drawer.classList.remove('open');
+            overlay.classList.remove('show');
+        }
+    </script>
+</body>
+</html>
