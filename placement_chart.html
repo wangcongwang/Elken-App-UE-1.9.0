@@ -382,7 +382,7 @@
         /* 缩放控制 */
         .zoom-controls {
             position: fixed;
-            bottom: 80px;
+            bottom: 20px;
             right: 16px;
             display: flex;
             flex-direction: column;
@@ -426,65 +426,7 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
         
-        /* 底部导航栏 */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: white;
-            border-top: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 0;
-            z-index: 90;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-        }
-        
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-            padding: 8px 16px;
-            border-radius: 12px;
-            transition: all 0.2s ease;
-            flex: 1;
-            max-width: 80px;
-        }
-        
-        .nav-item:hover {
-            background-color: #f5f5f5;
-            transform: translateY(-2px);
-        }
-        
-        .nav-item.active {
-            background-color: rgba(0,122,255,0.1);
-        }
-        
-        .nav-icon {
-            font-size: 22px;
-            color: #666;
-            transition: all 0.2s ease;
-        }
-        
-        .nav-item.active .nav-icon {
-            color: #007aff;
-            transform: scale(1.1);
-        }
-        
-        .nav-label {
-            font-size: 12px;
-            color: #666;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-        
-        .nav-item.active .nav-label {
-            color: #007aff;
-            font-weight: 600;
-        }
+
         
         /* 侧边抽屉 */
         .drawer {
@@ -1520,25 +1462,7 @@
         <div class="zoom-btn" onclick="resetZoom()" title="重置">⟲</div>
     </div>
     
-    <!-- 底部导航栏 -->
-    <div class="bottom-nav">
-        <div class="nav-item active">
-            <div class="nav-icon">📊</div>
-            <div class="nav-label">图谱</div>
-        </div>
-        <div class="nav-item">
-            <div class="nav-icon">🔍</div>
-            <div class="nav-label">搜索</div>
-        </div>
-        <div class="nav-item">
-            <div class="nav-icon">⚙️</div>
-            <div class="nav-label">设置</div>
-        </div>
-        <div class="nav-item">
-            <div class="nav-icon">👤</div>
-            <div class="nav-label">我的</div>
-        </div>
-    </div>
+
     
     <!-- 抽屉结构 -->
     <div class="overlay" id="overlay" onclick="closeDrawer()"></div>
