@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>安置图谱</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -14,59 +14,219 @@
         
         body {
             font-family: "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(180deg, #f7f8fb 0%, #f1f3f6 55%, #edf1f5 100%);
+            background-color: #f5f7fa;
             color: #111827;
-            min-width: 1180px;
+            min-width: 100%;
             overflow-x: hidden;
         }
         
+        /* 移动端优先设计 */
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #f5f7fa;
+        }
+        
         .header {
-            background-color: #007aff;
-            color: white;
-            padding: 15px;
+            background-color: white;
+            color: #333;
+            padding: 12px 16px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
             position: sticky;
             top: 0;
             z-index: 100;
-        }
-        
-        .header-left {
-            display: flex;
-            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-bottom: 1px solid #e5e7eb;
         }
         
         .back-arrow {
-            font-size: 20px;
-            margin-right: 10px;
+            font-size: 24px;
+            margin-right: 12px;
             cursor: pointer;
+            color: #666;
         }
         
         .header-title {
             font-size: 18px;
             font-weight: 600;
+            color: #333;
+            flex: 1;
+            margin-right: 16px;
         }
         
-        .header-right {
-            font-size: 20px;
+        .header-search {
+            position: relative;
+            flex: 1;
+            max-width: 300px;
         }
         
-        .content {
+        .header-search-input {
+            width: 100%;
+            padding: 8px 36px 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            font-size: 14px;
+            background-color: #f9fafb;
+            transition: all 0.2s ease;
+        }
+        
+        .header-search-input:focus {
+            outline: none;
+            border-color: #007aff;
+            box-shadow: 0 0 0 3px rgba(0,122,255,0.1);
+            background-color: white;
+        }
+        
+        .header-search-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .header-search-btn:hover {
+            color: #007aff;
+        }
+        
+        /* 固定筛选区域 */
+        .fixed-filter {
+            background-color: white;
+            border-bottom: 1px solid #e5e7eb;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 12px 16px;
+            position: sticky;
+            top: 60px;
+            z-index: 90;
+            background-color: white;
+        }
+        
+        .filter-controls {
             display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 64px 32px;
+            gap: 16px;
+            align-items: flex-end;
+        }
+        
+        .filter-item {
+            flex: 1;
+        }
+        
+        .filter-item label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 6px;
+        }
+        
+        .filter-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: #f9fafb;
+            transition: all 0.2s ease;
+        }
+        
+        .filter-input:focus {
+            outline: none;
+            border-color: #007aff;
+            box-shadow: 0 0 0 3px rgba(0,122,255,0.1);
+            background-color: white;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .filter-btn {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background-color: #f9fafb;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .filter-btn.active {
+            background-color: #007aff;
+            color: white;
+            border-color: #007aff;
+        }
+        
+        .filter-btn:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .filter-btn.active:hover {
+            background-color: #0066cc;
+        }
+        
+        .export-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            background-color: #34c759;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 16px;
+            box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3);
+        }
+        
+        .export-btn:hover {
+            background-color: #28a745;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(52, 199, 89, 0.4);
+        }
+        
+        .export-btn:active {
+            transform: scale(0.95);
+            transition: transform 0.1s ease;
+        }
+        
+        .filter-btn:active {
+            transform: scale(0.95);
+            transition: transform 0.1s ease;
+        }
+        
+        .zoom-btn:active {
+            transform: scale(0.9);
+            transition: transform 0.1s ease;
+        }
+        
+        /* 主内容区域 */
+        .content {
+            flex: 1;
+            padding: 0 16px 80px;
             overflow: hidden;
             position: relative;
         }
         
         .tree-viewport {
             width: 100%;
-            height: calc(100vh - 60px);
-            overflow: hidden;
+            height: 100%;
+            overflow: auto;
             position: relative;
             cursor: grab;
+            background-color: #f5f7fa;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
         }
         
         .tree-viewport:active {
@@ -74,15 +234,156 @@
         }
         
         .tree-wrapper {
-            position: absolute;
+            position: relative;
             transform-origin: center center;
             transition: transform 0.1s ease-out;
         }
         
+        /* 子节点容器动画 */
+        [id$="Children"] {
+            overflow: hidden;
+            max-height: 10000px;
+            opacity: 1;
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+        }
+        
+        /* 优化的节点卡片 */
+        .node-card {
+            position: absolute;
+            transition: all 0.3s ease;
+        }
+        
+        .node-content {
+            position: relative;
+            height: 180px;
+            width: 220px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            backdrop-filter: blur(8px);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .node-content:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+        }
+        
+        .node-content:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.1s ease;
+        }
+        
+        .node-header {
+            position: absolute;
+            inset-x: 0;
+            top: 0;
+            height: 4px;
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .node-toggle {
+            position: absolute;
+            right: 12px;
+            top: 12px;
+            z-index: 10;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transition: all 0.2s ease;
+        }
+        
+        .node-toggle:hover {
+            background-color: #f8fafc;
+            transform: scale(1.1);
+        }
+        
+        .node-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .node-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+        }
+        
+        .node-content:hover .node-avatar {
+            transform: scale(1.05);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+        }
+        
+        .node-avatar svg {
+            width: 32px;
+            height: 32px;
+            color: white;
+        }
+        
+        .node-id {
+            font-size: 16px;
+            font-weight: bold;
+            color: #182235;
+            margin-bottom: 6px;
+            line-height: 1.2;
+        }
+        
+        .node-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #7b8494;
+            line-height: 1.3;
+        }
+        
+        /* 连接线 */
+        .connection-line {
+            position: absolute;
+            background-color: #d7dce3;
+        }
+        
+        .vertical-line {
+            width: 1px;
+        }
+        
+        .horizontal-line {
+            height: 1px;
+        }
+        
+        .connection-dot {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #c8cdd6;
+            transform: translate(-50%, -50%);
+        }
+        
+        /* 缩放控制 */
         .zoom-controls {
             position: fixed;
-            bottom: 30px;
-            right: 30px;
+            bottom: 80px;
+            right: 16px;
             display: flex;
             flex-direction: column;
             gap: 8px;
@@ -90,8 +391,8 @@
         }
         
         .zoom-btn {
-            width: 44px;
-            height: 44px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background-color: white;
             border: 1px solid rgba(0, 0, 0, 0.1);
@@ -100,7 +401,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 20px;
+            font-size: 18px;
             color: #333;
             transition: all 0.2s ease;
         }
@@ -125,11 +426,73 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
         
+        /* 底部导航栏 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            z-index: 90;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            flex: 1;
+            max-width: 80px;
+        }
+        
+        .nav-item:hover {
+            background-color: #f5f5f5;
+            transform: translateY(-2px);
+        }
+        
+        .nav-item.active {
+            background-color: rgba(0,122,255,0.1);
+        }
+        
+        .nav-icon {
+            font-size: 22px;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+        
+        .nav-item.active .nav-icon {
+            color: #007aff;
+            transform: scale(1.1);
+        }
+        
+        .nav-label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .nav-item.active .nav-label {
+            color: #007aff;
+            font-weight: 600;
+        }
+        
+        /* 侧边抽屉 */
         .drawer {
             position: fixed;
             top: 0;
-            right: -300px;
-            width: 300px;
+            right: -100%;
+            width: 100%;
+            max-width: 320px;
             height: 100vh;
             background-color: white;
             box-shadow: -2px 0 8px rgba(0,0,0,0.1);
@@ -145,7 +508,7 @@
         .drawer-header {
             background-color: #007aff;
             color: white;
-            padding: 15px;
+            padding: 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -160,7 +523,7 @@
         }
         
         .drawer-close {
-            font-size: 20px;
+            font-size: 24px;
             cursor: pointer;
         }
         
@@ -169,26 +532,34 @@
         }
         
         .drawer-avatar {
-            width: 60px;
-            height: 60px;
+            width: 80px;
+            height: 80px;
             background-color: #e0e0e0;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 30px;
+            font-size: 36px;
             margin: 0 auto 20px;
         }
         
         .drawer-section {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .drawer-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #999;
+            text-transform: uppercase;
+            margin-bottom: 12px;
         }
         
         .drawer-info-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 0;
+            padding: 10px 0;
             border-bottom: 1px solid #f0f0f0;
         }
         
@@ -203,10 +574,11 @@
             color: #333;
         }
         
+        /* 状态标签 */
         .status-badge {
             display: inline-block;
-            padding: 2px 6px;
-            border-radius: 3px;
+            padding: 4px 8px;
+            border-radius: 12px;
             font-size: 12px;
             font-weight: 600;
             background-color: #e3f2fd;
@@ -216,8 +588,8 @@
         
         .type-badge {
             display: inline-block;
-            padding: 2px 6px;
-            border-radius: 3px;
+            padding: 4px 8px;
+            border-radius: 12px;
             font-size: 12px;
             font-weight: 600;
             background-color: #e8f5e8;
@@ -227,8 +599,8 @@
         
         .rank-badge {
             display: inline-block;
-            padding: 2px 6px;
-            border-radius: 3px;
+            padding: 4px 8px;
+            border-radius: 12px;
             font-size: 12px;
             font-weight: 600;
             background-color: #fff3e0;
@@ -236,6 +608,7 @@
             border: 1px solid #ffcc80;
         }
         
+        /* 遮罩层 */
         .overlay {
             position: fixed;
             top: 0;
@@ -250,21 +623,227 @@
         .overlay.show {
             display: block;
         }
+        
+        /* 加载状态 */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        .loading::after {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 提示信息 */
+        .message {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 3000;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                top: -50px;
+                opacity: 0;
+            }
+            to {
+                top: 80px;
+                opacity: 1;
+            }
+        }
+        
+        .error-message {
+            background-color: #fee2e2;
+            color: #dc2626;
+            border-left: 4px solid #dc2626;
+        }
+        
+        .success-message {
+            background-color: #dcfce7;
+            color: #16a34a;
+            border-left: 4px solid #16a34a;
+        }
+        
+        /* 搜索结果高亮 */
+        .node-highlight {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5) !important;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+            }
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            /* 移动端节点卡片调整 */
+            .node-content {
+                height: 140px;
+                width: 180px;
+                border-radius: 16px;
+            }
+            
+            .node-avatar {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .node-avatar svg {
+                width: 20px;
+                height: 20px;
+            }
+            
+            .node-id {
+                font-size: 14px;
+            }
+            
+            .node-name {
+                font-size: 12px;
+            }
+            
+            .node-toggle {
+                width: 30px;
+                height: 30px;
+            }
+            
+            .node-toggle svg {
+                width: 16px;
+                height: 16px;
+            }
+            
+            /* 移动端布局调整 */
+            .content {
+                padding: 8px;
+            }
+            
+            .tree-viewport {
+                height: calc(100vh - 120px);
+            }
+            
+            .zoom-controls {
+                bottom: 70px;
+                right: 12px;
+            }
+            
+            .zoom-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+            
+            .zoom-level {
+                font-size: 11px;
+                padding: 3px 6px;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .app-container {
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+            
+            .bottom-nav {
+                display: none;
+            }
+            
+            .drawer {
+                width: 320px;
+                right: -320px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="header-left">
+    <div class="app-container">
+        <!-- 导航栏 -->
+        <div class="header">
             <div class="back-arrow" onclick="window.history.back()">&larr;</div>
             <div class="header-title">安置图谱</div>
+            <div class="header-search">
+                <input type="text" id="searchInput" placeholder="搜索会员" 
+                       class="header-search-input">
+                <button onclick="searchMember()" class="header-search-btn">
+                    🔍
+                </button>
+            </div>
         </div>
-        <div class="header-right"></div>
-    </div>
-    
-    <div class="content">
-        <div class="tree-viewport" id="treeViewport">
-            <div class="tree-wrapper" id="treeWrapper">
-                <div class="relative w-[1120px] transition-all duration-500 ease-out" id="treeContainer" style="height: 3546px;">
+        
+        <!-- 固定筛选区域 -->
+        <div class="fixed-filter">
+            <div class="filter-controls">
+                <!-- Display下拉选择 -->
+                <div class="filter-item">
+                    <label for="displayLevel">显示层级</label>
+                    <select id="displayLevel" onchange="changeDisplayLevel()" class="filter-input">
+                        <option value="5" selected>5 level</option>
+                        <option value="10">10 level</option>
+                        <option value="11">11 level</option>
+                        <option value="12">12 level</option>
+                        <option value="13">13 level</option>
+                        <option value="14">14 level</option>
+                        <option value="15">15 level</option>
+                        <option value="16">16 level</option>
+                        <option value="17">17 level</option>
+                        <option value="18">18 level</option>
+                        <option value="19">19 level</option>
+                        <option value="20">20 level</option>
+                        <option value="50">50 level</option>
+                    </select>
+                </div>
+                
+                <!-- 左/右团队切换按钮 -->
+                <div class="filter-item">
+                    <label>团队选择</label>
+                    <div class="filter-buttons">
+                        <button onclick="toggleTeam('left')" id="leftTeamBtn" class="filter-btn">
+                            左
+                        </button>
+                        <button onclick="toggleTeam('right')" id="rightTeamBtn" class="filter-btn">
+                            右
+                        </button>
+                        <button onclick="toggleTeam('both')" id="bothTeamBtn" class="filter-btn active">
+                            全部
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="tree-viewport" id="treeViewport">
+                <div class="tree-wrapper" id="treeWrapper">
+                    <div class="relative w-[1120px] transition-all duration-500 ease-out" id="treeContainer" style="height: 3546px;">
                     <!-- 根节点 -->
                     <div class="absolute left-[422px] top-0">
                         <div class="relative h-[238px] w-[278px] overflow-hidden border border-black/5 bg-white/95 cursor-pointer" style="border-radius: 28px; box-shadow: 0 26px 56px rgba(62, 73, 105, 0.14), 0 4px 14px rgba(79, 92, 243, 0.08); backdrop-filter: blur(8px);" onclick="openNodeDrawer('MYS-0000000000', 'COMPANY DISTRIBUTOR', 0)">
@@ -941,6 +1520,26 @@
         <div class="zoom-btn" onclick="resetZoom()" title="重置">⟲</div>
     </div>
     
+    <!-- 底部导航栏 -->
+    <div class="bottom-nav">
+        <div class="nav-item active">
+            <div class="nav-icon">📊</div>
+            <div class="nav-label">图谱</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon">🔍</div>
+            <div class="nav-label">搜索</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon">⚙️</div>
+            <div class="nav-label">设置</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon">👤</div>
+            <div class="nav-label">我的</div>
+        </div>
+    </div>
+    
     <!-- 抽屉结构 -->
     <div class="overlay" id="overlay" onclick="closeDrawer()"></div>
     <div class="drawer" id="drawer">
@@ -1044,8 +1643,11 @@
         
         // 更新变换
         function updateTransform() {
-            treeWrapper.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
-            zoomLevelDisplay.textContent = Math.round(scale * 100) + '%';
+            // 使用requestAnimationFrame优化动画性能
+            requestAnimationFrame(() => {
+                treeWrapper.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+                zoomLevelDisplay.textContent = Math.round(scale * 100) + '%';
+            });
         }
         
         // 放大
@@ -1100,20 +1702,25 @@
             treeViewport.style.cursor = 'grabbing';
         });
         
-        // 拖拽移动
-        document.addEventListener('mousemove', (e) => {
+        // 优化事件处理，使用事件委托
+        function handleMouseMove(e) {
             if (!isDragging) return;
             e.preventDefault();
             translateX = e.clientX - startX;
             translateY = e.clientY - startY;
             updateTransform();
-        });
+        }
         
-        // 拖拽结束
-        document.addEventListener('mouseup', () => {
+        function handleMouseUp() {
             isDragging = false;
             treeViewport.style.cursor = 'grab';
-        });
+        }
+        
+        // 拖拽移动
+        document.addEventListener('mousemove', handleMouseMove);
+        
+        // 拖拽结束
+        document.addEventListener('mouseup', handleMouseUp);
         
         // 触摸支持
         let touchStartDistance = 0;
@@ -1180,6 +1787,269 @@
             level8Right: true,
             level9Left: true,
             level9Right: true
+        };
+        
+        // 节点展开/折叠功能
+        function toggleNode(nodeId) {
+            // 切换节点状态
+            nodeStates[nodeId] = !nodeStates[nodeId];
+            
+            // 获取对应的子节点容器
+            const childrenContainer = document.getElementById(nodeId + 'Children');
+            const toggleIcon = document.getElementById(nodeId + 'ToggleIcon');
+            
+            if (childrenContainer) {
+                if (nodeStates[nodeId]) {
+                    // 展开节点
+                    childrenContainer.style.maxHeight = '0';
+                    childrenContainer.style.opacity = '0';
+                    setTimeout(() => {
+                        childrenContainer.style.display = 'block';
+                        childrenContainer.style.maxHeight = childrenContainer.scrollHeight + 'px';
+                        childrenContainer.style.opacity = '1';
+                    }, 10);
+                    
+                    // 旋转图标
+                    if (toggleIcon) {
+                        toggleIcon.style.transform = 'rotate(180deg)';
+                    }
+                } else {
+                    // 折叠节点
+                    childrenContainer.style.maxHeight = '0';
+                    childrenContainer.style.opacity = '0';
+                    setTimeout(() => {
+                        childrenContainer.style.display = 'none';
+                    }, 300);
+                    
+                    // 恢复图标
+                    if (toggleIcon) {
+                        toggleIcon.style.transform = 'rotate(0deg)';
+                    }
+                }
+            }
+        }
+        
+        // 搜索功能
+        function searchMember() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            if (!searchTerm) {
+                showMessage('请输入搜索条件/Please enter search criteria.', 'error');
+                return;
+            }
+            
+            // 清除之前的高亮
+            document.querySelectorAll('.node-highlight').forEach(el => {
+                el.classList.remove('node-highlight');
+            });
+            
+            // 查找所有节点
+            const nodeContents = document.querySelectorAll('.node-content');
+            const matchingNodes = [];
+            
+            nodeContents.forEach(node => {
+                const nodeId = node.querySelector('.node-id')?.textContent;
+                const nodeName = node.querySelector('.node-name')?.textContent;
+                
+                if (nodeId && (nodeId.includes(searchTerm) || 
+                    (nodeName && nodeName.toLowerCase().includes(searchTerm.toLowerCase())))) {
+                    matchingNodes.push(node);
+                }
+            });
+            
+            if (matchingNodes.length === 0) {
+                showMessage('未找到匹配的会员/No matching member found.', 'error');
+                return;
+            }
+            
+            // 高亮匹配的节点
+            matchingNodes.forEach(node => {
+                node.classList.add('node-highlight');
+            });
+            
+            // 滚动到第一个匹配的节点
+            const firstMatch = matchingNodes[0];
+            firstMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // 显示搜索结果
+            showMessage(`找到 ${matchingNodes.length} 个匹配会员/Found ${matchingNodes.length} matching members.`, 'success');
+        }
+        
+        // 显示消息提示
+        function showMessage(message, type) {
+            // 清除之前的消息
+            const existingMessage = document.querySelector('.message');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+            
+            // 创建新消息
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${type === 'error' ? 'error-message' : 'success-message'}`;
+            messageElement.textContent = message;
+            document.body.appendChild(messageElement);
+            
+            // 3秒后自动消失
+            setTimeout(() => {
+                messageElement.style.animation = 'slideDown 0.3s ease reverse';
+                setTimeout(() => {
+                    messageElement.remove();
+                }, 300);
+            }, 3000);
+        }
+        
+        // 层级筛选功能
+        function changeDisplayLevel() {
+            const selectedLevel = parseInt(document.getElementById('displayLevel').value);
+            
+            // 显示或隐藏不同层级的节点
+            for (let i = 1; i <= 10; i++) {
+                const levelNodes = document.querySelectorAll(`[id^="level${i}"]`);
+                levelNodes.forEach(node => {
+                    if (i <= selectedLevel) {
+                        // 显示该层级的节点
+                        const parent = node.closest('.absolute');
+                        if (parent) {
+                            parent.style.display = 'block';
+                        }
+                    } else {
+                        // 隐藏该层级的节点
+                        const parent = node.closest('.absolute');
+                        if (parent) {
+                            parent.style.display = 'none';
+                        }
+                    }
+                });
+            }
+            
+            showMessage(`已切换到显示 ${selectedLevel} level`, 'success');
+        }
+        
+        // 左/右团队切换功能
+        function toggleTeam(team) {
+            // 重置按钮样式
+            document.getElementById('leftTeamBtn').className = 'filter-btn';
+            document.getElementById('rightTeamBtn').className = 'filter-btn';
+            document.getElementById('bothTeamBtn').className = 'filter-btn';
+            
+            // 设置选中按钮样式
+            if (team === 'left') {
+                document.getElementById('leftTeamBtn').className = 'filter-btn active';
+                // 显示左团队，隐藏右团队
+                hideRightTeam();
+            } else if (team === 'right') {
+                document.getElementById('rightTeamBtn').className = 'filter-btn active';
+                // 显示右团队，隐藏左团队
+                hideLeftTeam();
+            } else {
+                document.getElementById('bothTeamBtn').className = 'filter-btn active';
+                // 显示全部团队
+                showAllTeams();
+            }
+        }
+        
+        // 隐藏右团队
+        function hideRightTeam() {
+            // 查找所有右团队节点
+            const rightNodes = document.querySelectorAll('[id$="Right"]');
+            rightNodes.forEach(node => {
+                if (node.id !== 'rightTeamBtn' && node.id !== 'rightToggleIcon') {
+                    const parent = node.closest('.absolute');
+                    if (parent) {
+                        parent.style.display = 'none';
+                    }
+                }
+            });
+            
+            // 显示左团队节点
+            const leftNodes = document.querySelectorAll('[id$="Left"]');
+            leftNodes.forEach(node => {
+                if (node.id !== 'leftTeamBtn' && node.id !== 'leftToggleIcon') {
+                    const parent = node.closest('.absolute');
+                    if (parent) {
+                        parent.style.display = 'block';
+                    }
+                }
+            });
+        }
+        
+        // 隐藏左团队
+        function hideLeftTeam() {
+            // 查找所有左团队节点
+            const leftNodes = document.querySelectorAll('[id$="Left"]');
+            leftNodes.forEach(node => {
+                if (node.id !== 'leftTeamBtn' && node.id !== 'leftToggleIcon') {
+                    const parent = node.closest('.absolute');
+                    if (parent) {
+                        parent.style.display = 'none';
+                    }
+                }
+            });
+            
+            // 显示右团队节点
+            const rightNodes = document.querySelectorAll('[id$="Right"]');
+            rightNodes.forEach(node => {
+                if (node.id !== 'rightTeamBtn' && node.id !== 'rightToggleIcon') {
+                    const parent = node.closest('.absolute');
+                    if (parent) {
+                        parent.style.display = 'block';
+                    }
+                }
+            });
+        }
+        
+        // 显示全部团队
+        function showAllTeams() {
+            // 显示所有节点
+            const allNodes = document.querySelectorAll('.node-content');
+            allNodes.forEach(node => {
+                const parent = node.closest('.absolute');
+                if (parent) {
+                    parent.style.display = 'block';
+                }
+            });
+        }
+        
+        // 导出功能
+        function exportChart() {
+            // 模拟导出功能
+            alert('正在导出安置图谱，请稍候...');
+            
+            // 这里可以添加实际的导出逻辑
+            // 比如生成PDF或图片格式的图谱
+            
+            setTimeout(() => {
+                alert('导出成功！');
+            }, 1000);
+        }
+        
+        // 权限控制检查
+        function checkPermission() {
+            // 模拟权限检查
+            const isAdmin = true; // 实际应用中应该从后端获取用户角色
+            
+            if (!isAdmin) {
+                alert('您没有权限访问此功能/You do not have permission to access this feature.');
+                window.history.back();
+            }
+        }
+        
+        // 切换筛选区域显示/隐藏
+        function toggleFilter() {
+            const filterContent = document.getElementById('filterContent');
+            const filterToggle = document.getElementById('filterToggle');
+            
+            if (filterContent.classList.contains('active')) {
+                filterContent.classList.remove('active');
+                filterToggle.classList.remove('active');
+            } else {
+                filterContent.classList.add('active');
+                filterToggle.classList.add('active');
+            }
+        }
+        
+        // 页面加载时检查权限
+        window.onload = function() {
+            checkPermission();
         };
         
         // 切换节点展开/折叠状态
