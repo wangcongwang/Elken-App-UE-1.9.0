@@ -1551,11 +1551,11 @@
                                 <div class="card-title">银行账户信息</div>
                             </div>
                             <div class="form-group">
-                                <label class="form-label required">银行国家</label>
+                                <label class="form-label required">银行国家/Bank Country</label>
                                 <input type="text" id="bankCountry" class="form-control" value="马来西亚" disabled>
                             </div>
                             <div class="form-group">
-                                <label class="form-label required">银行名称</label>
+                                <label class="form-label required">银行名称/Bank Name</label>
                                 <select id="bankName" class="form-control form-select" required>
                                     <option value="">请选择银行</option>
                                     <option value="mmb">马来亚银行</option>
@@ -1565,16 +1565,20 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">SWIFT代码</label>
-                                <input type="text" id="swiftCode" class="form-control" placeholder="SWIFT代码" disabled>
+                                <label class="form-label">SWIFT代码/Swift Code</label>
+                                <input type="text" id="swiftCode" class="form-control" placeholder="SWIFT代码">
                             </div>
                             <div class="form-group">
-                                <label class="form-label required">银行账号</label>
+                                <label class="form-label required">银行账号/Bank Account No</label>
                                 <input type="text" class="form-control" placeholder="请输入银行账号" required inputmode="numeric">
                             </div>
                             <div class="form-group">
-                                <label class="form-label required">账户持有人姓名</label>
+                                <label class="form-label required">账户持有人姓名/A/C Holder Name</label>
                                 <input type="text" class="form-control" value="EW1" required disabled>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">支付公司/Payout Company</label>
+                                <input type="text" id="bankPayoutCompany" class="form-control" value="Elken International Sdn Bhd" required disabled>
                             </div>
                         </div>
                     </div>
@@ -1586,7 +1590,7 @@
                                 <div class="card-title">银行卡信息</div>
                             </div>
                             <div class="form-group">
-                                <label class="form-label required">卡片国家</label>
+                                <label class="form-label required">卡片国家/Card Country</label>
                                 <select id="gccCardCountry" class="form-control form-select" required>
                                     <option value="MY" selected>马来西亚</option>
                                     <option value="TH">泰国</option>
@@ -1594,16 +1598,16 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label class="form-label required">持卡人姓名</label>
+                                <label class="form-label required">持卡人姓名/Card Holder Name</label>
                                 <input type="text" class="form-control" value="EW1" required disabled>
                             </div>
                             <div class="form-group">
-                                <label class="form-label required">卡号</label>
+                                <label class="form-label required">卡号/Card Number</label>
                                 <input type="text" class="form-control" placeholder="请输入银行卡号" required inputmode="numeric">
                             </div>
                             <div class="radio-group">
                                 <div class="form-group" style="flex: 1; min-width: 140px;">
-                                    <label class="form-label required">到期月份</label>
+                                    <label class="form-label required">到期月份/Card Expiry Date</label>
                                     <select id="gccExpMonth" class="form-control form-select" required>
                                         <option value="">请选择</option>
                                         <option value="01">01月</option>
@@ -1621,7 +1625,7 @@
                                     </select>
                                 </div>
                                 <div class="form-group" style="flex: 1; min-width: 140px;">
-                                    <label class="form-label required">到期年份</label>
+                                    <label class="form-label required">到期年份/Card Expiry Year</label>
                                     <select id="gccExpYear" class="form-control form-select" required>
                                         <option value="">请选择</option>
                                         <option value="2024">2024</option>
@@ -1642,20 +1646,20 @@
                                 <div class="card-title">Mpay信息</div>
                             </div>
                             <div class="form-group">
-                                <label class="form-label required">卡片国家</label>
-                                <input type="text" id="mpayCountry" class="form-control" value="马来西亚" disabled>
+                                <label class="form-label required">卡片国家/Card Country</label>
+                                <input type="text" id="mpayCountry" class="form-control" value="马来西亚">
                             </div>
                             <div class="form-group">
-                                <label class="form-label required">持卡人姓名</label>
+                                <label class="form-label required">持卡人姓名/Card Holder Name</label>
                                 <input type="text" class="form-control" value="EW1" required disabled>
                             </div>
                             <div class="form-group">
-                                <label class="form-label required">卡号</label>
+                                <label class="form-label required">卡号/Card Number</label>
                                 <input type="text" class="form-control" placeholder="请输入卡号" required inputmode="numeric">
                             </div>
                             <div class="radio-group">
                                 <div class="form-group" style="flex: 1; min-width: 140px;">
-                                    <label class="form-label required">到期月份</label>
+                                    <label class="form-label required">到期月份/Card Expiry Date</label>
                                     <select id="mpayExpMonth" class="form-control form-select" required>
                                         <option value="">请选择</option>
                                         <option value="01">01月</option>
@@ -1673,7 +1677,7 @@
                                     </select>
                                 </div>
                                 <div class="form-group" style="flex: 1; min-width: 140px;">
-                                    <label class="form-label required">到期年份</label>
+                                    <label class="form-label required">到期年份/Card Expiry Year</label>
                                     <select id="mpayExpYear" class="form-control form-select" required>
                                         <option value="">请选择</option>
                                         <option value="2024">2024</option>
@@ -1685,8 +1689,8 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="form-label required">支付公司</label>
-                                <input type="text" id="payoutCompany" class="form-control" value="0000012365245612" required disabled>
+                                <label class="form-label required">支付公司/Payout Company</label>
+                                <input type="text" id="payoutCompany" class="form-control" value="Mpay Sdn Bhd" required disabled>
                             </div>
                         </div>
                     </div>
@@ -1934,20 +1938,20 @@
 
                 if (savedMethod === 'bank') {
                     document.getElementById('bankCountry').disabled = true;
-                    document.getElementById('bankName').disabled = true;
-                    document.getElementById('swiftCode').disabled = true;
-                    document.querySelector('#bankAccountFields input[type="text"][placeholder="请输入银行账号"]').disabled = true;
+                    document.getElementById('bankName').disabled = false;
+                    document.getElementById('swiftCode').disabled = false;
+                    document.querySelector('#bankAccountFields input[type="text"][placeholder="请输入银行账号"]').disabled = false;
                     document.querySelector('#bankAccountFields input[value="EW1"]').disabled = true;
                 } else if (savedMethod === 'gcc') {
-                    document.getElementById('gccCardCountry').disabled = true;
+                    document.getElementById('gccCardCountry').disabled = false;
                     document.querySelector('#cardFields input[value="EW1"]').disabled = true;
-                    document.querySelector('#cardFields input[placeholder="请输入银行卡号"]').disabled = true;
+                    document.querySelector('#cardFields input[placeholder="请输入银行卡号"]').disabled = false;
                     document.getElementById('gccExpMonth').disabled = false;
                     document.getElementById('gccExpYear').disabled = false;
                 } else if (savedMethod === 'mpay') {
-                    document.getElementById('mpayCountry').disabled = true;
+                    document.getElementById('mpayCountry').disabled = false;
                     document.querySelector('#mpayFields input[value="EW1"]').disabled = true;
-                    document.querySelector('#mpayFields input[placeholder="请输入卡号"]').disabled = true;
+                    document.querySelector('#mpayFields input[placeholder="请输入卡号"]').disabled = false;
                     document.getElementById('mpayExpMonth').disabled = false;
                     document.getElementById('mpayExpYear').disabled = false;
                     document.getElementById('payoutCompany').disabled = true;
@@ -1960,36 +1964,27 @@
                 option.disabled = false;
             });
 
-            const currentMethod = document.querySelector('input[name="payment"]:checked').value;
+            // 重置所有字段的禁用状态
+            if (document.getElementById('bankCountry')) document.getElementById('bankCountry').disabled = true;
+            if (document.getElementById('bankName')) document.getElementById('bankName').disabled = false;
+            if (document.getElementById('swiftCode')) document.getElementById('swiftCode').disabled = false;
+            if (document.querySelector('#bankAccountFields input[type="text"][placeholder="请输入银行账号"]')) document.querySelector('#bankAccountFields input[type="text"][placeholder="请输入银行账号"]').disabled = false;
+            if (document.querySelector('#bankAccountFields input[value="EW1"]')) document.querySelector('#bankAccountFields input[value="EW1"]').disabled = true;
+            if (document.getElementById('gccCardCountry')) document.getElementById('gccCardCountry').disabled = false;
+            if (document.querySelector('#cardFields input[value="EW1"]')) document.querySelector('#cardFields input[value="EW1"]').disabled = true;
+            if (document.querySelector('#cardFields input[placeholder="请输入银行卡号"]')) document.querySelector('#cardFields input[placeholder="请输入银行卡号"]').disabled = false;
+            if (document.getElementById('gccExpMonth')) document.getElementById('gccExpMonth').disabled = false;
+            if (document.getElementById('gccExpYear')) document.getElementById('gccExpYear').disabled = false;
+            if (document.getElementById('mpayCountry')) document.getElementById('mpayCountry').disabled = false;
+            if (document.querySelector('#mpayFields input[value="EW1"]')) document.querySelector('#mpayFields input[value="EW1"]').disabled = true;
+            if (document.querySelector('#mpayFields input[placeholder="请输入卡号"]')) document.querySelector('#mpayFields input[placeholder="请输入卡号"]').disabled = false;
+            if (document.getElementById('mpayExpMonth')) document.getElementById('mpayExpMonth').disabled = false;
+            if (document.getElementById('mpayExpYear')) document.getElementById('mpayExpYear').disabled = false;
+            if (document.getElementById('payoutCompany')) document.getElementById('payoutCompany').disabled = true;
 
-            if (currentMethod === 'bank') {
-                document.getElementById('bankCountry').disabled = true;
-                document.getElementById('bankName').disabled = false;
-                document.getElementById('swiftCode').disabled = true;
-                document.querySelector('#bankAccountFields input[type="text"][placeholder="请输入银行账号"]').disabled = false;
-                document.querySelector('#bankAccountFields input[value="EW1"]').disabled = true;
-                document.getElementById('cardFields').style.display = 'none';
-                document.getElementById('mpayFields').style.display = 'none';
-            } else if (currentMethod === 'gcc') {
-                document.getElementById('gccCardCountry').disabled = true;
-                document.querySelector('#cardFields input[value="EW1"]').disabled = true;
-                document.querySelector('#cardFields input[placeholder="请输入银行卡号"]').disabled = false;
-                document.getElementById('gccExpMonth').disabled = false;
-                document.getElementById('gccExpYear').disabled = false;
-                document.getElementById('bankAccountFields').style.display = 'none';
-                document.getElementById('mpayFields').style.display = 'none';
-            } else if (currentMethod === 'mpay') {
-                document.getElementById('mpayCountry').disabled = true;
-                document.querySelector('#mpayFields input[value="EW1"]').disabled = true;
-                document.querySelector('#mpayFields input[placeholder="请输入卡号"]').disabled = false;
-                document.getElementById('mpayExpMonth').disabled = false;
-                document.getElementById('mpayExpYear').disabled = false;
-                document.getElementById('payoutCompany').disabled = true;
-                document.getElementById('bankAccountFields').style.display = 'none';
-                document.getElementById('cardFields').style.display = 'none';
-            }
-
+            // 根据国家显示对应的支付方式
             if (country === 'MY' || country === 'EC') {
+                // Malaysia 和 E-Commerce Countries: BANK / Mpay
                 document.querySelector('[data-payment="bank"]').style.display = 'flex';
                 document.querySelector('[data-payment="mpay"]').style.display = 'flex';
                 document.querySelector('input[name="payment"][value="bank"]').checked = true;
@@ -1999,6 +1994,7 @@
                 document.getElementById('cardFields').style.display = 'none';
                 document.getElementById('mpayFields').style.display = 'none';
             } else if (country === 'TH' || country === 'SG' || country === 'HK' || country === 'KH' || country === 'PH' || country === 'ID') {
+                // Thailand, Singapore, Hong Kong, Cambodia, Philippines, Indonesia: BANK/GCC
                 document.querySelector('[data-payment="bank"]').style.display = 'flex';
                 document.querySelector('[data-payment="gcc"]').style.display = 'flex';
                 document.querySelector('input[name="payment"][value="bank"]').checked = true;
@@ -2008,6 +2004,7 @@
                 document.getElementById('cardFields').style.display = 'none';
                 document.getElementById('mpayFields').style.display = 'none';
             } else if (country === 'BN' || country === 'TW') {
+                // Brunei, Taiwan: BANK
                 document.querySelector('[data-payment="bank"]').style.display = 'flex';
                 document.querySelector('input[name="payment"][value="bank"]').checked = true;
                 document.querySelector('input[name="payment"][value="bank"]').parentElement.classList.add('selected');
@@ -2656,6 +2653,9 @@
         
         // 更新州选项
         function updateStateOptions(countryCode, stateSelect, citySelect) {
+            // 检查元素是否存在
+            if (!stateSelect || !citySelect) return;
+            
             // 清空州和城市选项
             stateSelect.innerHTML = '<option value="">请选择州/省</option>';
             citySelect.innerHTML = '<option value="">请选择城市</option>';

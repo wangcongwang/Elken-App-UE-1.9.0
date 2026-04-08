@@ -646,6 +646,102 @@
             }
         }
         
+        /* 奖金信息页面 */
+        .bonus-page {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 400px;
+            height: 100vh;
+            background-color: white;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+            z-index: 2000;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+        }
+        
+        .bonus-page.open {
+            right: 0;
+        }
+        
+        .bonus-form {
+            padding: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .required {
+            color: #dc2626;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #007aff;
+            box-shadow: 0 0 0 3px rgba(0,122,255,0.1);
+        }
+        
+        .form-input:disabled {
+            background-color: #f9fafb;
+            color: #9ca3af;
+        }
+        
+        .form-actions {
+            margin-top: 24px;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background-color: #007aff;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .submit-btn:hover {
+            background-color: #0066cc;
+            transform: translateY(-2px);
+        }
+        
+        .submit-btn:active {
+            transform: scale(0.95);
+        }
+        
         /* 响应式调整 */
         @media (max-width: 768px) {
             /* 移动端节点卡片调整 */
@@ -693,7 +789,7 @@
             }
             
             .zoom-controls {
-                bottom: 70px;
+                bottom: 20px;
                 right: 12px;
             }
             
@@ -707,16 +803,23 @@
                 font-size: 11px;
                 padding: 3px 6px;
             }
+            
+            /* 移动端奖金信息页面 */
+            .bonus-page {
+                width: 100%;
+                max-width: 100%;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 16px;
+            }
         }
         
         @media (min-width: 768px) {
             .app-container {
                 max-width: 1200px;
                 margin: 0 auto;
-            }
-            
-            .bottom-nav {
-                display: none;
             }
             
             .drawer {
@@ -1550,6 +1653,136 @@
         </div>
     </div>
     
+    <!-- 奖金信息页面 -->
+    <div class="overlay" id="bonusOverlay" onclick="closeBonusPage()"></div>
+    <div class="bonus-page" id="bonusPage">
+        <div class="drawer-header">
+            <div class="drawer-title">奖金信息</div>
+            <div class="drawer-close" onclick="closeBonusPage()">&times;</div>
+        </div>
+        <div class="drawer-content">
+            <div class="bonus-form">
+                <!-- 国家选择 -->
+                <div class="form-group">
+                    <label for="country">国家/Country</label>
+                    <select id="country" onchange="updatePaymentMethods()" class="form-input">
+                        <option value="Malaysia">Malaysia</option>
+                        <option value="Thailand">Thailand</option>
+                        <option value="Brunei">Brunei</option>
+                        <option value="Singapore">Singapore</option>
+                        <option value="Taiwan">Taiwan</option>
+                        <option value="Hong Kong">Hong Kong</option>
+                        <option value="Cambodia">Cambodia</option>
+                        <option value="Philippines">Philippines</option>
+                        <option value="Indonesia">Indonesia</option>
+                        <option value="E-Commerce Countries">E-Commerce Countries</option>
+                    </select>
+                </div>
+                
+                <!-- 支付方式选择 -->
+                <div class="form-group">
+                    <label for="paymentMethod">支付方式/Payment Method</label>
+                    <select id="paymentMethod" onchange="updatePaymentFields()" class="form-input">
+                        <option value="BANK">BANK</option>
+                        <option value="Mpay">Mpay</option>
+                    </select>
+                </div>
+                
+                <!-- 支付字段表单 -->
+                <div id="paymentFields">
+                    <!-- BANK 字段 -->
+                    <div id="bankFields" class="payment-fields">
+                        <div class="form-group">
+                            <label for="bankCountry">银行国家/Bank Country <span class="required">*</span></label>
+                            <input type="text" id="bankCountry" class="form-input" value="Malaysia" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="bankName">银行名称/Bank Name</label>
+                            <input type="text" id="bankName" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="swiftCode">SWIFT代码/Swift Code</label>
+                            <input type="text" id="swiftCode" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="bankAccount">银行账号/Bank Account No <span class="required">*</span></label>
+                            <input type="text" id="bankAccount" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="accountHolder">账户持有人姓名/A/C Holder Name <span class="required">*</span></label>
+                            <input type="text" id="accountHolder" class="form-input" disabled value="AT PEAK SDN BHD">
+                        </div>
+                        <div class="form-group">
+                            <label for="payoutCompany">支付公司/Payout Company <span class="required">*</span></label>
+                            <input type="text" id="payoutCompany" class="form-input" disabled value="Elken International Sdn Bhd">
+                        </div>
+                    </div>
+                    
+                    <!-- GCC 字段 -->
+                    <div id="gccFields" class="payment-fields" style="display: none;">
+                        <div class="form-group">
+                            <label for="cardCountry">卡片国家/Card Country <span class="required">*</span></label>
+                            <input type="text" id="cardCountry" class="form-input" value="Malaysia">
+                        </div>
+                        <div class="form-group">
+                            <label for="cardHolder">持卡人姓名/Card Holder Name <span class="required">*</span></label>
+                            <input type="text" id="cardHolder" class="form-input" disabled value="AT PEAK SDN BHD">
+                        </div>
+                        <div class="form-group">
+                            <label for="cardNumber">卡号/Card Number <span class="required">*</span></label>
+                            <input type="text" id="cardNumber" class="form-input">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="expiryMonth">到期月份/Card Expiry Date <span class="required">*</span></label>
+                                <input type="number" id="expiryMonth" class="form-input" placeholder="MM">
+                            </div>
+                            <div class="form-group">
+                                <label for="expiryYear">到期年份/Card Expiry Year <span class="required">*</span></label>
+                                <input type="number" id="expiryYear" class="form-input" placeholder="YYYY">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Mpay 字段 -->
+                    <div id="mpayFields" class="payment-fields" style="display: none;">
+                        <div class="form-group">
+                            <label for="mpayCardCountry">卡片国家/Card Country <span class="required">*</span></label>
+                            <input type="text" id="mpayCardCountry" class="form-input" value="Malaysia">
+                        </div>
+                        <div class="form-group">
+                            <label for="mpayCardHolder">持卡人姓名/Card Holder Name <span class="required">*</span></label>
+                            <input type="text" id="mpayCardHolder" class="form-input" disabled value="AT PEAK SDN BHD">
+                        </div>
+                        <div class="form-group">
+                            <label for="mpayCardNumber">卡号/Card Number <span class="required">*</span></label>
+                            <input type="text" id="mpayCardNumber" class="form-input">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="mpayExpiryMonth">到期月份/Card Expiry Date <span class="required">*</span></label>
+                                <input type="number" id="mpayExpiryMonth" class="form-input" placeholder="MM">
+                            </div>
+                            <div class="form-group">
+                                <label for="mpayExpiryYear">到期年份/Card Expiry Year <span class="required">*</span></label>
+                                <input type="number" id="mpayExpiryYear" class="form-input" placeholder="YYYY">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="mpayPayoutCompany">支付公司/Payout Company <span class="required">*</span></label>
+                            <input type="text" id="mpayPayoutCompany" class="form-input" disabled value="Mpay Sdn Bhd">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 提交按钮 -->
+                <div class="form-actions">
+                    <button onclick="submitBonusForm()" class="submit-btn">保存/Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <script>
         // 缩放和拖拽相关变量
         let scale = 1;
@@ -1971,38 +2204,127 @@
             }
         }
         
-        // 页面加载时检查权限
-        window.onload = function() {
-            checkPermission();
+        // 打开奖金信息页面
+        function openBonusPage() {
+            const bonusPage = document.getElementById('bonusPage');
+            const bonusOverlay = document.getElementById('bonusOverlay');
+            bonusPage.classList.add('open');
+            bonusOverlay.style.display = 'block';
+        }
+        
+        // 关闭奖金信息页面
+        function closeBonusPage() {
+            const bonusPage = document.getElementById('bonusPage');
+            const bonusOverlay = document.getElementById('bonusOverlay');
+            bonusPage.classList.remove('open');
+            bonusOverlay.style.display = 'none';
+        }
+        
+        // 国家对应的支付方式
+        const countryPaymentMethods = {
+            'Malaysia': ['BANK', 'Mpay'],
+            'Thailand': ['BANK', 'GCC'],
+            'Brunei': ['BANK'],
+            'Singapore': ['BANK', 'GCC'],
+            'Taiwan': ['BANK'],
+            'Hong Kong': ['BANK', 'GCC'],
+            'Cambodia': ['BANK', 'GCC'],
+            'Philippines': ['BANK', 'GCC'],
+            'Indonesia': ['BANK', 'GCC'],
+            'E-Commerce Countries': ['BANK', 'Mpay']
         };
         
-        // 切换节点展开/折叠状态
-        function toggleNode(nodeId) {
-            nodeStates[nodeId] = !nodeStates[nodeId];
-            const childrenContainer = document.getElementById(nodeId + 'Children');
-            const toggleIcon = document.getElementById(nodeId + 'ToggleIcon');
+        // 更新支付方式选项
+        function updatePaymentMethods() {
+            const country = document.getElementById('country').value;
+            const paymentMethodSelect = document.getElementById('paymentMethod');
             
-            if (childrenContainer) {
-                if (nodeStates[nodeId]) {
-                    childrenContainer.style.transform = 'translateY(0)';
-                    childrenContainer.style.opacity = '1';
-                    childrenContainer.style.pointerEvents = 'auto';
-                    if (toggleIcon) {
-                        toggleIcon.style.transform = 'rotate(0deg)';
-                    }
-                } else {
-                    childrenContainer.style.transform = 'translateY(-24px)';
-                    childrenContainer.style.opacity = '0';
-                    childrenContainer.style.pointerEvents = 'none';
-                    if (toggleIcon) {
-                        toggleIcon.style.transform = 'rotate(-90deg)';
-                    }
+            // 清空现有选项
+            paymentMethodSelect.innerHTML = '';
+            
+            // 添加对应国家的支付方式
+            countryPaymentMethods[country].forEach(method => {
+                const option = document.createElement('option');
+                option.value = method;
+                option.textContent = method;
+                paymentMethodSelect.appendChild(option);
+            });
+            
+            // 更新银行国家字段
+            document.getElementById('bankCountry').value = country;
+            document.getElementById('cardCountry').value = country;
+            document.getElementById('mpayCardCountry').value = country;
+            
+            // 更新支付字段
+            updatePaymentFields();
+        }
+        
+        // 更新支付字段
+        function updatePaymentFields() {
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            
+            // 隐藏所有支付字段
+            document.getElementById('bankFields').style.display = 'none';
+            document.getElementById('gccFields').style.display = 'none';
+            document.getElementById('mpayFields').style.display = 'none';
+            
+            // 显示选中的支付方式字段
+            if (paymentMethod === 'BANK') {
+                document.getElementById('bankFields').style.display = 'block';
+            } else if (paymentMethod === 'GCC') {
+                document.getElementById('gccFields').style.display = 'block';
+            } else if (paymentMethod === 'Mpay') {
+                document.getElementById('mpayFields').style.display = 'block';
+            }
+        }
+        
+        // 提交奖金表单
+        function submitBonusForm() {
+            const country = document.getElementById('country').value;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            let isValid = true;
+            
+            // 验证表单
+            if (paymentMethod === 'BANK') {
+                if (!document.getElementById('bankAccount').value) {
+                    alert('请填写银行账号/Please enter bank account number.');
+                    isValid = false;
+                }
+            } else if (paymentMethod === 'GCC') {
+                if (!document.getElementById('cardNumber').value) {
+                    alert('请填写卡号/Please enter card number.');
+                    isValid = false;
+                } else if (!document.getElementById('expiryMonth').value) {
+                    alert('请填写到期月份/Please enter expiry month.');
+                    isValid = false;
+                } else if (!document.getElementById('expiryYear').value) {
+                    alert('请填写到期年份/Please enter expiry year.');
+                    isValid = false;
+                }
+            } else if (paymentMethod === 'Mpay') {
+                if (!document.getElementById('mpayCardNumber').value) {
+                    alert('请填写卡号/Please enter card number.');
+                    isValid = false;
+                } else if (!document.getElementById('mpayExpiryMonth').value) {
+                    alert('请填写到期月份/Please enter expiry month.');
+                    isValid = false;
+                } else if (!document.getElementById('mpayExpiryYear').value) {
+                    alert('请填写到期年份/Please enter expiry year.');
+                    isValid = false;
                 }
             }
             
-            // 调整容器高度
-            updateContainerHeight();
+            if (isValid) {
+                alert('保存成功/Save successful!');
+                closeBonusPage();
+            }
         }
+        
+        // 页面加载时检查权限并初始化
+        window.onload = function() {
+            checkPermission();
+            updatePaymentMethods(); // 初始化支付方式
+        };
         
         // 更新容器高度
         function updateContainerHeight() {
