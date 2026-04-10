@@ -395,11 +395,11 @@
     <div class="header">
         <div class="header-left">
             <div class="back-arrow" onclick="window.history.back()">←</div>
-            <div class="header-title">My Placement Network Performance</div>
+            <div class="header-title">点位团队业绩</div>
         </div>
         <div class="header-right">
             <div class="header-search">
-                <input type="text" class="header-search-input" placeholder="Search Member ID">
+                <input type="text" class="header-search-input" placeholder="搜索会员ID或姓名">
                 <button class="header-search-btn">🔍</button>
             </div>
         </div>
@@ -645,6 +645,103 @@
         document.getElementById('legendModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeLegendModal();
+            }
+        });
+        
+        // 搜索功能
+        function searchMember() {
+            const searchInput = document.querySelector('.header-search-input');
+            const searchTerm = searchInput.value.trim();
+            
+            if (searchTerm === '') {
+                showToast('请输入会员ID或姓名');
+                return;
+            }
+            
+            // 模拟会员数据
+            const members = [
+                { id: '10000522701', name: 'CHE MAIMUN BT ABDULLAH' },
+                { id: '10000522702', name: 'JOHN DOE' },
+                { id: '10000522703', name: 'JANE SMITH' },
+                { id: '10000522704', name: 'ALICE JOHNSON' },
+                { id: '10000522705', name: 'BOB WILLIAMS' }
+            ];
+            
+            // 模糊搜索
+            const foundMembers = members.filter(member => {
+                return member.id.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                       member.name.toLowerCase().includes(searchTerm.toLowerCase());
+            });
+            
+            if (foundMembers.length === 0) {
+                showToast('未找到匹配的会员，请检查输入是否正确');
+                return;
+            }
+            
+            // 模拟搜索功能
+            showToast(`正在搜索会员数据`);
+            
+            // 模拟搜索延迟
+            setTimeout(() => {
+                // 更新表格数据
+                updateTableData(foundMembers[0]);
+                showToast(`搜索成功！显示会员 ${foundMembers[0].name} 的业绩数据`);
+            }, 1000);
+        }
+        
+        // 更新表格数据
+        function updateTableData(member) {
+            // 在实际应用中，这里应该根据搜索到的会员ID从API获取数据
+            // 这里使用模拟数据
+            const tableBody = document.querySelector('table tbody');
+            
+            // 生成新的表格数据
+            const newRow = `
+                <tr class="highlight">
+                    <td>2026-04</td>
+                    <td>DEALER</td>
+                    <td>DEALER</td>
+                    <td>100.00</td>
+                    <td>500.00</td>
+                    <td>300.00</td>
+                    <td>1000.00</td>
+                    <td>800.00</td>
+                    <td>1500.00</td>
+                    <td>1100.00</td>
+                    <td>2</td>
+                    <td>1</td>
+                    <td>5</td>
+                    <td>3</td>
+                </tr>
+                <tr>
+                    <td>2026-03</td>
+                    <td>DEALER</td>
+                    <td>DEALER</td>
+                    <td>80.00</td>
+                    <td>400.00</td>
+                    <td>200.00</td>
+                    <td>900.00</td>
+                    <td>700.00</td>
+                    <td>1300.00</td>
+                    <td>900.00</td>
+                    <td>1</td>
+                    <td>0</td>
+                    <td>3</td>
+                    <td>3</td>
+                </tr>
+            `;
+            
+            // 替换表格数据
+            tableBody.innerHTML = newRow;
+        }
+        
+        // 为搜索按钮添加点击事件
+        document.querySelector('.header-search-btn').addEventListener('click', searchMember);
+        
+        // 为搜索输入框添加回车事件
+        document.querySelector('.header-search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchMember();
             }
         });
     </script>
