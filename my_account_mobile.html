@@ -397,8 +397,71 @@
         }
 
         .status-active {
-            background-color: #fff5f5;
-            color: var(--danger-color);
+            background-color: #e8f5e8;
+            color: var(--success-color);
+        }
+        
+        /* 绿色头部 */
+        .section-header {
+            padding: 12px 16px;
+            margin-bottom: 12px;
+        }
+        
+        .green-header {
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 8px;
+        }
+        
+        .green-header h2 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        /* 上传区域 */
+        .upload-section {
+            margin-top: 8px;
+        }
+        
+        .upload-hint {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 12px;
+        }
+        
+        .upload-preview {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .upload-image {
+            width: 80px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        
+        .upload-btn {
+            background-color: #f0f0f0;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .upload-icon {
+            font-size: 24px;
+        }
+        
+        /* 保存按钮 */
+        .save-btn {
+            margin-top: 20px;
         }
 
         /* 地区选择 */
@@ -844,18 +907,18 @@
         <div class="header-left" id="backBtn" onclick="window.history.back()">
             <div class="back-btn"></div>
         </div>
-        <h1 class="header-title">我的账户</h1>
+        <h1 class="header-title">My Account</h1>
         <div class="header-right"></div>
     </header>
 
     <!-- 可滚动标签栏 -->
     <div class="tab-bar-container">
         <div class="tab-bar no-scrollbar">
-            <div class="tab-item active" data-target="business">商业信息</div>
-            <div class="tab-item" data-target="personal">个人信息</div>
-            <div class="tab-item" data-target="address">地址管理</div>
-            <div class="tab-item" data-target="bonus">奖金信息</div>
-            <div class="tab-item" data-target="placement">安置偏好</div>
+            <div class="tab-item active" data-target="business">Business Info</div>
+            <div class="tab-item" data-target="personal">Personal Info</div>
+            <div class="tab-item" data-target="address">Address</div>
+            <div class="tab-item" data-target="bonus">Bonus</div>
+            <div class="tab-item" data-target="placement">Placement</div>
             <div class="tab-item" data-target="policies">e-form</div>
         </div>
     </div>
@@ -866,104 +929,105 @@
         <div id="business" class="tab-content active">
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title">账号基础信息</div>
+                    <div class="card-title">Account Info</div>
                 </div>
                 <div class="data-row">
-                    <div class="data-label">会员姓名</div>
+                    <div class="data-label">Member Name</div>
                     <div class="data-value">EW1</div>
                 </div>
                 <div class="data-row">
-                    <div class="data-label">会员号</div>
+                    <div class="data-label">Member ID</div>
                     <div class="data-value">1</div>
                 </div>
                 <div class="data-row">
-                    <div class="data-label">状态</div>
+                    <div class="data-label">Status</div>
                     <div class="data-value">
-                        <span class="status-badge status-active">活跃</span>
+                        <span class="status-badge status-active">Yes</span>
                     </div>
                 </div>
                 <div class="data-row">
-                    <div class="data-label">加入日期</div>
+                    <div class="data-label">Join Date</div>
                     <div class="data-value">2016-07-11</div>
                 </div>
                 <div class="data-row">
-                    <div class="data-label">到期日期</div>
+                    <div class="data-label">Expiry Date</div>
                     <div class="data-value">2027-06-30</div>
                 </div>
                 <div class="data-row">
-                    <div class="data-label">剩余天数</div>
-                    <div class="data-value">488天</div>
+                    <div class="data-label">Active Remaining Day</div>
+                    <div class="data-value">488 Days</div>
                 </div>
             </div>
 
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title">等级体系</div>
+                    <div class="card-title">Rank System</div>
                 </div>
                 <div class="data-row">
-                    <div class="data-label">会员等级</div>
+                    <div class="data-label">Member Rank</div>
                     <div class="data-value">PD</div>
                 </div>
                 <div class="data-row">
-                    <div class="data-label">荣衔等级</div>
-                    <div class="data-value">黄金</div>
+                    <div class="data-label">Membership Rank</div>
+                    <div class="data-value">Diamond</div>
                 </div>
                 <div class="data-row">
-                    <div class="data-label">最高等级</div>
-                    <div class="data-value">经销商</div>
+                    <div class="data-label">Highest Rank</div>
+                    <div class="data-value">Crown</div>
                 </div>
                 <div class="data-row">
-                    <div class="data-label">精英等级</div>
+                    <div class="data-label">Elite Rank</div>
                     <div class="data-value">-</div>
                 </div>
             </div>
 
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title">推荐关系</div>
+                    <div class="card-title">Sponsor Relationship</div>
                 </div>
                 <div class="data-row">
-                    <div class="data-label">推荐人ID</div>
-                    <div class="data-value">0</div>
+                    <div class="data-label">Sponsor ID</div>
+                    <div class="data-value">000</div>
                 </div>
                 <div class="data-row">
-                    <div class="data-label">推荐人名称</div>
-                    <div class="data-value">公司经销商</div>
+                    <div class="data-label">Sponsor Name</div>
+                    <div class="data-value">Choong Bang Seng</div>
                 </div>
             </div>
 
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title">税务信息</div>
+                    <div class="card-title">Tax Information</div>
                 </div>
                 <div class="data-row">
-                    <div class="data-label">预扣税状态</div>
-                    <div class="data-value">否</div>
+                    <div class="data-label">Has Withholding Tax</div>
+                    <div class="data-value">No</div>
                 </div>
                 <div class="data-row">
-                    <div class="data-label">所得税国家</div>
-                    <div class="data-value">马来西亚</div>
+                    <div class="data-label">Income Tax Country</div>
+                    <div class="data-value">Malaysia</div>
                 </div>
             </div>
         </div>
 
         <!-- 个人信息 -->
         <div id="personal" class="tab-content">
+            <div class="section-header green-header">
+                <h2>Personal Details</h2>
+            </div>
+            
             <div class="card">
-                <div class="card-header">
-                    <div class="card-title">编辑个人信息</div>
-                </div>
                 <form id="personalForm">
                     <div class="form-group">
-                        <label class="form-label required">国籍</label>
+                        <label class="form-label required">Nationality</label>
                         <select class="form-control form-select" required disabled>
-                            <option value="MY" selected>马来西亚</option>
-                            <option value="TH">泰国</option>
-                            <option value="SG">新加坡</option>
+                            <option value="MY" selected>Malaysia</option>
+                            <option value="TH">Thailand</option>
+                            <option value="SG">Singapore</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label required">姓名</label>
+                        <label class="form-label required">Name as per ID/Passport</label>
                         <input type="text" class="form-control" value="EW1" required disabled>
                     </div>
                     <div class="form-group">
@@ -971,70 +1035,70 @@
                         <input type="text" class="form-control" value="EW1" disabled>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">会员ID</label>
+                        <label class="form-label">Member ID</label>
                         <input type="text" class="form-control" value="1" disabled>
                     </div>
                     <div class="form-group">
-                        <label class="form-label required">性别</label>
+                        <label class="form-label required">Gender</label>
                         <div class="radio-group">
                             <label class="radio-label selected">
-                                <input type="radio" name="gender" value="female" class="radio-input" checked> 女
+                                <input type="radio" name="gender" value="female" class="radio-input" checked> Female
                             </label>
                             <label class="radio-label">
-                                <input type="radio" name="gender" value="male" class="radio-input"> 男
+                                <input type="radio" name="gender" value="male" class="radio-input"> Male
                             </label>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label required">身份证/护照号</label>
+                        <label class="form-label required">ID/Passport No.</label>
                         <input type="text" class="form-control" value="1231321" required inputmode="numeric" disabled>
                     </div>
                     <div class="form-group">
-                        <label class="form-label required">出生日期</label>
+                        <label class="form-label required">Date of Birth</label>
                         <input type="date" class="form-control" value="1963-06-06" required disabled>
                     </div>
                     <div class="form-group">
-                        <label class="form-label required">种族</label>
+                        <label class="form-label required">Ethnic Group</label>
                         <select class="form-control form-select" required>
-                            <option value="aboriginal">原住民</option>
-                            <option value="cham">占族</option>
-                            <option value="chinese">华人</option>
-                            <option value="filipino">菲律宾人</option>
-                            <option value="indian">印度人</option>
-                            <option value="indonesian">印度尼西亚人</option>
-                            <option value="khmer">高棉人</option>
-                            <option value="malay" selected>马来人</option>
-                            <option value="others">其他</option>
-                            <option value="taiwanese">台湾人</option>
-                            <option value="thai">泰国人</option>
-                            <option value="vietnamese">越南人</option>
+                            <option value="aboriginal">Aboriginal</option>
+                            <option value="cham">Cham</option>
+                            <option value="chinese">Chinese</option>
+                            <option value="filipino">Filipino</option>
+                            <option value="indian">Indian</option>
+                            <option value="indonesian">Indonesian</option>
+                            <option value="khmer">Khmer</option>
+                            <option value="malay" selected>Malay</option>
+                            <option value="others">Others</option>
+                            <option value="taiwanese">Taiwanese</option>
+                            <option value="thai">Thai</option>
+                            <option value="vietnamese">Vietnamese</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label required">首选语言</label>
+                        <label class="form-label required">Preferred Language</label>
                         <select class="form-control form-select" required>
-                            <option value="en">英语</option>
-                            <option value="ms">马来语</option>
-                            <option value="id">印尼语</option>
-                            <option value="th">泰语</option>
-                            <option value="km">柬埔寨语</option>
-                            <option value="zh-cn" selected>简体中文</option>
-                            <option value="zh-tw">繁體中文(台灣)</option>
-                            <option value="zh-hk">繁體中文 (香港)</option>
+                            <option value="en">English</option>
+                            <option value="ms">Malay</option>
+                            <option value="id">Indonesian</option>
+                            <option value="th">Thai</option>
+                            <option value="km">Khmer</option>
+                            <option value="zh-cn" selected>Simplified Chinese</option>
+                            <option value="zh-tw">Traditional Chinese (Taiwan)</option>
+                            <option value="zh-hk">Traditional Chinese (Hong Kong)</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label required">婚姻状况</label>
+                        <label class="form-label required">Marital Status</label>
                         <select class="form-control form-select" required>
-                            <option value="single" selected>单身</option>
-                            <option value="married">已婚</option>
-                            <option value="divorced">离婚</option>
-                            <option value="widowed">丧偶</option>
-                            <option value="others">其他</option>
+                            <option value="divorced" selected>Divorced</option>
+                            <option value="married">Married</option>
+                            <option value="others">Others</option>
+                            <option value="single">Single</option>
+                            <option value="widowed">Widowed</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label required">所得税国家</label>
+                        <label class="form-label required">Income Tax Country</label>
                         <select id="incomeTaxCountry" class="form-control form-select" required disabled onchange="updateTaxField()">
                             <option value="MY">Malaysia</option>
                             <option value="TW">Taiwan</option>
@@ -1051,111 +1115,112 @@
                         </select>
                     </div>
                     <div class="form-group" id="taxIdField" style="display: none;">
-                        <label class="form-label" id="taxIdLabel">马来西亚税务编号</label>
-                        <input type="text" class="form-control" placeholder="请输入税务编号">
+                        <label class="form-label" id="taxIdLabel">TIN No. Malaysia</label>
+                        <input type="text" class="form-control" placeholder="Please enter tax number">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">证件上传</label>
+                        <label class="form-label">Upload ID/Passport</label>
                         <div class="file-upload">
                             <img class="image-preview" id="idCardPreview" src="">
                             <div class="file-upload-icon">📁</div>
-                            <div class="file-upload-text">点击上传证件照片</div>
+                            <div class="file-upload-text">Click to upload ID/Passport photo</div>
                             <input type="file" id="idCardUpload" style="display: none;" accept="image/*,.pdf">
                         </div>
                     </div>
                 </form>
             </div>
 
+            <div class="section-header green-header">
+                <h2>Contact Details</h2>
+            </div>
+            
             <div class="card">
-                <div class="card-header">
-                    <div class="card-title">联络详情</div>
-                </div>
                 <div class="form-group">
-                    <label class="form-label required">首选联络人</label>
+                    <label class="form-label required">Preferred Contact</label>
                     <div class="form-hint">My preferred mode to receive verification code</div>
                     <div class="radio-group">
                         <label class="radio-label selected">
-                            <input type="radio" name="preferredContact" value="email" class="radio-input" checked> 邮箱
+                            <input type="radio" name="preferredContact" value="email" class="radio-input" checked> Email
                         </label>
                         <label class="radio-label">
-                            <input type="radio" name="preferredContact" value="phone" class="radio-input"> 手机
+                            <input type="radio" name="preferredContact" value="phone" class="radio-input"> Phone
                         </label>
                     </div>
                 </div>
                 <div id="emailFields" class="contact-fields">
                     <div class="form-group">
-                        <label class="form-label required">我的电子邮件</label>
-                        <input type="email" id="emailAddress" class="form-control" placeholder="请输入电子邮件地址" required>
+                        <label class="form-label required">Email Address</label>
+                        <input type="email" id="emailAddress" class="form-control" placeholder="Please enter email address" required>
                     </div>
                 </div>
                 <div id="phoneFields" class="contact-fields">
                     <div class="form-group">
-                        <label class="form-label required">手机号码</label>
+                        <label class="form-label required">Mobile Number</label>
                         <div class="phone-input-group">
                             <select id="mobileCountry" class="form-control form-select" required>
-                                <option value="MY" selected>马来西亚 (+60)</option>
-                                <option value="TH">泰国 (+66)</option>
-                                <option value="SG">新加坡 (+65)</option>
-                                <option value="HK">香港 (+852)</option>
-                                <option value="TW">台湾 (+886)</option>
-                                <option value="CN">中国 (+86)</option>
-                                <option value="ID">印度尼西亚 (+62)</option>
-                                <option value="VN">越南 (+84)</option>
-                                <option value="US">美国 (+1)</option>
-                                <option value="UK">英国 (+44)</option>
-                                <option value="AU">澳大利亚 (+61)</option>
-                                <option value="CA">加拿大 (+1)</option>
+                                <option value="MY" selected>Malaysia (+60)</option>
+                                <option value="TH">Thailand (+66)</option>
+                                <option value="SG">Singapore (+65)</option>
+                                <option value="HK">Hong Kong (+852)</option>
+                                <option value="TW">Taiwan (+886)</option>
+                                <option value="CN">China (+86)</option>
+                                <option value="ID">Indonesia (+62)</option>
+                                <option value="VN">Vietnam (+84)</option>
+                                <option value="US">United States (+1)</option>
+                                <option value="UK">United Kingdom (+44)</option>
+                                <option value="AU">Australia (+61)</option>
+                                <option value="CA">Canada (+1)</option>
                             </select>
-                            <input type="tel" id="mobileNumber" class="form-control" placeholder="请输入手机号码" required inputmode="tel">
+                            <input type="tel" id="mobileNumber" class="form-control" placeholder="Please enter mobile number" required inputmode="tel">
                         </div>
                         <div class="verification-group" style="margin-top: 12px;">
-                            <input type="text" class="form-control" placeholder="验证码" required inputmode="numeric">
-                            <button class="btn btn-primary verification-btn" id="sendCodeBtn">获取验证码</button>
+                            <input type="text" class="form-control" placeholder="Verification code" required inputmode="numeric">
+                            <button class="btn btn-primary verification-btn" id="sendCodeBtn">Request OTP</button>
                             <span class="countdown-text" id="countdown" style="display: none;"></span>
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">住宅电话</label>
+                    <label class="form-label">Home Phone</label>
                     <div class="phone-input-group">
                         <select class="form-control form-select">
-                            <option value="MY" selected>马来西亚 (+60)</option>
-                            <option value="TH">泰国 (+66)</option>
-                            <option value="SG">新加坡 (+65)</option>
-                            <option value="HK">香港 (+852)</option>
-                            <option value="TW">台湾 (+886)</option>
-                            <option value="CN">中国 (+86)</option>
-                            <option value="ID">印度尼西亚 (+62)</option>
-                            <option value="VN">越南 (+84)</option>
-                            <option value="US">美国 (+1)</option>
-                            <option value="UK">英国 (+44)</option>
-                            <option value="AU">澳大利亚 (+61)</option>
-                            <option value="CA">加拿大 (+1)</option>
+                            <option value="MY" selected>Malaysia (+60)</option>
+                            <option value="TH">Thailand (+66)</option>
+                            <option value="SG">Singapore (+65)</option>
+                            <option value="HK">Hong Kong (+852)</option>
+                            <option value="TW">Taiwan (+886)</option>
+                            <option value="CN">China (+86)</option>
+                            <option value="ID">Indonesia (+62)</option>
+                            <option value="VN">Vietnam (+84)</option>
+                            <option value="US">United States (+1)</option>
+                            <option value="UK">United Kingdom (+44)</option>
+                            <option value="AU">Australia (+61)</option>
+                            <option value="CA">Canada (+1)</option>
                         </select>
-                        <input type="tel" class="form-control" placeholder="请输入住宅电话" inputmode="tel">
+                        <input type="tel" class="form-control" placeholder="please input" inputmode="tel">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">办公电话</label>
+                    <label class="form-label">Office Phone</label>
                     <div class="phone-input-group">
                         <select class="form-control form-select">
-                            <option value="MY" selected>马来西亚 (+60)</option>
-                            <option value="TH">泰国 (+66)</option>
-                            <option value="SG">新加坡 (+65)</option>
-                            <option value="HK">香港 (+852)</option>
-                            <option value="TW">台湾 (+886)</option>
-                            <option value="CN">中国 (+86)</option>
-                            <option value="ID">印度尼西亚 (+62)</option>
-                            <option value="VN">越南 (+84)</option>
-                            <option value="US">美国 (+1)</option>
-                            <option value="UK">英国 (+44)</option>
-                            <option value="AU">澳大利亚 (+61)</option>
-                            <option value="CA">加拿大 (+1)</option>
+                            <option value="MY" selected>Malaysia (+60)</option>
+                            <option value="TH">Thailand (+66)</option>
+                            <option value="SG">Singapore (+65)</option>
+                            <option value="HK">Hong Kong (+852)</option>
+                            <option value="TW">Taiwan (+886)</option>
+                            <option value="CN">China (+86)</option>
+                            <option value="ID">Indonesia (+62)</option>
+                            <option value="VN">Vietnam (+84)</option>
+                            <option value="US">United States (+1)</option>
+                            <option value="UK">United Kingdom (+44)</option>
+                            <option value="AU">Australia (+61)</option>
+                            <option value="CA">Canada (+1)</option>
                         </select>
-                        <input type="tel" class="form-control" placeholder="请输入办公电话" inputmode="tel">
+                        <input type="tel" class="form-control" placeholder="please input" inputmode="tel">
                     </div>
                 </div>
-                <button class="btn btn-primary" onclick="validateContactForm()">保存联络信息</button>
+                <button class="btn btn-primary" onclick="validateContactForm()">Save</button>
             </div>
         </div>
 
@@ -1164,30 +1229,30 @@
             <div class="accordion">
                 <div class="accordion-item">
                     <div class="accordion-header">
-                        <div class="accordion-title">永久地址</div>
+                        <div class="accordion-title">Permanent</div>
                         <div class="accordion-icon">▼</div>
                     </div>
                     <div class="accordion-content">
                         <div class="form-group">
-                            <label class="form-label required">地址1</label>
-                            <input type="text" class="form-control" placeholder="请输入地址1" required disabled>
+                            <label class="form-label required">Address 1</label>
+                            <input type="text" class="form-control" placeholder="please input" required disabled>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">地址2</label>
-                            <input type="text" class="form-control" placeholder="请输入地址2" disabled>
+                            <label class="form-label">Address 2</label>
+                            <input type="text" class="form-control" placeholder="please input" disabled>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">地址3</label>
-                            <input type="text" class="form-control" placeholder="请输入地址3" disabled>
+                            <label class="form-label">Address 3</label>
+                            <input type="text" class="form-control" placeholder="please input" disabled>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">地址4</label>
-                            <input type="text" class="form-control" placeholder="请输入地址4" disabled>
+                            <label class="form-label">Address 4</label>
+                            <input type="text" class="form-control" placeholder="please input" disabled>
                         </div>
                         <div class="form-group">
-                            <label class="form-label required">国家</label>
+                            <label class="form-label required">Country</label>
                             <select class="form-control form-select" id="permanentCountry" required disabled>
-                                <option value="">请选择国家</option>
+                                <option value="">Please select country</option>
                                 <option value="MY" selected>马来西亚</option>
                                 <option value="TH">泰国</option>
                                 <option value="SG">新加坡</option>
@@ -1204,51 +1269,51 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">城市</label>
+                            <label class="form-label">City</label>
                             <select class="form-control form-select" id="permanentCity" disabled>
-                                <option value="">请选择城市</option>
+                                <option value="">Please select city</option>
                                 <option value="Subang Jaya" selected>Subang Jaya</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">州/省</label>
+                            <label class="form-label">State</label>
                             <select class="form-control form-select" id="permanentState" disabled>
-                                <option value="">请选择州/省</option>
+                                <option value="">Please select state</option>
                                 <option value="Selangor" selected>Selangor</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label required">邮编</label>
-                            <input type="text" class="form-control" placeholder="邮编" required inputmode="numeric" disabled>
+                            <label class="form-label required">Postcode</label>
+                            <input type="text" class="form-control" placeholder="Postcode" required inputmode="numeric" disabled>
                         </div>
                     </div>
                 </div>
                 <div class="accordion-item">
                     <div class="accordion-header">
-                        <div class="accordion-title">通讯地址</div>
+                        <div class="accordion-title">Correspondence</div>
                         <div class="accordion-icon">▼</div>
                     </div>
                     <div class="accordion-content">
                         <div class="form-group">
-                            <label class="form-label required">地址1</label>
-                            <input type="text" class="form-control" placeholder="请输入地址1" required disabled>
+                            <label class="form-label required">Address 1</label>
+                            <input type="text" class="form-control" placeholder="please input" required disabled>
                         </div>
                         <div class="form-group">
-                            <label class="form-label required">地址2</label>
-                            <input type="text" class="form-control" placeholder="请输入地址2" required disabled>
+                            <label class="form-label required">Address 2</label>
+                            <input type="text" class="form-control" placeholder="please input" required disabled>
                         </div>
                         <div class="form-group">
-                            <label class="form-label required">地址3</label>
-                            <input type="text" class="form-control" placeholder="请输入地址3" required disabled>
+                            <label class="form-label required">Address 3</label>
+                            <input type="text" class="form-control" placeholder="please input" required disabled>
                         </div>
                         <div class="form-group">
-                            <label class="form-label required">地址4</label>
-                            <input type="text" class="form-control" placeholder="请输入地址4" required disabled>
+                            <label class="form-label required">Address 4</label>
+                            <input type="text" class="form-control" placeholder="please input" required disabled>
                         </div>
                         <div class="form-group">
-                            <label class="form-label required">国家</label>
+                            <label class="form-label required">Country</label>
                             <select class="form-control form-select" id="communicationCountry" required disabled>
-                                <option value="">请选择国家</option>
+                                <option value="">Please select country</option>
                                 <option value="MY" selected>马来西亚</option>
                                 <option value="TH">泰国</option>
                                 <option value="SG">新加坡</option>
@@ -1265,49 +1330,49 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">城市</label>
+                            <label class="form-label">City</label>
                             <select class="form-control form-select" id="communicationCity" disabled>
-                                <option value="">请选择城市</option>
+                                <option value="">Please select city</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">州/省</label>
+                            <label class="form-label">State</label>
                             <select class="form-control form-select" id="communicationState" disabled>
-                                <option value="">请选择州/省</option>
+                                <option value="">Please select state</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label required">邮编</label>
-                            <input type="text" class="form-control" placeholder="邮编" required inputmode="numeric" disabled>
+                            <label class="form-label required">Postcode</label>
+                            <input type="text" class="form-control" placeholder="Postcode" required inputmode="numeric" disabled>
                         </div>
                     </div>
                 </div>
                 <div class="accordion-item">
                     <div class="accordion-header">
-                        <div class="accordion-title">邮寄1 <span class="status-badge status-active" id="mailing1Status" style="display: none;">已设置</span></div>
+                        <div class="accordion-title">Shipping 1 <span class="status-badge status-active" id="mailing1Status" style="display: none;">已设置</span></div>
                         <div class="accordion-icon">▼</div>
                     </div>
                     <div class="accordion-content">
                         <div class="form-group">
-                            <label class="form-label required">地址1</label>
-                            <input type="text" class="form-control" id="mailing1Address" placeholder="请输入地址1" required>
+                            <label class="form-label required">Address 1</label>
+                            <input type="text" class="form-control" id="mailing1Address" placeholder="please input" required>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">地址2</label>
-                            <input type="text" class="form-control" placeholder="请输入地址2">
+                            <label class="form-label">Address 2</label>
+                            <input type="text" class="form-control" placeholder="please input">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">地址3</label>
-                            <input type="text" class="form-control" placeholder="请输入地址3">
+                            <label class="form-label">Address 3</label>
+                            <input type="text" class="form-control" placeholder="please input">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">地址4</label>
-                            <input type="text" class="form-control" placeholder="请输入地址4">
+                            <label class="form-label">Address 4</label>
+                            <input type="text" class="form-control" placeholder="please input">
                         </div>
                         <div class="form-group">
-                            <label class="form-label required">国家</label>
+                            <label class="form-label required">Country</label>
                             <select class="form-control form-select" id="mailing1Country" required>
-                                <option value="">请选择国家</option>
+                                <option value="">Please select country</option>
                                 <option value="MY" selected>马来西亚</option>
                                 <option value="TH">泰国</option>
                                 <option value="SG">新加坡</option>
@@ -1324,9 +1389,9 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">城市</label>
+                            <label class="form-label">City</label>
                             <select class="form-control form-select" id="mailing1City">
-                                <option value="">请选择城市</option>
+                                <option value="">Please select city</option>
                                 <option value="Kuala Lumpur">Kuala Lumpur</option>
                                 <option value="Subang Jaya">Subang Jaya</option>
                                 <option value="Petaling Jaya">Petaling Jaya</option>
@@ -1335,9 +1400,9 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">州/省</label>
+                            <label class="form-label">State</label>
                             <select class="form-control form-select" id="mailing1State">
-                                <option value="">请选择州/省</option>
+                                <option value="">Please select state</option>
                                 <option value="Kuala Lumpur">Kuala Lumpur</option>
                                 <option value="Selangor">Selangor</option>
                                 <option value="Johor">Johor</option>
@@ -1346,39 +1411,39 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label required">邮编</label>
-                            <input type="text" class="form-control" id="mailing1Postcode" placeholder="邮编" required inputmode="numeric">
+                            <label class="form-label required">Postcode</label>
+                            <input type="text" class="form-control" id="mailing1Postcode" placeholder="Postcode" required inputmode="numeric">
                         </div>
-                        <button class="btn btn-primary" id="saveMailing1Address">保存地址</button>
+                        <button class="btn btn-primary" id="saveMailing1Address">Save</button>
                         <button class="btn btn-secondary" id="editMailing1Address" style="display: none;">编辑</button>
                     </div>
                 </div>
                 <div class="accordion-item">
                     <div class="accordion-header">
-                        <div class="accordion-title">邮寄2</div>
+                        <div class="accordion-title">Shipping 2</div>
                         <div class="accordion-icon">▼</div>
                     </div>
                     <div class="accordion-content">
                         <div class="form-group">
-                            <label class="form-label required">地址1</label>
-                            <input type="text" class="form-control" placeholder="请输入地址1" required>
+                            <label class="form-label required">Address 1</label>
+                            <input type="text" class="form-control" placeholder="please input" required>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">地址2</label>
-                            <input type="text" class="form-control" placeholder="请输入地址2">
+                            <label class="form-label">Address 2</label>
+                            <input type="text" class="form-control" placeholder="please input">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">地址3</label>
-                            <input type="text" class="form-control" placeholder="请输入地址3">
+                            <label class="form-label">Address 3</label>
+                            <input type="text" class="form-control" placeholder="please input">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">地址4</label>
-                            <input type="text" class="form-control" placeholder="请输入地址4">
+                            <label class="form-label">Address 4</label>
+                            <input type="text" class="form-control" placeholder="please input">
                         </div>
                         <div class="form-group">
-                            <label class="form-label required">国家</label>
+                            <label class="form-label required">Country</label>
                             <select class="form-control form-select" id="mailing2Country" required>
-                                <option value="">请选择国家</option>
+                                <option value="">Please select country</option>
                                 <option value="MY" selected>马来西亚</option>
                                 <option value="TH">泰国</option>
                                 <option value="SG">新加坡</option>
@@ -1395,9 +1460,9 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">城市</label>
+                            <label class="form-label">City</label>
                             <select class="form-control form-select" id="mailing2City">
-                                <option value="">请选择城市</option>
+                                <option value="">Please select city</option>
                                 <option value="Kuala Lumpur">Kuala Lumpur</option>
                                 <option value="Subang Jaya">Subang Jaya</option>
                                 <option value="Petaling Jaya">Petaling Jaya</option>
@@ -1406,9 +1471,9 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">州/省</label>
+                            <label class="form-label">State</label>
                             <select class="form-control form-select" id="mailing2State">
-                                <option value="">请选择州/省</option>
+                                <option value="">Please select state</option>
                                 <option value="Kuala Lumpur">Kuala Lumpur</option>
                                 <option value="Selangor">Selangor</option>
                                 <option value="Johor">Johor</option>
@@ -1417,14 +1482,14 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label required">邮编</label>
-                            <input type="text" class="form-control" placeholder="邮编" required inputmode="numeric">
+                            <label class="form-label required">Postcode</label>
+                            <input type="text" class="form-control" placeholder="Postcode" required inputmode="numeric">
                         </div>
-                        <button class="btn btn-primary" id="saveMailing2Address">保存地址</button>
+                        <button class="btn btn-primary" id="saveMailing2Address">Save</button>
                     </div>
                 </div>
                 <div class="add-address-container">
-                    <button class="btn btn-primary" id="addNewAddressBtn">添加新地址</button>
+                    <button class="btn btn-primary" id="addNewAddressBtn">Add new address</button>
                 </div>
             </div>
         </div>
@@ -1433,29 +1498,29 @@
         <div id="addAddressModal" class="modal">
             <div class="modal-content" style="max-width: 90%; width: 400px; max-height: 90vh; overflow-y: auto;">
                 <div class="modal-header">
-                    <h3 class="modal-title">添加新地址</h3>
+                    <h3 class="modal-title">Add new address</h3>
                     <span class="modal-close" id="closeAddAddressModal">&times;</span>
                 </div>
                 <div class="form-group">
-                    <label class="form-label required">地址1</label>
-                    <input type="text" class="form-control" id="newAddress1" placeholder="请输入地址1" required>
+                    <label class="form-label required">Address 1</label>
+                    <input type="text" class="form-control" id="newAddress1" placeholder="please input" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">地址2</label>
-                    <input type="text" class="form-control" id="newAddress2" placeholder="请输入地址2">
+                    <label class="form-label">Address 2</label>
+                    <input type="text" class="form-control" id="newAddress2" placeholder="please input">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">地址3</label>
-                    <input type="text" class="form-control" id="newAddress3" placeholder="请输入地址3">
+                    <label class="form-label">Address 3</label>
+                    <input type="text" class="form-control" id="newAddress3" placeholder="please input">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">地址4</label>
-                    <input type="text" class="form-control" id="newAddress4" placeholder="请输入地址4">
+                    <label class="form-label">Address 4</label>
+                    <input type="text" class="form-control" id="newAddress4" placeholder="please input">
                 </div>
                 <div class="form-group">
-                    <label class="form-label required">国家</label>
+                    <label class="form-label required">Country</label>
                     <select class="form-control form-select" id="newCountry" required>
-                        <option value="">请选择国家</option>
+                        <option value="">Please select country</option>
                         <option value="MY" selected>马来西亚</option>
                         <option value="TH">泰国</option>
                         <option value="SG">新加坡</option>
@@ -1472,9 +1537,9 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">城市</label>
+                    <label class="form-label">City</label>
                     <select class="form-control form-select" id="newCity">
-                        <option value="">请选择城市</option>
+                        <option value="">Please select city</option>
                         <option value="Kuala Lumpur">Kuala Lumpur</option>
                         <option value="Subang Jaya">Subang Jaya</option>
                         <option value="Petaling Jaya">Petaling Jaya</option>
@@ -1483,9 +1548,9 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">州/省</label>
+                    <label class="form-label">State</label>
                     <select class="form-control form-select" id="newState">
-                        <option value="">请选择州/省</option>
+                        <option value="">Please select state</option>
                         <option value="Kuala Lumpur">Kuala Lumpur</option>
                         <option value="Selangor">Selangor</option>
                         <option value="Johor">Johor</option>
@@ -1494,12 +1559,12 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label required">邮编</label>
-                    <input type="text" class="form-control" id="newPostcode" placeholder="邮编" required inputmode="numeric">
+                    <label class="form-label required">Postcode</label>
+                    <input type="text" class="form-control" id="newPostcode" placeholder="Postcode" required inputmode="numeric">
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" id="cancelAddAddress">取消</button>
-                    <button class="btn btn-primary" id="confirmAddAddress">确认添加</button>
+                    <button class="btn btn-secondary" id="cancelAddAddress">cancel</button>
+                    <button class="btn btn-primary" id="confirmAddAddress">Sure</button>
                 </div>
             </div>
         </div>
@@ -1508,7 +1573,7 @@
         <div id="bonus" class="tab-content">
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title">支付地区</div>
+                    <div class="card-title">Payment Region</div>
                 </div>
                 <div class="region-selector">
                     <div class="region-item active" data-country="MY">马来西亚</div>
@@ -1526,17 +1591,17 @@
 
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title">支付方式配置</div>
+                    <div class="card-title">Payment Configuration</div>
                 </div>
                 <form id="paymentForm">
                     <div class="form-group">
-                        <label class="form-label required">选择支付方式</label>
+                        <label class="form-label required">Select Payment Method</label>
                         <div class="radio-group">
                             <label class="radio-label" data-payment="bank">
-                                <input type="radio" name="payment" value="bank" class="radio-input"> 银行
+                                <input type="radio" name="payment" value="bank" class="radio-input"> BANK
                             </label>
                             <label class="radio-label selected" data-payment="gcc">
-                                <input type="radio" name="payment" value="gcc" class="radio-input" checked> 银行卡
+                                <input type="radio" name="payment" value="gcc" class="radio-input" checked> GCC
                             </label>
                             <label class="radio-label" data-payment="mpay">
                                 <input type="radio" name="payment" value="mpay" class="radio-input"> Mpay
@@ -1548,7 +1613,7 @@
                     <div id="bankAccountFields" class="payment-fields" style="display: none;">
                         <div class="card" style="margin-top: 20px;">
                             <div class="card-header" style="margin-bottom: 12px;">
-                                <div class="card-title">银行账户信息</div>
+                                <div class="card-title">Bank info</div>
                             </div>
                             <div class="form-group">
                                 <label class="form-label required">银行国家/Bank Country</label>
@@ -1587,7 +1652,7 @@
                     <div id="cardFields" class="payment-fields" style="display: block;">
                         <div class="card" style="margin-top: 20px;">
                             <div class="card-header" style="margin-bottom: 12px;">
-                                <div class="card-title">银行卡信息</div>
+                                <div class="card-title">Bank Card Info</div>
                             </div>
                             <div class="form-group">
                                 <label class="form-label required">卡片国家/Card Country</label>
@@ -1695,7 +1760,7 @@
                         </div>
                     </div>
 
-                    <button type="button" class="btn btn-primary" style="margin-top: 20px;" onclick="validatePaymentForm()">保存更改</button>
+                    <button type="button" class="btn btn-primary" style="margin-top: 20px;" onclick="validatePaymentForm()">Save</button>
                 </form>
             </div>
         </div>
@@ -1705,10 +1770,10 @@
         <div id="placement" class="tab-content">
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title">安置偏好设置</div>
+                    <div class="card-title">Placement Preference Settings</div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label required">自动安置</label>
+                    <label class="form-label required">Auto</label>
                     <div class="switch-group">
                         <label class="switch">
                             <input type="checkbox" id="autoPlacementSwitch" checked>
@@ -1717,21 +1782,21 @@
                     </div>
                 </div>
                 <div class="form-group" id="manualPlacementGroup" style="display: none;">
-                    <label class="form-label required">手动安置位置</label>
+                    <label class="form-label required">Manual setting position</label>
                     <div class="radio-group">
                         <label class="radio-label">
-                            <input type="radio" name="placement" value="left" class="radio-input"> 左下
+                            <input type="radio" name="placement" value="left" class="radio-input"> Bottom Left
                         </label>
                         <label class="radio-label">
-                            <input type="radio" name="placement" value="right" class="radio-input"> 右下
+                            <input type="radio" name="placement" value="right" class="radio-input"> Bottom Right
                         </label>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">下次安置位置</label>
-                    <input type="text" id="nextPlacement" class="form-control" value="自动" disabled>
+                    <label class="form-label">Next Placement Location</label>
+                    <input type="text" id="nextPlacement" class="form-control" value="Auto" disabled>
                 </div>
-                <button class="btn btn-primary" id="updatePlacementBtn">更新设置</button>
+                <button class="btn btn-primary" id="updatePlacementBtn">Update Settings</button>
             </div>
             <div class="info-box">
                 <div class="info-box-title">Placement Preference for your newly sponsored enrollees</div>
@@ -1747,9 +1812,9 @@
                     <div class="card-title">e-form</div>
                 </div>
                 <div class="data-row" style="cursor: pointer;">
-                    <div class="data-label">电子表格</div>
+                    <div class="data-label">e-form</div>
                     <div class="data-value">
-                        <a href="policy_detail.html" style="color: var(--primary-color); text-decoration: none;">查看</a>
+                        <a href="policy_detail.html" style="color: var(--primary-color); text-decoration: none;">Download</a>
                     </div>
                 </div>
             </div>
@@ -2381,15 +2446,15 @@
         document.getElementById('updatePlacementBtn').addEventListener('click', function() {
             const isAuto = autoPlacementSwitch.checked;
             if (isAuto) {
-                nextPlacementInput.value = '自动';
+                nextPlacementInput.value = 'Auto';
                 alert('操作成功');
                 return;
             }
             
             const selectedPlacement = document.querySelector('input[name="placement"]:checked').value;
             const placementMap = {
-                'left': '左下',
-                'right': '右下'
+                'left': 'Bottom Left',
+                'right': 'Bottom Right'
             };
             document.getElementById('nextPlacement').value = placementMap[selectedPlacement];
             alert('操作成功');
@@ -3026,11 +3091,11 @@
             if (taxCountries.includes(country)) {
                 taxIdField.style.display = 'block';
                 const countryNames = {
-                    'MY': '马来西亚',
-                    'TW': '台湾',
-                    'PH': '菲律宾'
+                    'MY': 'TIN No. Malaysia',
+                    'TW': 'Taiwan Tax Number',
+                    'PH': 'Philippines Tax Number'
                 };
-                taxIdLabel.textContent = countryNames[country] + '税务编号';
+                taxIdLabel.textContent = countryNames[country];
             } else {
                 taxIdField.style.display = 'none';
             }
@@ -3042,827 +3107,10 @@
         });
     </script>
 
-    <!-- Language Selector -->
-    <div id="langSelector" class="lang-selector">
-        <div class="lang-btn" id="langBtn">
-            <span>🌐</span>
-        </div>
-        <div class="lang-dropdown" id="langDropdown">
-            <div class="lang-option" data-lang="en">English</div>
-            <div class="lang-option" data-lang="ms">Bahasa Malaysia</div>
-            <div class="lang-option" data-lang="zh-CN">简体中文</div>
-            <div class="lang-option" data-lang="zh-TW">繁體中文 (台灣)</div>
-            <div class="lang-option" data-lang="zh-HK">繁體中文 (香港)</div>
-            <div class="lang-option" data-lang="id">Bahasa Indonesia</div>
-            <div class="lang-option" data-lang="th">ไทย</div>
-            <div class="lang-option" data-lang="km">ខ្មែរ</div>
-        </div>
-    </div>
 
-    <style>
-        .lang-selector {
-            position: fixed;
-            z-index: 9999;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
 
-        .lang-btn {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: grab;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            font-size: 24px;
-            user-select: none;
-            transition: transform 0.2s ease;
-        }
 
-        .lang-btn:active {
-            cursor: grabbing;
-            transform: scale(0.95);
-        }
 
-        .lang-dropdown {
-            display: none;
-            position: absolute;
-            bottom: 60px;
-            right: 0;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            overflow: hidden;
-            min-width: 180px;
-        }
 
-        .lang-dropdown.show {
-            display: block;
-            animation: slideUp 0.2s ease;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .lang-option {
-            padding: 12px 16px;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-            font-size: 14px;
-            color: #333;
-        }
-
-        .lang-option:hover {
-            background-color: #f5f5f5;
-        }
-
-        .lang-option.active {
-            background-color: #667eea;
-            color: white;
-        }
-    </style>
-
-    <script>
-        (function() {
-            const translations = {
-                en: {
-                    '账号基础信息': 'Account Basic Information',
-                    '等级体系': 'Rank System',
-                    '推荐关系': 'Referral Relationship',
-                    '税务信息': 'Tax Information',
-                    '编辑个人信息': 'Edit Personal Information',
-                    'Translated Name': 'Translated Name',
-                    '会员ID': 'Member ID',
-                    '马来西亚税务编号': 'Malaysia Tax Number',
-                    '台湾税务编号': 'Taiwan Tax Number',
-                    '菲律宾税务编号': 'Philippines Tax Number',
-                    '证件上传': 'Document Upload',
-                    '联络详情': 'Contact Details',
-                    '住宅电话': 'Home Phone',
-                    '办公电话': 'Office Phone',
-                    '首选联络人': 'Preferred Contact',
-                    '我的电子邮件': 'My Email',
-                    '手机号码': 'Mobile Number',
-                    '获取验证码': 'Get Code',
-                    '验证码': 'Verification Code',
-                    '地址1': 'Address 1',
-                    '地址2': 'Address 2',
-                    '地址3': 'Address 3',
-                    '地址4': 'Address 4',
-                    '城市': 'City',
-                    '州/省': 'State/Province',
-                    '邮编': 'Postal Code',
-                    '国家': 'Country',
-                    '支付地区': 'Payment Region',
-                    '支付方式配置': 'Payment Method Configuration',
-                    '银行账户信息': 'Bank Account Information',
-                    '银行国家': 'Bank Country',
-                    '银行名称': 'Bank Name',
-                    'SWIFT代码': 'SWIFT Code',
-                    '银行账号': 'Bank Account',
-                    '账户持有人姓名': 'A/C Holder Name',
-                    '银行卡信息': 'GCC Card Information',
-                    '卡片国家': 'Card Country',
-                    '持卡人姓名': 'Card Holder Name',
-                    '卡号': 'Card Number',
-                    '到期月份': 'Expiry Month',
-                    '到期年份': 'Expiry Year',
-                    'Mpay信息': 'Mpay Information',
-                    '支付公司': 'Payout Company',
-                    '安置偏好设置': 'Placement Preference Settings',
-                    '下次安置位置': 'Next Placement Position',
-                    'e-form': 'e-form',
-                    '我的名片': 'My Card',
-                    '保存更改': 'Save Changes',
-                    '保存联络信息': 'Save Contact Info',
-                    '请选择银行': 'Please Select Bank',
-                    '请输入银行账号': 'Please Enter Bank Account',
-                    '请输入银行卡号': 'Please Enter Card Number',
-                    '请输入卡号': 'Please Enter Card Number',
-                    '请选择': 'Please Select',
-                    '请输入电子邮件地址': 'Please Enter Email Address',
-                    '请输入手机号码': 'Please Enter Mobile Number',
-                    '01月': 'Jan', '02月': 'Feb', '03月': 'Mar', '04月': 'Apr',
-                    '05月': 'May', '06月': 'Jun', '07月': 'Jul', '08月': 'Aug',
-                    '09月': 'Sep', '10月': 'Oct', '11月': 'Nov', '12月': 'Dec',
-                    '我的Elken业务': 'My Elken Business',
-                    '安置网络': 'Placement Network',
-                    '推荐网络': 'Referral Network',
-                    '收入记录': 'Income Record',
-                    '促销优惠': 'Promotions',
-                    '政策': 'Policies',
-                    '语言': 'Language',
-                    '个人': 'Personal',
-                    '安置': 'Placement',
-                    '推荐': 'Referral',
-                    '奖金': 'Bonus',
-                    '地址管理': 'Address Management',
-                    '新增地址': 'Add New Address',
-                    '默认': 'Default',
-                    '编辑': 'Edit',
-                    '删除': 'Delete',
-                    '设为默认': 'Set as Default',
-                    '必填项': 'This field is required',
-                    '请填写所有必填项': 'Please fill in all required fields',
-                    'Email': 'Email',
-                    'Phone': 'Phone',
-                    'Bank': 'Bank',
-                    'GCC': 'GCC',
-                    'Mpay': 'Mpay',
-                    '马来亚银行': 'Maybank',
-                    'CIMB银行': 'CIMB Bank',
-                    'RHB银行': 'RHB Bank',
-                    '大众银行': 'Public Bank',
-                    '电子商务国家': 'E-Commerce Country',
-                    '婚姻状况': 'Marital Status',
-                    '所得税国家': 'Income Tax Country',
-                    '证件类型': 'Document Type',
-                    '身份证': 'IC',
-                    '护照': 'Passport',
-                    '其他': 'Others',
-                    '上传证件': 'Upload Document',
-                    '保存': 'Save',
-                    '取消': 'Cancel',
-                    '确定': 'Confirm',
-                    '提示': 'Notice',
-                    '成功': 'Success',
-                    '失败': 'Failed',
-                    '操作成功': 'Operation Successful',
-                    '存在完全相同地址，请修改': 'An identical address already exists, please modify',
-                    '新地址添加成功': 'New address added successfully',
-                    '请填写所有必填项': 'Please fill in all required fields',
-                    '所得税国家': 'Income Tax Country',
-                    'My preferred mode to receive verification code': 'My preferred mode to receive verification code',
-                    '单身': 'Single',
-                    '已婚': 'Married',
-                    '离婚': 'Divorced',
-                    '丧偶': 'Widowed',
-                    '其他': 'Others'
-                },
-                ms: {
-                    '账号基础信息': 'Maklumat Asas Akaun',
-                    '等级体系': 'Sistem Pangkat',
-                    '推荐关系': 'Hubungan Rujukan',
-                    '税务信息': 'Maklumat Cukai',
-                    '编辑个人信息': 'Edit Maklumat Peribadi',
-                    'Translated Name': 'Nama Diterjemahkan',
-                    '会员ID': 'ID Ahli',
-                    '马来西亚税务编号': 'Nombor Cukai Malaysia',
-                    '证件上传': 'Muat Naik Dokumen',
-                    '联络详情': 'Butiran Hubungan',
-                    '住宅电话': 'Telefon Rumah',
-                    '办公电话': 'Telefon Pejabat',
-                    '首选联络人': 'Hubungan Pilihan',
-                    '我的电子邮件': 'E-mel Saya',
-                    '手机号码': 'Nombor Telefon',
-                    '获取验证码': 'Dapatkan Kod',
-                    '地址1': 'Alamat 1',
-                    '地址2': 'Alamat 2',
-                    '地址3': 'Alamat 3',
-                    '地址4': 'Alamat 4',
-                    '城市': 'Bandar',
-                    '州/省': 'Negeri',
-                    '邮编': 'Poskod',
-                    '国家': 'Negara',
-                    '支付地区': 'Wilayah Pembayaran',
-                    '支付方式配置': 'Konfigurasi Kaedah Pembayaran',
-                    '银行账户信息': 'Maklumat Akaun Bank',
-                    '银行国家': 'Negara Bank',
-                    '银行名称': 'Nama Bank',
-                    'SWIFT代码': 'Kod SWIFT',
-                    '银行账号': 'Akaun Bank',
-                    '账户持有人姓名': 'Nama Pemegang Akaun',
-                    '银行卡信息': 'Maklumat Kad GCC',
-                    '卡片国家': 'Negara Kad',
-                    '持卡人姓名': 'Nama Pemegang Kad',
-                    '卡号': 'Nombor Kad',
-                    '到期月份': 'Bulan Tamat',
-                    '到期年份': 'Tahun Tamat',
-                    'Mpay信息': 'Maklumat Mpay',
-                    '支付公司': 'Syarikat Pembayaran',
-                    '安置偏好设置': 'Tetapan Keutamaan Penempatan',
-                    '下次安置位置': 'Kedudukan Penempatan seterusnya',
-                    'e-form': 'e-form',
-                    '我的名片': 'Kad Saya',
-                    '保存更改': 'Simpan Perubahan',
-                    '保存联络信息': 'Simpan Maklumat Hubungan',
-                    '我的Elken业务': 'Perniagaan Elken Saya',
-                    '安置网络': 'Rangkaian Penempatan',
-                    '推荐网络': 'Rangkaian Rujukan',
-                    '收入记录': 'Rekod Pendapatan',
-                    '促销优惠': 'Promosi',
-                    '政策': 'Polisi',
-                    '个人': 'Peribadi',
-                    '安置': 'Penempatan',
-                    '推荐': 'Rujukan',
-                    '奖金': 'Bonus',
-                    '地址管理': 'Pengurusan Alamat',
-                    '新增地址': 'Tambah Alamat Baru',
-                    '默认': 'Lalai',
-                    '编辑': 'Edit',
-                    '删除': 'Padam',
-                    '设为默认': 'Tetapkan sebagai Lalai',
-                    'Email': 'E-mel',
-                    'Phone': 'Telefon',
-                    'Bank': 'Bank',
-                    'GCC': 'GCC',
-                    'Mpay': 'Mpay',
-                    '马来亚银行': 'Maybank',
-                    'CIMB银行': 'CIMB Bank',
-                    'RHB银行': 'RHB Bank',
-                    '大众银行': 'Public Bank',
-                    '电子商务国家': 'Negara E-Dagang',
-                    '婚姻状况': 'Status Perkahwinan',
-                    '所得税国家': 'Negara Cukai Pendapatan',
-                    '证件类型': 'Jenis Dokumen',
-                    '身份证': 'IC',
-                    '护照': 'Pasport',
-                    '其他': 'Lain-lain',
-                    '上传证件': 'Muat Naik Dokumen',
-                    '保存': 'Simpan',
-                    '取消': 'Batal',
-                    '确定': 'Pastikan',
-                    '提示': 'Perhatian',
-                    '成功': 'Berjaya',
-                    '失败': 'Gagal',
-                    '操作成功': 'Operasi Berjaya',
-                    '存在完全相同地址，请修改': 'Alamat yang sama sudah wujud, sila ubah',
-                    '新地址添加成功': 'Alamat baharu berjaya ditambah',
-                    '请填写所有必填项': 'Sila isi semua ruangan yang diperlukan',
-                    'My preferred mode to receive verification code': 'Mod pilihan saya untuk menerima kod pengesahan',
-                    '单身': 'Bujang',
-                    '已婚': 'Berkahwin',
-                    '离婚': 'Bercerai',
-                    '丧偶': 'Duda/Balu',
-                    '其他': 'Lain-lain'
-                },
-                'zh-CN': {
-                    '账号基础信息': '账户基本信息',
-                    '等级体系': '等级体系',
-                    '推荐关系': '推荐关系',
-                    '税务信息': '税务信息',
-                    '编辑个人信息': '编辑个人信息',
-                    '会员ID': '会员ID',
-                    '马来西亚税务编号': '马来西亚税务编号',
-                    '证件上传': '证件上传',
-                    '联络详情': '联络详情',
-                    '首选联络人': '首选联络人',
-                    '我的电子邮件': '我的电子邮件',
-                    '手机号码': '手机号码',
-                    '获取验证码': '获取验证码',
-                    '地址2': '地址2',
-                    '地址3': '地址3',
-                    '地址4': '地址4',
-                    '城市': '城市',
-                    '州/省': '州/省',
-                    '邮编': '邮编',
-                    '国家': '国家',
-                    '支付地区': '支付地区',
-                    '支付方式配置': '支付方式配置',
-                    '银行账户信息': '银行账户信息',
-                    '银行国家': '银行国家',
-                    '银行名称': '银行名称',
-                    'SWIFT代码': 'SWIFT代码',
-                    '银行账号': '银行账号',
-                    '账户持有人姓名': '账户持有人姓名',
-                    '银行卡信息': '银行卡信息',
-                    '卡片国家': '卡片国家',
-                    '持卡人姓名': '持卡人姓名',
-                    '卡号': '卡号',
-                    '到期月份': '到期月份',
-                    '到期年份': '到期年份',
-                    'Mpay信息': 'Mpay信息',
-                    '支付公司': '支付公司',
-                    '安置偏好设置': '安置偏好设置',
-                    '下次安置位置': '下次安置位置',
-                    'e-form': 'e-form',
-                    '我的名片': '我的名片',
-                    '保存更改': '保存更改',
-                    '保存联络信息': '保存联络信息',
-                    '我的Elken业务': '我的Elken业务',
-                    '安置网络': '安置网络',
-                    '推荐网络': '推荐网络',
-                    '收入记录': '收入记录',
-                    '促销优惠': '促销优惠',
-                    '政策': '政策',
-                    '个人': '个人',
-                    '安置': '安置',
-                    '推荐': '推荐',
-                    '奖金': '奖金',
-                    '地址管理': '地址管理',
-                    '新增地址': '新增地址',
-                    '默认': '默认',
-                    '编辑': '编辑',
-                    '删除': '删除',
-                    '设为默认': '设为默认'
-                },
-                'zh-TW': {
-                    '账号基础信息': '帳戶基本信息',
-                    '等级体系': '等級體系',
-                    '推荐关系': '推薦關係',
-                    '税务信息': '稅務信息',
-                    '编辑个人信息': '編輯個人信息',
-                    '会员ID': '會員ID',
-                    '马来西亚税务编号': '馬來西亞稅務編號',
-                    '证件上传': '證件上傳',
-                    '联络详情': '聯絡詳情',
-                    '首选联络人': '首選聯絡人',
-                    '我的电子邮件': '我的電子郵件',
-                    '手机号码': '手機號碼',
-                    '获取验证码': '獲取驗證碼',
-                    '地址2': '地址2',
-                    '地址3': '地址3',
-                    '地址4': '地址4',
-                    '城市': '城市',
-                    '州/省': '州/省',
-                    '邮编': '郵編',
-                    '国家': '國家',
-                    '支付地区': '支付地區',
-                    '支付方式配置': '支付方式配置',
-                    '银行账户信息': '銀行帳戶信息',
-                    '银行国家': '銀行國家',
-                    '银行名称': '銀行名稱',
-                    'SWIFT代码': 'SWIFT代碼',
-                    '银行账号': '銀行帳號',
-                    '账户持有人姓名': '帳戶持有人姓名',
-                    '银行卡信息': '銀行卡信息',
-                    '卡片国家': '卡片國家',
-                    '持卡人姓名': '持卡人姓名',
-                    '卡号': '卡號',
-                    '到期月份': '到期月份',
-                    '到期年份': '到期年份',
-                    'Mpay信息': 'Mpay信息',
-                    '支付公司': '支付公司',
-                    '安置偏好设置': '安置偏好設置',
-                    '下次安置位置': '下次安置位置',
-                    'e-form': 'e-form',
-                    '我的名片': '我的名片',
-                    '保存更改': '保存更改',
-                    '保存联络信息': '儲存聯絡資訊',
-                    '我的Elken业务': '我的Elken業務',
-                    '安置网络': '安置網絡',
-                    '推荐网络': '推薦網絡',
-                    '收入记录': '收入記錄',
-                    '促销优惠': '促銷優惠',
-                    '政策': '政策',
-                    '个人': '個人',
-                    '安置': '安置',
-                    '推荐': '推薦',
-                    '奖金': '獎金',
-                    '地址管理': '地址管理',
-                    '新增地址': '新增地址',
-                    '默认': '默認',
-                    '编辑': '編輯',
-                    '删除': '刪除',
-                    '设为默认': '設為默認'
-                },
-                'zh-HK': {
-                    '账号基础信息': '帳戶基本資訊',
-                    '等级体系': '等級體系',
-                    '推荐关系': '推薦關係',
-                    '税务信息': '稅務資訊',
-                    '编辑个人信息': '編輯個人資訊',
-                    '会员ID': '會員ID',
-                    '马来西亚税务编号': '馬來西亞稅務編號',
-                    '证件上传': '證件上傳',
-                    '联络详情': '聯絡詳情',
-                    '首选联络人': '首選聯絡人',
-                    '我的电子邮件': '我的電子郵件',
-                    '手机号码': '手機號碼',
-                    '获取验证码': '獲取驗證碼',
-                    '地址2': '地址2',
-                    '地址3': '地址3',
-                    '地址4': '地址4',
-                    '城市': '城市',
-                    '州/省': '州/省',
-                    '邮编': '郵編',
-                    '国家': '國家',
-                    '支付地区': '支付地區',
-                    '支付方式配置': '支付方式配置',
-                    '银行账户信息': '銀行帳戶資訊',
-                    '银行国家': '銀行國家',
-                    '银行名称': '銀行名稱',
-                    'SWIFT代码': 'SWIFT代碼',
-                    '银行账号': '銀行帳號',
-                    '账户持有人姓名': '帳戶持有人姓名',
-                    '银行卡信息': '銀行卡資訊',
-                    '卡片国家': '卡片國家',
-                    '持卡人姓名': '持卡人姓名',
-                    '卡号': '卡號',
-                    '到期月份': '到期月份',
-                    '到期年份': '到期年份',
-                    'Mpay信息': 'Mpay資訊',
-                    '支付公司': '支付公司',
-                    '安置偏好设置': '安置偏好設置',
-                    '下次安置位置': '下次安置位置',
-                    'e-form': 'e-form',
-                    '我的名片': '我的名片',
-                    '保存更改': '保存更改',
-                    '保存联络信息': '儲存聯絡資訊',
-                    '我的Elken业务': '我的Elken業務',
-                    '安置网络': '安置網絡',
-                    '推荐网络': '推薦網絡',
-                    '收入记录': '收入記錄',
-                    '促销优惠': '促銷優惠',
-                    '政策': '政策',
-                    '个人': '個人',
-                    '安置': '安置',
-                    '推荐': '推薦',
-                    '奖金': '獎金',
-                    '地址管理': '地址管理',
-                    '新增地址': '新增地址',
-                    '默认': '默認',
-                    '编辑': '編輯',
-                    '删除': '刪除',
-                    '设为默认': '設為默認'
-                },
-                id: {
-                    '账号基础信息': 'Informasi Dasar Akun',
-                    '等级体系': 'Sistem Pangkat',
-                    '推荐关系': 'Hubungan Referral',
-                    '税务信息': 'Informasi Pajak',
-                    '编辑个人信息': 'Edit Informasi Pribadi',
-                    '会员ID': 'ID Anggota',
-                    '马来西亚税务编号': 'Nomor Pajak Malaysia',
-                    '证件上传': 'Unggah Dokumen',
-                    '联络详情': 'Detail Kontak',
-                    '住宅电话': 'Telepon Rumah',
-                    '办公电话': 'Telepon Kantor',
-                    '首选联络人': 'Kontak Pilihan',
-                    '我的电子邮件': 'Email Saya',
-                    '手机号码': 'Nomor Telepon',
-                    '获取验证码': 'Dapatkan Kode',
-                    '地址2': 'Alamat 2',
-                    '地址3': 'Alamat 3',
-                    '地址4': 'Alamat 4',
-                    '城市': 'Kota',
-                    '州/省': 'Provinsi',
-                    '邮编': 'Kode Pos',
-                    '国家': 'Negara',
-                    '支付地区': 'Wilayah Pembayaran',
-                    '支付方式配置': 'Konfigurasi Metode Pembayaran',
-                    '银行账户信息': 'Informasi Rekening Bank',
-                    '银行国家': 'Negara Bank',
-                    '银行名称': 'Nama Bank',
-                    'SWIFT代码': 'Kode SWIFT',
-                    '银行账号': 'Nomor Rekening',
-                    '账户持有人姓名': 'Nama Pemegang Rekening',
-                    '银行卡信息': 'Informasi Kartu GCC',
-                    '卡片国家': 'Negara Kartu',
-                    '持卡人姓名': 'Nama Pemegang Kartu',
-                    '卡号': 'Nomor Kartu',
-                    '到期月份': 'Bulan Kadaluarsa',
-                    '到期年份': 'Tahun Kadaluarsa',
-                    'Mpay信息': 'Informasi Mpay',
-                    '支付公司': 'Perusahaan Pembayaran',
-                    '安置偏好设置': 'Pengaturan Preferensi Penempatan',
-                    '下次安置位置': 'Posisi Penempatan Berikutnya',
-                    'e-form': 'e-form',
-                    '我的名片': 'Kartu Saya',
-                    '保存更改': 'Simpan Perubahan',
-                    '保存联络信息': 'Simpan Info Kontak',
-                    '我的Elken业务': 'Bisnis Elken Saya',
-                    '安置网络': 'Jaringan Penempatan',
-                    '推荐网络': 'Jaringan Referral',
-                    '收入记录': 'Catatan Pendapatan',
-                    '促销优惠': 'Promosi',
-                    '政策': 'Kebijakan',
-                    '个人': 'Pribadi',
-                    '安置': 'Penempatan',
-                    '推荐': 'Referral',
-                    '奖金': 'Bonus',
-                    '地址管理': 'Pengelolaan Alamat',
-                    '新增地址': 'Tambah Alamat Baru',
-                    '默认': 'Default',
-                    '编辑': 'Edit',
-                    '删除': 'Hapus',
-                    '设为默认': 'Jadikan Default'
-                },
-                th: {
-                    '账号基础信息': 'ข้อมูลบัญชีพื้นฐาน',
-                    '等级体系': 'ระบบลำดับชั้น',
-                    '推荐关系': 'ความสัมพันธ์ผู้แนะนำ',
-                    '税务信息': 'ข้อมูลภาษี',
-                    '编辑个人信息': 'แก้ไขข้อมูลส่วนตัว',
-                    '会员ID': 'รหัสสมาชิก',
-                    '马来西亚税务编号': 'หมายเลขภาษีมาเลเซีย',
-                    '证件上传': 'อัปโหลดเอกสาร',
-                    '联络详情': 'รายละเอียดการติดต่อ',
-                    '住宅电话': 'โทรศัพท์บ้าน',
-                    '办公电话': 'โทรศัพท์สำนักงาน',
-                    '首选联络人': 'ช่องทางติดต่อที่ต้องการ',
-                    '我的电子邮件': 'อีเมลของฉัน',
-                    '手机号码': 'หมายเลขโทรศัพท์',
-                    '获取验证码': 'รับรหัส',
-                    '地址2': 'ที่อยู่ 2',
-                    '地址3': 'ที่อยู่ 3',
-                    '地址4': 'ที่อยู่ 4',
-                    '城市': 'เมือง',
-                    '州/省': 'จังหวัด',
-                    '邮编': 'รหัสไปรษณีย์',
-                    '国家': 'ประเทศ',
-                    '支付地区': 'ภูมิภาคการชำระเงิน',
-                    '支付方式配置': 'การตั้งค่าวิธีการชำระเงิน',
-                    '银行账户信息': 'ข้อมูลบัญชีธนาคาร',
-                    '银行国家': 'ประเทศธนาคาร',
-                    '银行名称': 'ชื่อธนาคาร',
-                    'SWIFT代码': 'รหัส SWIFT',
-                    '银行账号': 'หมายเลขบัญชี',
-                    '账户持有人姓名': 'ชื่อผู้ถือบัญชี',
-                    '银行卡信息': 'ข้อมูลบัตร GCC',
-                    '卡片国家': 'ประเทศบัตร',
-                    '持卡人姓名': 'ชื่อผู้ถือบัตร',
-                    '卡号': 'หมายเลขบัตร',
-                    '到期月份': 'เดือนหมดอายุ',
-                    '到期年份': 'ปีหมดอายุ',
-                    'Mpay信息': 'ข้อมูล Mpay',
-                    '支付公司': 'บริษัทจ่ายเงิน',
-                    '安置偏好设置': 'การตั้งค่าความชอบการจัดวาง',
-                    '下次安置位置': 'ตำแหน่งวางถัดไป',
-                    'e-form': 'e-form',
-                    '我的名片': 'บัตรของฉัน',
-                    '保存更改': 'บันทึกการเปลี่ยนแปลง',
-                    '保存联络信息': 'บันทึกข้อมูลติดต่อ',
-                    '我的Elken业务': 'ธุรกิจ Elken ของฉัน',
-                    '安置网络': 'เครือข่ายการจัดวาง',
-                    '推荐网络': 'เครือข่ายผู้แนะนำ',
-                    '收入记录': 'บันทึกรายได้',
-                    '促销优惠': 'โปรโมชัน',
-                    '政策': 'นโยบาย',
-                    '个人': 'ส่วนตัว',
-                    '安置': 'การจัดวาง',
-                    '推荐': 'การแนะนำ',
-                    '奖金': 'โบนัส',
-                    '地址管理': 'จัดการที่อยู่',
-                    '新增地址': 'เพิ่มที่อยู่ใหม่',
-                    '默认': 'ค่าเริ่มต้น',
-                    '编辑': 'แก้ไข',
-                    '删除': 'ลบ',
-                    '设为默认': 'ตั้งเป็นค่าเริ่มต้น'
-                },
-                km: {
-                    '账号基础信息': 'ព័ត៌មានគណនីមូលដ្ឋាន',
-                    '等级体系': 'ប្រព័ន្ធចំណាត់ថ្នាក់',
-                    '推荐关系': 'ទំនាក់ទំនងណែនាំ',
-                    '税务信息': 'ព័ត៌មានពន្ធ',
-                    '编辑个人信息': 'កែសម្រួលព័ត៌មានផ្ទាល់ខ្លួន',
-                    '会员ID': 'លេខសម្គាល់សមាជិក',
-                    '马来西亚税务编号': 'លេខពន្ធម៉ាឡេស៊ី',
-                    '证件上传': 'បញ្ចូលឯកសារ',
-                    '联络详情': 'ព័ត៌មានទំនាក់ទំនង',
-                    '住宅电话': 'ទូរស័ព្ទផ្ទះ',
-                    '办公电话': 'ទូរស័ព្ទការិយាល័យ',
-                    '首选联络人': 'ទំនាក់ទំនងជម្រើស',
-                    '我的电子邮件': 'អ៊ីម៉េល់របស់ខ្ញុំ',
-                    '手机号码': 'លេខទូរស័ព្ទ',
-                    '获取验证码': 'ទទួលបានកូដ',
-                    '地址2': 'អាសយដ្ឋាន 2',
-                    '地址3': 'អាសយដ្ឋាន 3',
-                    '地址4': 'អាសយដ្ឋាន 4',
-                    '城市': 'ទីក្រុង',
-                    '州/省': 'ខេត្ត',
-                    '邮编': 'លេខប្រៃសណីយ៍',
-                    '国家': 'ប្រទេស',
-                    '支付地区': 'តំបន់បង់ប្រាក់',
-                    '支付方式配置': 'ការកំណត់វិធីបង់ប្រាក់',
-                    '银行账户信息': 'ព័ត៌មានគណនីធនាគារ',
-                    '银行国家': 'ប្រទេសធនាគារ',
-                    '银行名称': 'ឈ្មោះធនាគារ',
-                    'SWIFT代码': 'លេខកូដ SWIFT',
-                    '银行账号': 'លេខគណនី',
-                    '账户持有人姓名': 'ឈ្មោះម្ចាស់គណនី',
-                    '银行卡信息': 'ព័ត៌មានប័ណ្ណ GCC',
-                    '卡片国家': 'ប្រទេសប័ណ្ណ',
-                    '持卡人姓名': 'ឈ្មោះម្ចាស់ប័ណ្ណ',
-                    '卡号': 'លេខប័ណ្ណ',
-                    '到期月份': 'ខែផុតកំណត់',
-                    '到期年份': 'ឆ្នាំផុតកំណត់',
-                    'Mpay信息': 'ព័ត៌មាន Mpay',
-                    '支付公司': 'ក្រុមហ៊ុនទូទាត់',
-                    '安置偏好设置': 'ការកំណត់ចំណូលចិត្តការដាក់',
-                    '下次安置位置': 'ទីតាំងដាក់បន្ទាប់',
-                    'e-form': 'e-form',
-                    '我的名片': 'ប័ណ្ណរបស់ខ្ញុំ',
-                    '保存更改': 'រក្សាទុកការផ្លាស់ប្តូរ',
-                    '保存联络信息': 'រក្សាទុកព័ត៌មានទំនាក់ទំនង',
-                    '我的Elken业务': 'អាជីវកម្ម Elken របស់ខ្ញុំ',
-                    '安置网络': 'បណ្តាញការដាក់',
-                    '推荐网络': 'បណ្តាញណែនាំ',
-                    '收入记录': 'កំណត់ត្រាចំណូល',
-                    '促销优惠': 'ការផ្ស阳',
-                    '政策': 'គោលនយោបាយ',
-                    '个人': 'ផ្ទាល់ខ្លួន',
-                    '安置': 'ការដាក់',
-                    '推荐': 'ណែនាំ',
-                    '奖金': 'ប្រាក់រង្វាន់',
-                    '地址管理': 'ការគ្រប់គ្រងអាសយដ្ឋាន',
-                    '新增地址': 'បន្ថែមអាសយដ្ឋានថ្មី',
-                    '默认': 'លំនាំដើម',
-                    '编辑': 'កែសម្រួល',
-                    '删除': 'លុប',
-                    '设为默认': 'កំណត់ជាលំនាំដើម'
-                }
-            };
-
-            function translatePage(lang) {
-                const t = translations[lang] || translations['en'];
-
-                function translateTextNodes(element) {
-                    const walker = document.createTreeWalker(
-                        element,
-                        NodeFilter.SHOW_TEXT,
-                        {
-                            acceptNode: function(node) {
-                                if (node.parentElement.tagName === 'SCRIPT' ||
-                                    node.parentElement.tagName === 'STYLE' ||
-                                    node.parentElement.tagName === 'NOSCRIPT') {
-                                    return NodeFilter.FILTER_REJECT;
-                                }
-                                if (node.parentElement.id === 'langSelector' ||
-                                    node.parentElement.closest('#langSelector')) {
-                                    return NodeFilter.FILTER_REJECT;
-                                }
-                                return NodeFilter.FILTER_ACCEPT;
-                            }
-                        }
-                    );
-
-                    const nodesToTranslate = [];
-                    while (walker.nextNode()) {
-                        const node = walker.currentNode;
-                        let text = node.textContent.trim();
-                        if (text && t[text]) {
-                            nodesToTranslate.push({node: node, text: text});
-                        } else if (text && t[text.replace(/[：:]$/, '')] && text.endsWith(':') || text.endsWith('：')) {
-                            nodesToTranslate.push({node: node, text: text, stripColon: true});
-                        }
-                    }
-
-                    nodesToTranslate.forEach(item => {
-                        const originalText = item.text;
-                        const translation = item.stripColon ? t[originalText.replace(/[：:]$/, '')] : t[originalText];
-                        if (translation) {
-                            if (item.stripColon) {
-                                item.node.textContent = originalText.slice(0, -1) + (lang === 'en' ? ':' : '：') + translation;
-                            } else {
-                                item.node.textContent = translation;
-                            }
-                        }
-                    });
-                }
-
-                translateTextNodes(document.body);
-
-                document.querySelectorAll('input[placeholder]').forEach(el => {
-                    const placeholder = el.getAttribute('placeholder');
-                    if (placeholder && t[placeholder]) {
-                        el.setAttribute('placeholder', t[placeholder]);
-                    }
-                });
-
-                document.querySelectorAll('option').forEach(el => {
-                    const text = el.textContent.trim();
-                    if (text && t[text]) {
-                        el.textContent = t[text];
-                    }
-                });
-
-                document.title = lang === 'zh-CN' ? 'elken app重构版' :
-                                lang === 'ms' ? 'Elken App Versi Semula' :
-                                lang === 'id' ? 'Elken App Versi Ulang' :
-                                lang === 'th' ? 'Elken App รุ่นใหม่' :
-                                lang === 'km' ? 'Elken App កំណែថ្មី' :
-                                lang === 'zh-TW' ? 'Elken App 重構版' :
-                                lang === 'zh-HK' ? 'Elken App 重構版' :
-                                'Elken App Rebuild';
-            }
-
-            const langBtn = document.getElementById('langBtn');
-            const langDropdown = document.getElementById('langDropdown');
-            const langSelector = document.getElementById('langSelector');
-            const langOptions = document.querySelectorAll('.lang-option');
-
-            let isDragging = false;
-            let startX, startY, initialX, initialY;
-            let hasDragged = false;
-
-            const savedLang = localStorage.getItem('selectedLanguage') || 'en';
-            document.querySelector(`.lang-option[data-lang="${savedLang}"]`).classList.add('active');
-            translatePage(savedLang);
-
-            langBtn.addEventListener('mousedown', function(e) {
-                isDragging = true;
-                hasDragged = false;
-                startX = e.clientX;
-                startY = e.clientY;
-                const rect = langSelector.getBoundingClientRect();
-                initialX = rect.left;
-                initialY = rect.top;
-                langBtn.style.cursor = 'grabbing';
-            });
-
-            document.addEventListener('mousemove', function(e) {
-                if (!isDragging) return;
-
-                const deltaX = e.clientX - startX;
-                const deltaY = e.clientY - startY;
-
-                if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
-                    hasDragged = true;
-                }
-
-                langSelector.style.left = (initialX + deltaX) + 'px';
-                langSelector.style.top = (initialY + deltaY) + 'px';
-                langSelector.style.right = 'auto';
-            });
-
-            document.addEventListener('mouseup', function() {
-                if (isDragging) {
-                    isDragging = false;
-                    langBtn.style.cursor = 'grab';
-                }
-            });
-
-            langBtn.addEventListener('click', function(e) {
-                if (hasDragged) {
-                    e.stopPropagation();
-                    hasDragged = false;
-                    return;
-                }
-                langDropdown.classList.toggle('show');
-            });
-
-            document.addEventListener('click', function(e) {
-                if (!langSelector.contains(e.target)) {
-                    langDropdown.classList.remove('show');
-                }
-            });
-
-            langOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    langOptions.forEach(opt => opt.classList.remove('active'));
-                    this.classList.add('active');
-                    const lang = this.getAttribute('data-lang');
-                    localStorage.setItem('selectedLanguage', lang);
-                    langDropdown.classList.remove('show');
-                    location.reload();
-                });
-            });
-
-            langSelector.style.left = '20px';
-            langSelector.style.top = 'auto';
-            langSelector.style.bottom = '20px';
-        })();
-    </script>
     </body>
 </html>
