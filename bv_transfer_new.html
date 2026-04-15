@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New BV Transfer - elken app重构版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .header {
+            background-color: #007aff;
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .back-arrow {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .content {
+            padding: 15px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #666;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: #f9f9f9;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #007aff;
+            background-color: white;
+        }
+        
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 20px;
+            padding-right: 40px;
+        }
+        
+        .search-input-wrapper {
+            position: relative;
+        }
+        
+        .search-btn {
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 44px;
+            background-color: #007aff;
+            border: none;
+            border-radius: 0 8px 8px 0;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .search-input-wrapper .form-control {
+            padding-right: 54px;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .btn-primary {
+            background-color: #007aff;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: #f0f0f0;
+            color: #333;
+            margin-top: 10px;
+        }
+        
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        
+        .total-bv-section {
+            background: linear-gradient(135deg, #007aff 0%, #0056b3 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
+        }
+        
+        .total-bv-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .total-bv-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .product-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .product-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .product-item:hover {
+            border-color: #007aff;
+            background-color: #f8faff;
+        }
+        
+        .product-item.selected {
+            border-color: #007aff;
+            background-color: #e6f2ff;
+        }
+        
+        .product-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            cursor: pointer;
+        }
+        
+        .product-info {
+            flex: 1;
+        }
+        
+        .product-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .product-details {
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            gap: 15px;
+        }
+        
+        .member-card {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .member-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .member-label {
+            color: #666;
+        }
+        
+        .member-value {
+            font-weight: 500;
+        }
+        
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .toast.show {
+            opacity: 1;
+        }
+        
+        .disabled-section {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .summary-label {
+            color: #666;
+        }
+        
+        .summary-value {
+            font-weight: 500;
+        }
+        
+        .summary-total {
+            font-size: 18px;
+            font-weight: bold;
+            color: #007aff;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="back-arrow" onclick="window.location.href='bv_transfer.html'">←</div>
+            <div class="header-title">New BV Transfer</div>
+        </div>
+        <div class="header-right"></div>
+    </div>
+    
+    <div class="content">
+        <!-- Total BV醒目显示 -->
+        <div class="total-bv-section">
+            <div class="total-bv-label">Total BV</div>
+            <div class="total-bv-value">250.00</div>
+        </div>
+        
+        <div class="card">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Transaction Date *</label>
+                    <input type="text" class="form-control" id="transactionDate" value="13 Apr 2026" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Pay Cycle *</label>
+                    <select class="form-control form-select" id="payCycle"></select>
+                </div>
+            </div>
+            
+            <!-- 转出会员 -->
+            <div class="form-group">
+                <label class="form-label">Transferee Member ID *</label>
+                <div class="search-input-wrapper">
+                    <input type="text" class="form-control" id="sourceMemberId" placeholder="Enter member ID">
+                    <button class="search-btn" onclick="searchSourceMember()">🔍</button>
+                </div>
+            </div>
+            
+            <div id="sourceMemberInfo" style="display: none;">
+                <div class="member-card">
+                    <div class="member-info">
+                        <span class="member-label">Member ID:</span>
+                        <span class="member-value" id="sourceMemberIdDisplay"></span>
+                    </div>
+                    <div class="member-info">
+                        <span class="member-label">Member Name:</span>
+                        <span class="member-value" id="sourceMemberName"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 产品列表 -->
+            <div id="productSection" class="disabled-section">
+                <label class="form-label">Select Products</label>
+                <div id="productList" class="product-list">
+                    <p style="text-align: center; color: #999; padding: 40px;">Please search a member first</p>
+                </div>
+                
+                <div id="productSummary" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 1px solid #f0f0f0;">
+                    <div class="summary-row">
+                        <span class="summary-label">Selected Products:</span>
+                        <span class="summary-value" id="selectedCount">0</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Total BV:</span>
+                        <span class="summary-value summary-total" id="selectedBV">0.00</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 接收会员 -->
+            <div id="recipientSection" class="disabled-section">
+                <div class="form-group">
+                    <label class="form-label">Recipient Member ID *</label>
+                    <div class="search-input-wrapper">
+                        <input type="text" class="form-control" id="recipientMemberId" placeholder="Enter recipient member ID">
+                        <button class="search-btn" onclick="searchRecipientMember()">🔍</button>
+                    </div>
+                </div>
+                
+                <div id="recipientMemberInfo" style="display: none;">
+                    <div class="member-card">
+                        <div class="member-info">
+                            <span class="member-label">Member ID:</span>
+                            <span class="member-value" id="recipientMemberIdDisplay"></span>
+                        </div>
+                        <div class="member-info">
+                            <span class="member-label">Member Name:</span>
+                            <span class="member-value" id="recipientMemberName"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 提交按钮 -->
+            <div id="submitSection" class="disabled-section">
+                <button class="btn btn-primary" onclick="submitTransfer()">Submit Transfer</button>
+                <button class="btn btn-secondary" onclick="window.location.href='bv_transfer.html'">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        function initPayCycle() {
+            const select = document.getElementById('payCycle');
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const option = document.createElement('option');
+            option.value = `${year}-${month}`;
+            option.textContent = `${year}-${month}`;
+            option.selected = true;
+            select.appendChild(option);
+            select.disabled = true;
+        }
+        
+        document.addEventListener('DOMContentLoaded', initPayCycle);
+        
+        const mockProducts = [
+            { id: 'P001', name: 'Elken Coffee Mix', code: 'ECM-001', bv: 50.00, quantity: 2 },
+            { id: 'P002', name: 'Elken Spirulina', code: 'ES-002', bv: 100.00, quantity: 1 },
+            { id: 'P003', name: 'Elken Royal Jelly', code: 'ERJ-003', bv: 150.00, quantity: 3 },
+            { id: 'P004', name: 'Elken Omega 3', code: 'EO3-004', bv: 80.00, quantity: 1 },
+            { id: 'P005', name: 'Elken Vitamin C', code: 'EVC-005', bv: 30.00, quantity: 5 }
+        ];
+        
+        let selectedProducts = [];
+        let sourceMember = null;
+        let recipientMember = null;
+        
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+        
+        function searchSourceMember() {
+            const memberId = document.getElementById('sourceMemberId').value.trim();
+            if (!memberId) {
+                showToast('Please enter a member ID');
+                return;
+            }
+            
+            showToast('Searching member...');
+            setTimeout(() => {
+                sourceMember = { id: memberId, name: 'John Doe' };
+                document.getElementById('sourceMemberIdDisplay').textContent = sourceMember.id;
+                document.getElementById('sourceMemberName').textContent = sourceMember.name;
+                document.getElementById('sourceMemberInfo').style.display = 'block';
+                
+                loadMemberProducts();
+            }, 500);
+        }
+        
+        function loadMemberProducts() {
+            showToast('Loading purchased products...');
+            setTimeout(() => {
+                const productList = document.getElementById('productList');
+                productList.innerHTML = '';
+                
+                mockProducts.forEach(product => {
+                    const item = document.createElement('div');
+                    item.className = 'product-item';
+                    item.dataset.productId = product.id;
+                    
+                    item.innerHTML = `
+                        <input type="checkbox" class="product-checkbox" onchange="toggleProductSelection('${product.id}')">
+                        <div class="product-info">
+                            <div class="product-name">${product.name}</div>
+                            <div class="product-details">
+                                <span>Code: ${product.code}</span>
+                                <span>BV: ${product.bv.toFixed(2)}</span>
+                                <span>Qty: ${product.quantity}</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    productList.appendChild(item);
+                });
+                
+                document.getElementById('productSection').classList.remove('disabled-section');
+                document.getElementById('productSummary').style.display = 'block';
+                document.getElementById('recipientSection').classList.remove('disabled-section');
+            }, 500);
+        }
+        
+        function toggleProductSelection(productId) {
+            const product = mockProducts.find(p => p.id === productId);
+            const item = document.querySelector(`[data-product-id="${productId}"]`);
+            const checkbox = item.querySelector('.product-checkbox');
+            
+            if (checkbox.checked) {
+                selectedProducts.push(product);
+                item.classList.add('selected');
+            } else {
+                selectedProducts = selectedProducts.filter(p => p.id !== productId);
+                item.classList.remove('selected');
+            }
+            
+            updateSummary();
+        }
+        
+        function updateSummary() {
+            const totalBV = selectedProducts.reduce((sum, p) => sum + p.bv * p.quantity, 0);
+            document.getElementById('selectedCount').textContent = selectedProducts.length;
+            document.getElementById('selectedBV').textContent = totalBV.toFixed(2);
+            
+            if (selectedProducts.length > 0 && recipientMember) {
+                document.getElementById('submitSection').classList.remove('disabled-section');
+            } else {
+                document.getElementById('submitSection').classList.add('disabled-section');
+            }
+        }
+        
+        function searchRecipientMember() {
+            const memberId = document.getElementById('recipientMemberId').value.trim();
+            if (!memberId) {
+                showToast('Please enter recipient member ID');
+                return;
+            }
+            
+            showToast('Searching recipient...');
+            setTimeout(() => {
+                recipientMember = { id: memberId, name: 'Jane Smith' };
+                document.getElementById('recipientMemberIdDisplay').textContent = recipientMember.id;
+                document.getElementById('recipientMemberName').textContent = recipientMember.name;
+                document.getElementById('recipientMemberInfo').style.display = 'block';
+                showToast('Recipient found');
+                
+                if (selectedProducts.length > 0) {
+                    document.getElementById('submitSection').classList.remove('disabled-section');
+                }
+            }, 500);
+        }
+        
+        function submitTransfer() {
+            showToast('Transfer successful!');
+            
+            const newTransfer = {
+                id: Date.now(),
+                creationDate: document.getElementById('transactionDate').value,
+                payCycle: document.getElementById('payCycle').value,
+                salesDocNo: 'SD' + String(Date.now()).slice(-6),
+                transactionNo: 'TR' + String(Date.now()).slice(-5),
+                transferFrom: sourceMember.id,
+                transferTo: recipientMember.id,
+                productCode: selectedProducts.map(p => p.code).join(', '),
+                quantity: selectedProducts.reduce((sum, p) => sum + p.quantity, 0),
+                bv: selectedProducts.reduce((sum, p) => sum + p.bv * p.quantity, 0).toFixed(2),
+                createdBy: sourceMember.name,
+                products: selectedProducts
+            };
+            
+            const transfers = JSON.parse(localStorage.getItem('bvTransfers') || '[]');
+            transfers.unshift(newTransfer);
+            localStorage.setItem('bvTransfers', JSON.stringify(transfers));
+            
+            setTimeout(() => {
+                window.location.href = 'bv_transfer.html';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

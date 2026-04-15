@@ -1197,6 +1197,11 @@
                 
                 // 显示下载成功提示
                 showToast('PDF文件正在下载');
+                
+                // 自动关闭弹窗
+                setTimeout(() => {
+                    closeBVDataModal(modal.querySelector('.modal-close'));
+                }, 1000);
             });
         }
         
