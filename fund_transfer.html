@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fund Transfer - elken app重构版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .header {
+            background-color: #007aff;
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .back-arrow {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .content {
+            padding: 15px;
+        }
+        
+        /* 余额卡片 */
+        .balance-card {
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .balance-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .balance-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #34c759;
+        }
+        
+        /* 表单卡片 */
+        .form-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .step-indicator {
+            display: flex;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+        
+        .step-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background-color: #e0e0e0;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 5px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .step-number.active {
+            background-color: #34c759;
+            color: white;
+        }
+        
+        .step-label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 14px;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background-color: #e0e0e0;
+            z-index: -1;
+        }
+        
+        .step.active:not(:last-child)::after {
+            background-color: #34c759;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            background-color: #f9f9f9;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #007aff;
+            background-color: white;
+        }
+        
+        .form-control:disabled {
+            background-color: #f0f0f0;
+            color: #666;
+            border-color: #e0e0e0;
+        }
+        
+        .form-control.editable {
+            background-color: white;
+            border: 2px solid #007aff;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+        
+        .form-control.editable:focus {
+            border-color: #007aff;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+        }
+        
+        .search-input-group {
+            display: flex;
+        }
+        
+        .search-input-group .form-control {
+            border-radius: 10px 0 0 10px;
+        }
+        
+        .search-btn {
+            padding: 0 20px;
+            border: 1px solid #e0e0e0;
+            border-left: none;
+            border-radius: 0 10px 10px 0;
+            background-color: #007aff;
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        .btn {
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            border: 2px solid #007aff;
+            color: #007aff;
+        }
+        
+        .btn-primary {
+            background-color: #003366;
+            color: white;
+        }
+        
+        .button-row {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .button-row .btn {
+            flex: 1;
+        }
+        
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .toast.show {
+            opacity: 1;
+        }
+        
+        /* 模态框样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-box {
+            background-color: white;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            animation: modalScale 0.3s ease;
+        }
+        
+        @keyframes modalScale {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background-color: #f0f0f0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .modal-close {
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            line-height: 1;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .amount-section {
+            background-color: #f8f9fa;
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .amount-label {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .amount-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #34c759;
+        }
+        
+        .pin-section {
+            margin-bottom: 10px;
+        }
+        
+        .pin-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .pin-input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #007aff;
+            border-radius: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+            background-color: white;
+        }
+        
+        .pin-input::placeholder {
+            color: #999;
+        }
+        
+        .pin-input:focus {
+            outline: none;
+            border-color: #007aff;
+        }
+        
+        .pin-hint-text {
+            color: #ff3b30;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+        
+        .modal-footer {
+            padding: 0 20px 20px;
+        }
+        
+        .confirm-button {
+            width: 100%;
+            padding: 14px;
+            background-color: #003366;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="back-arrow" onclick="goBack()">←</div>
+            <div class="header-title">Fund Transfer</div>
+        </div>
+        <div></div>
+    </div>
+    
+    <div class="content">
+        <!-- 余额卡片 -->
+        <div class="balance-card">
+            <div class="balance-label">e-Wallet Balance</div>
+            <div class="balance-value">7,000.00</div>
+        </div>
+        
+        <!-- 表单卡片 -->
+        <div class="form-card">
+            <div class="step-indicator">
+                <div class="step active">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Transfer</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-label">Confirm</div>
+                </div>
+            </div>
+            
+            <div style="color: #34c759; font-weight: 600; font-size: 14px; margin-bottom: 20px;">
+                Step 1 of 2 : Make a transfer to other member
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Member ID *</label>
+                <div class="search-input-group">
+                    <input type="text" class="form-control editable" id="memberId" placeholder="Enter Member ID">
+                    <button class="search-btn" onclick="searchMember()">🔍</button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Member Name *</label>
+                <input type="text" class="form-control" id="memberName" placeholder="" disabled>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Amount *</label>
+                <input type="number" class="form-control editable" id="transferAmount" placeholder="0.00">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Recipient Reference</label>
+                <textarea class="form-control editable" id="recipientRef" placeholder="Optional" rows="3"></textarea>
+            </div>
+            
+            <div class="button-row">
+                <button class="btn btn-primary" onclick="confirmTransfer()">Continue</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 密码确认弹窗 -->
+    <div id="passwordModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span class="modal-title">Confirm Transfer</span>
+                <span class="modal-close" onclick="closeModal('passwordModal')">×</span>
+            </div>
+            
+            <div class="modal-body">
+                <div class="amount-section">
+                    <div class="amount-label">Transfer Amount</div>
+                    <div class="amount-value" id="confirmAmount">1.00</div>
+                </div>
+                
+                <div class="pin-section">
+                    <label class="pin-label">Security PIN *</label>
+                    <input type="password" id="transferPin" class="pin-input" placeholder="Enter your PIN">
+                    <div class="pin-hint-text">Please enter your 6-digit security PIN to confirm</div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="confirm-button" onclick="verifyTransferPin()">Confirm</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+        
+        function goBack() {
+            window.location.href = 'e_wallet.html';
+        }
+        
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('show');
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+        
+        function searchMember() {
+            const memberId = document.getElementById('memberId').value.trim();
+            if (memberId) {
+                document.getElementById('memberName').value = 'John Doe';
+                showToast('Member found');
+            } else {
+                showToast('Please enter Member ID');
+            }
+        }
+        
+        function confirmTransfer() {
+            const memberId = document.getElementById('memberId').value;
+            const amount = document.getElementById('transferAmount').value;
+            const balance = 7000.00;
+            
+            if (!memberId) {
+                showToast('Please enter Member ID');
+                return;
+            }
+            
+            if (!amount) {
+                showToast('Please enter amount');
+                return;
+            }
+            
+            const amountValue = parseFloat(amount);
+            
+            if (isNaN(amountValue) || amountValue < 0.01) {
+                showToast('Amount must be at least 0.01');
+                return;
+            }
+            
+            if (amountValue > balance) {
+                showToast('Amount exceeds available balance');
+                return;
+            }
+            
+            document.getElementById('confirmAmount').textContent = amountValue.toFixed(2);
+            document.getElementById('transferPin').value = '';
+            openModal('passwordModal');
+        }
+        
+        function verifyTransferPin() {
+            const pin = document.getElementById('transferPin').value;
+            
+            if (!pin || pin.length !== 6) {
+                showToast('Please enter 6-digit PIN');
+                return;
+            }
+            
+            if (!/^\d{6}$/.test(pin)) {
+                showToast('PIN must be 6 digits');
+                return;
+            }
+            
+            closeModal('passwordModal');
+            showToast('Transfer request submitted!');
+            
+            const amount = parseFloat(document.getElementById('transferAmount').value);
+            const memberId = document.getElementById('memberId').value;
+            const memberName = document.getElementById('memberName').value;
+            const today = new Date();
+            const dateStr = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+            const timeStr = today.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+            const dateTimeStr = `${dateStr}, ${timeStr}`;
+            
+            const transactionData = {
+                type: 'transfer',
+                amount: amount,
+                transactionNumber: 'UAT_' + Math.random().toString(36).substring(2, 17).toUpperCase(),
+                dateTime: dateTimeStr,
+                reference: document.getElementById('recipientRef').value || '-',
+                memberId: memberId,
+                memberName: memberName || 'Unknown'
+            };
+            
+            const newTransaction = {
+                id: Date.now(),
+                date: dateStr,
+                time: timeStr,
+                details: 'TRANSFER TO MEMBER',
+                number: transactionData.transactionNumber,
+                amount: -amount,
+                status: 'Pending',
+                memberId: transactionData.memberId,
+                memberName: transactionData.memberName,
+                reference: transactionData.reference
+            };
+            
+            localStorage.setItem('newTransaction', JSON.stringify(newTransaction));
+            localStorage.setItem('currentTransaction', JSON.stringify(newTransaction));
+            
+            setTimeout(() => {
+                window.location.href = 'transaction_detail.html';
+            }, 2000);
+        }
+        
+        // 搜索框回车事件
+        document.getElementById('memberId').addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                searchMember();
+            }
+        });
+    </script>
+</body>
+</html>

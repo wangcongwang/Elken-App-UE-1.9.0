@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Detail</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background-color: #ffffff;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .back-arrow {
+            font-size: 24px;
+            cursor: pointer;
+            margin-right: 15px;
+            color: #333;
+        }
+        
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .content {
+            padding: 0;
+        }
+        
+        .transaction-header {
+            background-color: #ff6b6b;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .transaction-amount {
+            font-size: 48px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 5px;
+        }
+        
+        .transaction-type {
+            font-size: 14px;
+            color: rgba(255,255,255,0.8);
+        }
+        
+        .detail-card {
+            background-color: white;
+            margin: 15px;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .status-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .status-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .status-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ff9500;
+        }
+        
+        .cancel-btn {
+            padding: 8px 16px;
+            border: 1px solid #ff3b30;
+            border-radius: 6px;
+            background-color: white;
+            color: #ff3b30;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f8f8f8;
+        }
+        
+        .detail-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .detail-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            text-align: right;
+            max-width: 60%;
+            word-break: break-word;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin: 20px 0 15px;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .print-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 15px;
+            border: 1px solid #007aff;
+            border-radius: 10px;
+            background-color: white;
+            color: #007aff;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            width: calc(100% - 30px);
+            margin: 0 15px 15px;
+        }
+        
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .toast.show {
+            opacity: 1;
+        }
+        
+        /* 确认弹窗样式 */
+        .confirm-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        
+        .confirm-modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .confirm-modal-content {
+            background-color: white;
+            width: 90%;
+            max-width: 350px;
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            animation: modalScale 0.3s ease;
+        }
+        
+        @keyframes modalScale {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .warning-icon {
+            width: 60px;
+            height: 60px;
+            border: 3px solid #ff9500;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: #ff9500;
+            margin: 0 auto 20px;
+        }
+        
+        .confirm-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .confirm-message {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        
+        .confirm-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .confirm-btn-cancel {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            background-color: #8e8e93;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .confirm-btn-confirm {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            background-color: #007aff;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="back-arrow" onclick="goBack()">←</div>
+        <div class="header-title">Transaction Detail</div>
+    </div>
+    
+    <div class="content">
+        <div class="transaction-header">
+            <div class="transaction-amount" id="transactionAmount">-0.01</div>
+            <div class="transaction-type" id="transactionType">Withdraw</div>
+        </div>
+        
+        <div class="detail-card" id="detailContent">
+            <div class="status-row">
+                <div>
+                    <span class="status-label">Status:</span>
+                    <span class="status-value" id="status">Pending</span>
+                </div>
+                <button class="cancel-btn" id="cancelBtn">取消转账</button>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Transaction Number:</span>
+                <span class="detail-value" id="transactionNumber">UAT_EMYEAAEK00000066</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Transaction Details:</span>
+                <span class="detail-value" id="transactionDetails">WITHDRAWAL TO BANK AC</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Transaction Date & Time:</span>
+                <span class="detail-value" id="transactionDateTime">23 Apr 2026, 4:53 PM</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Recipient Reference:</span>
+                <span class="detail-value" id="recipientReference">-</span>
+            </div>
+            
+            <div class="section-title">Withdrawal To</div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Bank Country:</span>
+                <span class="detail-value" id="bankCountry">Malaysia</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Bank Name:</span>
+                <span class="detail-value" id="bankName">AFFIN ISLAMIC BANK BHD - AIBBMYKL</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">A/C Holder Name:</span>
+                <span class="detail-value" id="accountHolder">EW1</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Swift Code:</span>
+                <span class="detail-value" id="swiftCode">AIBBMYKL</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Account Type:</span>
+                <span class="detail-value" id="accountType">Bank Account</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Bank Account No:</span>
+                <span class="detail-value" id="accountNumber">121212</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Bank Account IC:</span>
+                <span class="detail-value" id="accountIC">1111</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Payout Company:</span>
+                <span class="detail-value" id="payoutCompany">MY</span>
+            </div>
+        </div>
+        
+        <button class="print-btn" onclick="downloadPDF()">
+            📥 Print this receipt
+        </button>
+    </div>
+    
+    <!-- 取消确认弹窗 -->
+    <div class="confirm-modal-overlay" id="confirmModal">
+        <div class="confirm-modal-content">
+            <div class="warning-icon">!</div>
+            <div class="confirm-title">取消转账</div>
+            <div class="confirm-message">Are you sure you want to cancel this transfer?</div>
+            <div class="confirm-buttons">
+                <button class="confirm-btn-cancel" onclick="closeConfirmModal()">Cancel</button>
+                <button class="confirm-btn-confirm" onclick="confirmCancel()">Confirm</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+        
+        function goBack() {
+            const currentTransaction = localStorage.getItem('currentTransaction');
+            if (currentTransaction) {
+                localStorage.setItem('newTransaction', currentTransaction);
+            }
+            window.location.href = 'e_wallet.html';
+        }
+        
+        function downloadPDF() {
+            showToast('Receipt downloaded!');
+        }
+        
+        function loadTransactionDetail() {
+            const transactionData = localStorage.getItem('currentTransaction');
+            if (transactionData) {
+                try {
+                    const data = JSON.parse(transactionData);
+                    
+                    const amountStr = data.amount < 0 ? data.amount.toFixed(2) : '-' + data.amount.toFixed(2);
+                    document.getElementById('transactionAmount').textContent = amountStr;
+                    
+                    const isWithdrawal = data.details && data.details.includes('WITHDRAWAL') || data.type === 'withdrawal';
+                    document.getElementById('transactionType').textContent = isWithdrawal ? 'Withdraw' : 'Transfer';
+                    
+                    const number = data.transactionNumber || data.number;
+                    document.getElementById('transactionNumber').textContent = number;
+                    
+                    const details = data.details || (isWithdrawal ? 'WITHDRAWAL TO BANK AC' : 'TRANSFER TO MEMBER');
+                    document.getElementById('transactionDetails').textContent = details;
+                    
+                    const dateTime = data.dateTime || (data.date + ', ' + (data.time || '10:17 AM'));
+                    document.getElementById('transactionDateTime').textContent = dateTime;
+                    
+                    document.getElementById('recipientReference').textContent = data.reference || '-';
+                    
+                    if (isWithdrawal) {
+                        document.getElementById('bankCountry').textContent = data.bankCountry || 'Malaysia';
+                        document.getElementById('bankName').textContent = data.bankName || '-';
+                        document.getElementById('accountHolder').textContent = data.accountHolder || '-';
+                        document.getElementById('swiftCode').textContent = data.swiftCode || '-';
+                        document.getElementById('accountType').textContent = data.accountType || 'Bank Account';
+                        document.getElementById('accountNumber').textContent = data.accountNumber || '-';
+                        document.getElementById('accountIC').textContent = data.accountIC || '-';
+                        document.getElementById('payoutCompany').textContent = data.payoutCompany || 'MY';
+                    } else {
+                        document.querySelector('.section-title').textContent = 'Transfer To';
+                        document.getElementById('bankCountry').textContent = 'Member ID: ' + (data.memberId || '-');
+                        document.getElementById('bankName').textContent = 'Member Name: ' + (data.memberName || '-');
+                        document.getElementById('accountHolder').textContent = '-';
+                        document.getElementById('swiftCode').textContent = '-';
+                        document.getElementById('accountType').textContent = '-';
+                        document.getElementById('accountNumber').textContent = '-';
+                        document.getElementById('accountIC').textContent = '-';
+                        document.getElementById('payoutCompany').textContent = '-';
+                    }
+                    
+                    const status = data.status || 'Pending';
+                    document.getElementById('status').textContent = status;
+                    document.getElementById('status').style.color = status === 'Pending' ? '#ff9500' : status === 'Successful' ? '#34c759' : '#8e8e93';
+                    
+                    if (isWithdrawal) {
+                        document.getElementById('cancelBtn').textContent = '取消提现';
+                        document.querySelector('.confirm-title').textContent = '取消提现';
+                        document.querySelector('.confirm-message').textContent = 'Are you sure you want to cancel this withdrawal?';
+                    } else {
+                        document.getElementById('cancelBtn').textContent = '取消';
+                        document.querySelector('.confirm-title').textContent = '取消转账';
+                        document.querySelector('.confirm-message').textContent = 'Are you sure you want to cancel this transfer?';
+                    }
+                    
+                    if (status !== 'Pending') {
+                        document.getElementById('cancelBtn').style.display = 'none';
+                    }
+                } catch (e) {
+                    console.error('Failed to load transaction detail:', e);
+                }
+            }
+        }
+        
+        document.getElementById('cancelBtn').addEventListener('click', () => {
+            document.getElementById('confirmModal').classList.add('show');
+        });
+        
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('show');
+        }
+        
+        function confirmCancel() {
+            const transactionData = localStorage.getItem('currentTransaction');
+            if (transactionData) {
+                const data = JSON.parse(transactionData);
+                if (data.id !== undefined && data.id !== null) {
+                    localStorage.setItem('cancelledTransactionId', data.id.toString());
+                }
+            }
+            document.getElementById('confirmModal').classList.remove('show');
+            showToast('Withdrawal cancelled');
+            setTimeout(() => {
+                window.location.href = 'e_wallet.html';
+            }, 1500);
+        }
+        
+        document.addEventListener('DOMContentLoaded', loadTransactionDetail);
+    </script>
+</body>
+</html>

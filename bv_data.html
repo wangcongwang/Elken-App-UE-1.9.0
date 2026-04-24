@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BV资料 - elken app重构版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .header {
+            background-color: #007aff;
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .back-arrow {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .content {
+            padding: 15px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .search-btn {
+            padding: 12px 20px;
+            background-color: #007aff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .member-list {
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+        
+        .member-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .member-item:hover {
+            border-color: #007aff;
+            background-color: #f8faff;
+        }
+        
+        .member-info {
+            flex: 1;
+        }
+        
+        .member-id {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .member-name {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .download-btn {
+            padding: 8px 16px;
+            background-color: #007aff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .toast.show {
+            opacity: 1;
+        }
+        
+        .filter-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .result-count {
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="back-arrow" onclick="window.location.href='ecam_business_tools.html'">←</div>
+            <div class="header-title">BV资料</div>
+        </div>
+        <div class="header-right"></div>
+    </div>
+    
+    <div class="content">
+        <div class="card">
+            <!-- 搜索框 -->
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="搜索会员ID或姓名">
+                <button class="search-btn" onclick="searchMembers()">搜索</button>
+            </div>
+            
+            <!-- 结果数量 -->
+            <div class="filter-bar">
+                <span class="result-count" id="resultCount">共 10 条记录</span>
+            </div>
+            
+            <!-- 会员列表 -->
+            <div class="member-list" id="memberList">
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        // 模拟下线会员数据
+        const mockMembers = [
+            { id: '10000522701', name: 'CHE MAIMUN BT ABDULLAH', bv: 1500.00, ps: 1200, pgs: 800, tgs: 2000 },
+            { id: '10000522702', name: 'JOHN DOE', bv: 2000.00, ps: 1500, pgs: 1000, tgs: 2500 },
+            { id: '10000522703', name: 'JANE SMITH', bv: 1800.00, ps: 1300, pgs: 900, tgs: 2200 },
+            { id: '10000522704', name: 'ALICE JOHNSON', bv: 2200.00, ps: 1600, pgs: 1100, tgs: 2800 },
+            { id: '10000522705', name: 'BOB WILLIAMS', bv: 1600.00, ps: 1400, pgs: 850, tgs: 2100 },
+            { id: '10000522706', name: 'SARAH DAVIS', bv: 1900.00, ps: 1550, pgs: 950, tgs: 2300 },
+            { id: '10000522707', name: 'MICHAEL BROWN', bv: 2100.00, ps: 1650, pgs: 1050, tgs: 2600 },
+            { id: '10000522708', name: 'EMILY WILSON', bv: 1700.00, ps: 1350, pgs: 880, tgs: 2150 },
+            { id: '10000522709', name: 'DAVID TAYLOR', bv: 2300.00, ps: 1700, pgs: 1150, tgs: 2900 },
+            { id: '10000522710', name: 'AMANDA THOMAS', bv: 1650.00, ps: 1450, pgs: 920, tgs: 2050 }
+        ];
+        
+        let currentMembers = [...mockMembers];
+        
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+        
+        function renderMemberList(members) {
+            const memberList = document.getElementById('memberList');
+            
+            if (members.length === 0) {
+                memberList.innerHTML = '<div class="empty-state">未找到匹配的会员</div>';
+                document.getElementById('resultCount').textContent = '共 0 条记录';
+                return;
+            }
+            
+            memberList.innerHTML = '';
+            members.forEach(member => {
+                const item = document.createElement('div');
+                item.className = 'member-item';
+                item.innerHTML = `
+                    <div class="member-info">
+                        <div class="member-id">${member.id}</div>
+                        <div class="member-name">${member.name}</div>
+                    </div>
+                    <button class="download-btn" onclick="downloadPDF('${member.id}', '${member.name}', ${member.bv}, ${member.ps}, ${member.pgs}, ${member.tgs})">下载PDF</button>
+                `;
+                memberList.appendChild(item);
+            });
+            
+            document.getElementById('resultCount').textContent = `共 ${members.length} 条记录`;
+        }
+        
+        function searchMembers() {
+            const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+            
+            if (!searchTerm) {
+                currentMembers = [...mockMembers];
+                renderMemberList(currentMembers);
+                return;
+            }
+            
+            const filtered = mockMembers.filter(member => 
+                member.id.toLowerCase().includes(searchTerm) || 
+                member.name.toLowerCase().includes(searchTerm)
+            );
+            
+            currentMembers = filtered;
+            renderMemberList(filtered);
+        }
+        
+        function downloadPDF(memberId, memberName, bv, ps, pgs, tgs) {
+            showToast('正在生成PDF...');
+            
+            const content = `
+ELKEN INTERNATIONAL SDN BHD
+BV Statement
+
+Print Information:
+ID: ${memberId}
+Name: ${memberName}
+Printed On: ${new Date().toLocaleDateString()}
+Last Updated: ${new Date().toLocaleDateString()}
+
+Member Information:
+Downline ID: ${memberId}
+Downline Name: ${memberName}
+
+| Pay Cycle | PS | PGS | TGS | QLEG | Triple Elite Rank | Effective Rank | Highest Rank | Highest Triple Elite Rank |
+|-----------|----|-----|-----|------|------------------|----------------|--------------|--------------------------|
+| 2026-04 | ${ps} | ${pgs} | ${tgs} | 0 | None | None | None | None |
+| 2026-03 | ${ps - 200} | ${pgs - 100} | ${tgs - 300} | 0 | None | None | None | None |
+| 2026-02 | ${ps - 400} | ${pgs - 200} | ${tgs - 500} | 0 | None | None | None | None |
+
+Total BV: ${bv}
+            `;
+            
+            setTimeout(() => {
+                const blob = new Blob([content], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `BV_Statement_${memberId}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showToast('PDF下载成功');
+            }, 500);
+        }
+        
+        // 页面加载时显示所有会员
+        document.addEventListener('DOMContentLoaded', () => {
+            renderMemberList(mockMembers);
+        });
+        
+        // 搜索框回车事件
+        document.getElementById('searchInput').addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                searchMembers();
+            }
+        });
+    </script>
+</body>
+</html>

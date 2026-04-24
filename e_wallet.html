@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>e-Wallet - elken app重构版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .header {
+            background-color: #007aff;
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .back-arrow {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+        }
+        
+        .settings-btn {
+            font-size: 24px;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .settings-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .country-select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: none;
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 14px;
+        }
+        
+        .content {
+            padding: 15px;
+        }
+        
+        /* 余额卡片 */
+        .balance-card {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            color: white;
+        }
+        
+        .balance-label {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 8px;
+        }
+        
+        .balance-value {
+            font-size: 42px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .btn-primary {
+            background-color: #007aff;
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: #34c759;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid #007bff;
+            color: #007bff;
+        }
+        
+        /* 交易历史 */
+        .section-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .filter-toggle {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 12px;
+            background-color: #f0f0f0;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .filter-toggle:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .filter-icon {
+            font-size: 14px;
+        }
+        
+        .filter-text {
+            font-size: 13px;
+            font-weight: 500;
+            color: #666;
+        }
+        
+        /* 筛选器 */
+        .filter-section {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .filter-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .date-input-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background-color: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 0 12px;
+        }
+        
+        .date-icon {
+            font-size: 16px;
+            margin-right: 8px;
+        }
+        
+        .filter-input {
+            flex: 1;
+            padding: 12px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: transparent;
+        }
+        
+        .date-separator {
+            font-size: 14px;
+            color: #999;
+            font-weight: 500;
+        }
+        
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .btn-sm {
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+        
+        /* 下拉刷新 */
+        .pull-refresh {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 15px;
+            color: #999;
+            font-size: 13px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .refresh-icon {
+            font-size: 16px;
+        }
+        
+        .refresh-text {
+            font-weight: 500;
+        }
+        
+        /* 交易列表 */
+        .transaction-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .transaction-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+        
+        .transaction-info {
+            flex: 1;
+        }
+        
+        .transaction-date {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+        
+        .transaction-details {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .transaction-number {
+            font-size: 12px;
+            color: #666;
+            font-family: monospace;
+        }
+        
+        .transaction-amount {
+            text-align: right;
+        }
+        
+        .amount-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #34c759;
+        }
+        
+        .status-badge {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            margin-top: 4px;
+        }
+        
+        .arrow-icon {
+            color: #999;
+            font-size: 16px;
+        }
+        
+        /* 分页样式 */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+            padding: 15px 0;
+        }
+        
+        .pagination-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #e0e0e0;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .pagination-btn:hover:not(:disabled) {
+            border-color: #007aff;
+            background-color: #f0f8ff;
+        }
+        
+        .pagination-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            border-color: #e0e0e0;
+        }
+        
+        .pagination-icon {
+            font-size: 24px;
+            color: #666;
+            font-weight: bold;
+        }
+        
+        .pagination-btn:not(:disabled) .pagination-icon {
+            color: #007aff;
+        }
+        
+        .pagination-btn:disabled .pagination-icon {
+            color: #999;
+        }
+        
+        .pagination-info {
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+            padding: 8px 16px;
+            background-color: #f5f5f5;
+            border-radius: 20px;
+        }
+        
+        .current-page {
+            font-size: 18px;
+            font-weight: 700;
+            color: #007aff;
+            min-width: 30px;
+            text-align: center;
+        }
+        
+        .page-separator {
+            font-size: 14px;
+            color: #999;
+        }
+        
+        .total-pages {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        /* 设置部分 */
+        .settings-section {
+            background-color: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        
+        .setting-label {
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        .setting-description {
+            font-size: 13px;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .radio-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .radio-option label {
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        /* 模态框 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            display: none;
+            align-items: flex-end;
+            z-index: 1000;
+        }
+        
+        .modal-overlay.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background-color: white;
+            width: 100%;
+            border-radius: 20px 20px 0 0;
+            padding: 25px;
+            padding-bottom: calc(25px + env(safe-area-inset-bottom));
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            background-color: #f9f9f9;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #007aff;
+            background-color: white;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        
+        
+        .print-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 15px;
+            border: 1px solid #007aff;
+            border-radius: 10px;
+            background-color: white;
+            color: #007aff;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        
+        .cancel-transaction-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            border: 1px solid #ff3b30;
+            border-radius: 10px;
+            background-color: white;
+            color: #ff3b30;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .status-pending {
+            color: #ff9500;
+            background-color: rgba(255, 149, 0, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .status-success {
+            color: #34c759;
+            background-color: rgba(52, 199, 89, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .status-cancelled {
+            color: #8e8e93;
+            background-color: rgba(142, 142, 147, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .toast.show {
+            opacity: 1;
+        }
+        
+        .step-indicator {
+            display: flex;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+        
+        .step-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background-color: #e0e0e0;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 5px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .step-number.active {
+            background-color: #34c759;
+            color: white;
+        }
+        
+        .step-label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 14px;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background-color: #e0e0e0;
+            z-index: -1;
+        }
+        
+        .step.active:not(:last-child)::after {
+            background-color: #34c759;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="back-arrow" onclick="goBack()">←</div>
+            <div class="header-title">e-Wallet</div>
+        </div>
+        <div class="header-right">
+            <button class="settings-btn" onclick="openSettingsModal()">⚙️</button>
+        </div>
+    </div>
+    
+    <div class="content">
+        <!-- 余额卡片 -->
+        <div class="balance-card">
+            <div class="balance-label">e-Wallet Balance</div>
+            <div class="balance-value" id="walletBalance">7,000.00</div>
+            <div class="action-buttons">
+                <button class="btn btn-outline" onclick="window.location.href='fund_withdrawal.html'">Fund Withdrawal</button>
+                <button class="btn btn-success" onclick="window.location.href='fund_transfer.html'">Fund Transfer</button>
+            </div>
+        </div>
+        
+        <!-- 交易历史 -->
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-title">Transaction History</div>
+                <div class="filter-toggle" onclick="toggleFilter()">
+                    <span class="filter-icon">⚙️</span>
+                    <span class="filter-text">Filter</span>
+                </div>
+            </div>
+            
+            <!-- 筛选器 -->
+            <div class="filter-section" id="filterSection">
+                <div class="filter-row">
+                    <div class="date-input-wrapper">
+                        <span class="date-icon">📅</span>
+                        <input type="text" class="filter-input" id="fromDate" placeholder="From">
+                    </div>
+                    <div class="date-separator">to</div>
+                    <div class="date-input-wrapper">
+                        <span class="date-icon">📅</span>
+                        <input type="text" class="filter-input" id="toDate" placeholder="To">
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="resetFilter()">Reset</button>
+                    <button class="btn btn-primary btn-sm" onclick="applyFilter()">Apply</button>
+                </div>
+            </div>
+            
+            <!-- 下拉刷新提示 -->
+            <div class="pull-refresh" id="pullRefresh">
+                <span class="refresh-icon">🔄</span>
+                <span class="refresh-text">Pull down to refresh</span>
+            </div>
+            
+            <!-- 交易列表 -->
+            <div class="transaction-list" id="transactionList">
+            </div>
+            
+            <!-- 分页 -->
+            <div class="pagination-container">
+                <button class="pagination-btn" id="prevPage" disabled>
+                    <span class="pagination-icon">‹</span>
+                </button>
+                <div class="pagination-info">
+                    <span class="current-page">1</span>
+                    <span class="page-separator">/</span>
+                    <span class="total-pages">1</span>
+                </div>
+                <button class="pagination-btn" id="nextPage" disabled>
+                    <span class="pagination-icon">›</span>
+                </button>
+            </div>
+        </div>
+        
+        </div>
+    
+    <!-- 设置模态框 -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Settings</div>
+                <div class="modal-close" onclick="closeModal('settingsModal')">&times;</div>
+            </div>
+            
+            <div class="settings-section">
+                <div class="setting-item">
+                    <div>
+                        <div class="setting-label">Security PIN</div>
+                    </div>
+                    <button class="btn btn-primary" style="padding: 8px 20px; font-size: 14px;" onclick="openResetPinModal()">Reset</button>
+                </div>
+                
+                <div class="setting-item">
+                    <div>
+                        <div class="setting-label">e-Wallet Auto Withdrawal</div>
+                        <div class="setting-description">Auto-credit to your account from e-Wallet. Minimum amount balance of 10.00 MYR.</div>
+                    </div>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="autoYes" name="autoWithdrawal" value="yes">
+                            <label for="autoYes">Yes</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="autoNo" name="autoWithdrawal" value="no" checked>
+                            <label for="autoNo">No</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 重置PIN弹窗 -->
+    <div class="modal-overlay" id="resetPinModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Reset Security PIN</div>
+                <div class="modal-close" onclick="closeModal('resetPinModal')">&times;</div>
+            </div>
+            
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label required">New PIN</label>
+                    <input type="password" class="form-control" id="newPin" placeholder="Enter 6-digit PIN">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label required">Confirm New PIN</label>
+                    <input type="password" class="form-control" id="confirmPin" placeholder="Re-enter 6-digit PIN">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label required">Verification Code</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" class="form-control" id="otpCode" placeholder="Enter verification code" style="flex: 1;">
+                        <button class="btn btn-outline" id="requestOtpBtn" onclick="requestOtp()" style="white-space: nowrap;">Get Code</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('resetPinModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="resetPin()">OK</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        // 模拟交易数据
+        let transactions = [
+            {
+                id: 1,
+                date: '27/02/2026',
+                time: '10:17 AM',
+                details: 'BONUS ADJUSTMENT - Others - test',
+                number: 'UAT_EMYEAAEK00000067',
+                amount: 7000.00,
+                status: 'Successful'
+            },
+            {
+                id: 2,
+                date: '27/02/2026',
+                details: 'BONUS ADJUSTMENT - Others - test',
+                number: 'UAT_EMYEAAEK00000066',
+                amount: 5000.00,
+                status: 'Successful'
+            },
+            {
+                id: 3,
+                date: '25/02/2026',
+                details: 'TRANSFER TO MEMBER',
+                number: 'UAT_EMYEAAEK00000065',
+                amount: -2000.00,
+                status: 'Successful'
+            },
+            {
+                id: 4,
+                date: '20/02/2026',
+                details: 'BONUS ADJUSTMENT - Monthly',
+                number: 'UAT_EMYEAAEK00000064',
+                amount: 3000.00,
+                status: 'Successful'
+            }
+        ];
+        
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+        
+        function goBack() {
+            window.location.href = 'business_center.html';
+        }
+        
+        let walletBalance = parseFloat(localStorage.getItem('walletBalance')) || 7000.00;
+        
+        function updateBalanceDisplay() {
+            document.getElementById('walletBalance').textContent = walletBalance.toLocaleString();
+            localStorage.setItem('walletBalance', walletBalance.toString());
+        }
+        
+        function addNewTransaction(newTransaction) {
+            if (newTransaction) {
+                transactions.unshift(newTransaction);
+                walletBalance += newTransaction.amount;
+                updateBalanceDisplay();
+                renderTransactions();
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTransactions = localStorage.getItem('walletTransactions');
+            if (savedTransactions) {
+                try {
+                    transactions = JSON.parse(savedTransactions);
+                } catch (e) {
+                    console.error('Failed to parse saved transactions:', e);
+                }
+            }
+            
+            const newTransaction = localStorage.getItem('newTransaction');
+            if (newTransaction) {
+                try {
+                    const transaction = JSON.parse(newTransaction);
+                    const exists = transactions.some(t => t.id === transaction.id);
+                    if (!exists) {
+                        transactions.unshift(transaction);
+                        walletBalance += transaction.amount;
+                        updateBalanceDisplay();
+                        localStorage.setItem('walletTransactions', JSON.stringify(transactions));
+                    }
+                    localStorage.removeItem('newTransaction');
+                } catch (e) {
+                    console.error('Failed to parse new transaction:', e);
+                }
+            }
+            
+            const cancelledId = localStorage.getItem('cancelledTransactionId');
+            if (cancelledId) {
+                const transactionId = parseInt(cancelledId);
+                const index = transactions.findIndex(t => t.id === transactionId);
+                if (index !== -1) {
+                    const transaction = transactions[index];
+                    if (transaction.status === 'Pending') {
+                        walletBalance -= transaction.amount;
+                        updateBalanceDisplay();
+                    }
+                    transactions[index].status = 'Cancelled';
+                    localStorage.setItem('walletTransactions', JSON.stringify(transactions));
+                }
+                localStorage.removeItem('cancelledTransactionId');
+            }
+            
+            renderTransactions();
+        });
+        
+        function saveTransactions() {
+            localStorage.setItem('walletTransactions', JSON.stringify(transactions));
+        }
+        
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('show');
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+        
+        function openSettingsModal() {
+            openModal('settingsModal');
+        }
+        
+        function openResetPinModal() {
+            closeModal('settingsModal');
+            openModal('resetPinModal');
+        }
+        
+        function requestOtp() {
+            const btn = document.getElementById('requestOtpBtn');
+            if (btn.disabled) return;
+            
+            showToast('Verification code sent!');
+            btn.disabled = true;
+            btn.textContent = '60s';
+            
+            let count = 60;
+            const timer = setInterval(() => {
+                count--;
+                btn.textContent = count + 's';
+                if (count <= 0) {
+                    clearInterval(timer);
+                    btn.disabled = false;
+                    btn.textContent = 'Get Code';
+                }
+            }, 1000);
+        }
+        
+        function resetPin() {
+            const newPin = document.getElementById('newPin').value;
+            const confirmPin = document.getElementById('confirmPin').value;
+            const otpCode = document.getElementById('otpCode').value;
+            
+            if (!newPin) {
+                showToast('Please enter new PIN');
+                return;
+            }
+            
+            if (!confirmPin) {
+                showToast('Please confirm new PIN');
+                return;
+            }
+            
+            if (!otpCode) {
+                showToast('Please enter verification code');
+                return;
+            }
+            
+            if (newPin.length !== 6 || !/^\d{6}$/.test(newPin)) {
+                showToast('PIN must be 6 digits');
+                return;
+            }
+            
+            if (newPin !== confirmPin) {
+                showToast('PINs do not match');
+                return;
+            }
+            
+            showToast('PIN reset successful!');
+            closeModal('resetPinModal');
+            
+            document.getElementById('newPin').value = '';
+            document.getElementById('confirmPin').value = '';
+            document.getElementById('otpCode').value = '';
+        }
+        
+        function toggleFilter() {
+            const filterSection = document.getElementById('filterSection');
+            if (filterSection.style.display === 'none' || filterSection.style.display === '') {
+                filterSection.style.display = 'block';
+            } else {
+                filterSection.style.display = 'none';
+            }
+        }
+        
+        function resetFilter() {
+            document.getElementById('fromDate').value = '';
+            document.getElementById('toDate').value = '';
+            renderTransactions();
+            showToast('Filter reset');
+        }
+        
+        function applyFilter() {
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+            renderTransactions(fromDate, toDate);
+            showToast('Filter applied');
+        }
+        
+        function downloadPDF() {
+            showToast('PDF downloaded!');
+        }
+        
+        function viewTransactionDetail(transaction) {
+            localStorage.setItem('currentTransaction', JSON.stringify(transaction));
+            window.location.href = 'transaction_detail.html';
+        }
+        
+        function renderTransactions(fromDate = '', toDate = '') {
+            const list = document.getElementById('transactionList');
+            list.innerHTML = '';
+            
+            let filteredTransactions = transactions;
+            
+            if (fromDate || toDate) {
+                filteredTransactions = transactions.filter(t => {
+                    if (!t.date || typeof t.date !== 'string') {
+                        return true;
+                    }
+                    const transactionDate = new Date(t.date.split('/').reverse().join('/'));
+                    let isValid = true;
+                    
+                    if (fromDate && typeof fromDate === 'string') {
+                        const from = new Date(fromDate.split('/').reverse().join('/'));
+                        isValid = isValid && transactionDate >= from;
+                    }
+                    
+                    if (toDate && typeof toDate === 'string') {
+                        const to = new Date(toDate.split('/').reverse().join('/'));
+                        isValid = isValid && transactionDate <= to;
+                    }
+                    
+                    return isValid;
+                });
+            }
+            
+            filteredTransactions.forEach(t => {
+                const item = document.createElement('div');
+                item.className = 'transaction-item';
+                item.onclick = () => viewTransactionDetail(t);
+                
+                const isNegative = t.amount < 0;
+                const statusText = t.status === 'Pending' ? '待审核' : t.status === 'Successful' ? '已完成' : t.status === 'Cancelled' ? '已取消' : t.status;
+                const statusClass = t.status === 'Pending' ? 'status-pending' : t.status === 'Successful' ? 'status-success' : t.status === 'Cancelled' ? 'status-cancelled' : '';
+                
+                item.innerHTML = `
+                    <div class="transaction-info">
+                        <div class="transaction-date">${t.date}</div>
+                        <div class="transaction-details">${t.details}</div>
+                        <div class="transaction-number">${t.number}</div>
+                    </div>
+                    <div class="transaction-amount">
+                        <div class="amount-value" style="color: ${isNegative ? '#ff3b30' : '#34c759'};">
+                            ${isNegative ? '-' : ''}${Math.abs(t.amount).toLocaleString()}
+                        </div>
+                        <div class="status-badge ${statusClass}">${statusText}</div>
+                    </div>
+                    <div class="arrow-icon">›</div>
+                `;
+                
+                list.appendChild(item);
+            });
+        }
+        
+        // 页面加载时渲染交易列表
+        document.addEventListener('DOMContentLoaded', renderTransactions);
+        
+        
+    </script>
+</body>
+</html>

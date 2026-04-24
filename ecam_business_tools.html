@@ -780,7 +780,7 @@
                 <div class="tool-icon">📅</div>
                 <div class="tool-label">活动报告</div>
             </div>
-            <div class="tool-item" onclick="openBVDataModal()">
+            <div class="tool-item" onclick="window.location.href='bv_data.html'">
                 <div class="tool-icon">📈</div>
                 <div class="tool-label">BV资料</div>
             </div>
@@ -798,8 +798,6 @@
     <!-- 非模态提示框 -->
     <div class="toast" id="toast"></div>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script>
         // 显示非模态提示框
         function showToast(message) {
@@ -1054,184 +1052,6 @@
             { id: '10000522709', name: 'FRANK MILLER' },
             { id: '10000522710', name: 'GRACE WILSON' }
         ];
-        
-        // 打开BV资料弹窗
-        function openBVDataModal() {
-            const modal = document.createElement('div');
-            modal.className = 'modal-overlay';
-            modal.innerHTML = `
-                <div class="modal-content card-modal">
-                    <div class="modal-header">
-                        <h2>BV资料</h2>
-                        <button class="modal-close" onclick="closeBVDataModal(this)">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group" style="margin-bottom: 20px;">
-                            <input type="text" id="bvSearch" placeholder="搜索 Member ID 或 Member Name" style="width: 100%; padding: 10px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
-                        </div>
-                        <div id="searchResults" style="max-height: 300px; overflow-y: auto; margin-bottom: 20px;">
-                            <div style="text-align: center; color: #666; padding: 20px;">请在搜索框中输入 Member ID 或 Member Name</div>
-                        </div>
-                        <div style="display: flex; gap: 10px;">
-                            <button id="downloadPDFBtn" class="btn btn-primary" disabled style="flex: 1; padding: 10px; background-color: #cccccc; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: not-allowed;">下载PDF</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-            modal.style.display = 'flex';
-
-            setTimeout(() => {
-                modal.classList.add('show');
-            }, 10);
-            
-            // 添加搜索功能
-            const searchInput = document.getElementById('bvSearch');
-            const searchResults = document.getElementById('searchResults');
-            const downloadPDFBtn = document.getElementById('downloadPDFBtn');
-            let searchTimeout;
-            
-            // 防抖函数
-            function debounce(func, delay) {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(func, delay);
-            }
-            
-            searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
-                
-                if (searchTerm.trim() === '') {
-                    searchResults.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">请在搜索框中输入 Member ID 或 Member Name</div>';
-                    // 禁用下载按钮
-                    downloadPDFBtn.disabled = true;
-                    downloadPDFBtn.style.backgroundColor = '#cccccc';
-                    downloadPDFBtn.style.cursor = 'not-allowed';
-                    return;
-                }
-                
-                // 显示搜索中状态
-                searchResults.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">搜索中...</div>';
-                
-                // 使用防抖优化搜索
-                debounce(() => {
-                    // 过滤匹配的会员
-                    const matchedMembers = memberData.filter(member => {
-                        return member.id.toLowerCase().includes(searchTerm) || member.name.toLowerCase().includes(searchTerm);
-                    });
-                    
-                    if (matchedMembers.length === 0) {
-                        searchResults.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">未找到匹配的会员</div>';
-                    } else {
-                        // 生成搜索结果
-                        let resultsHTML = '';
-                        matchedMembers.forEach(member => {
-                            resultsHTML += `
-                                <div class="search-result-item" onclick="selectMember('${member.id}', '${member.name}')" style="padding: 10px; border-bottom: 1px solid #f0f0f0; cursor: pointer; display: flex; justify-content: space-between;">
-                                    <div>
-                                        <div style="font-weight: 500;">${member.name}</div>
-                                        <div style="font-size: 14px; color: #666;">ID: ${member.id}</div>
-                                    </div>
-                                    <div style="color: #007aff; font-size: 14px;">选择</div>
-                                </div>
-                            `;
-                        });
-                        searchResults.innerHTML = resultsHTML;
-                    }
-                }, 300);
-            });
-            
-            // 添加下载PDF功能
-            downloadPDFBtn.addEventListener('click', function() {
-                // 使用jsPDF生成PDF文件
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-                
-                // 设置字体
-                doc.setFont('helvetica', 'normal');
-                
-                // 添加标题
-                doc.setFontSize(16);
-                doc.text('BV Info', 20, 20);
-                
-                // 添加打印信息
-                doc.setFontSize(12);
-                doc.text('Printed By', 20, 35);
-                doc.setFontSize(10);
-                doc.text('ID : 1', 20, 45);
-                doc.text('Name : EW1', 20, 55);
-                doc.text(`Printed On : ${new Date().toLocaleString()}`, 100, 45);
-                doc.text('Last Updated : 0000-00-00 00:00:00', 100, 55);
-                
-                // 添加会员信息
-                doc.setFontSize(12);
-                doc.text('Member Info', 20, 75);
-                doc.setFontSize(10);
-                doc.text('Downline ID : 10000028700', 20, 85);
-                doc.text('Downline Name : Wang Lip Jin', 20, 95);
-                
-                // 添加表格
-                doc.setFontSize(10);
-                doc.text('Pay Cycle', 20, 115);
-                doc.text('PS', 50, 115);
-                doc.text('PGS', 70, 115);
-                doc.text('TGS', 90, 115);
-                doc.text('QLEG', 110, 115);
-                doc.text('Triple Elite Rank', 130, 115);
-                doc.text('Effective Rank', 170, 115);
-                doc.text('Highest Rank', 210, 115);
-                doc.text('Highest Triple Elite Rank', 250, 115);
-                
-                // 添加表格数据
-                doc.text('2026-01', 20, 125);
-                doc.text('0.00', 50, 125);
-                doc.text('0.00', 70, 125);
-                doc.text('0.00', 90, 125);
-                doc.text('0', 110, 125);
-                doc.text('-', 130, 125);
-                doc.text('-', 170, 125);
-                doc.text('-', 210, 125);
-                doc.text('Dealer', 250, 125);
-                
-                // 保存PDF文件
-                doc.save('BV资料.pdf');
-                
-                // 显示下载成功提示
-                showToast('PDF文件正在下载');
-                
-                // 自动关闭弹窗
-                setTimeout(() => {
-                    closeBVDataModal(modal.querySelector('.modal-close'));
-                }, 1000);
-            });
-        }
-        
-        // 选择会员
-        function selectMember(memberId, memberName) {
-            showToast(`已选择会员: ${memberName} (${memberId})`);
-            // 将会员信息带入搜索框
-            const searchInput = document.getElementById('bvSearch');
-            if (searchInput) {
-                searchInput.value = `${memberName} (${memberId})`;
-            }
-            // 启用下载PDF按钮
-            const downloadPDFBtn = document.getElementById('downloadPDFBtn');
-            if (downloadPDFBtn) {
-                downloadPDFBtn.disabled = false;
-                downloadPDFBtn.style.backgroundColor = '#007aff';
-                downloadPDFBtn.style.cursor = 'pointer';
-            }
-        }
-        
-        // 关闭BV资料弹窗
-        function closeBVDataModal(closeBtn) {
-            const modal = closeBtn.closest('.modal-overlay');
-            if (modal) {
-                modal.classList.remove('show');
-                setTimeout(() => {
-                    modal.remove();
-                }, 300);
-            }
-        }
     </script>
 </body>
 </html>
