@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>My Cart</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛒</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f5f7fa;
+            color: #111827;
+            min-width: 100%;
+            overflow-x: hidden;
+            padding-bottom: 100px;
+            position: relative;
+        }
+
+        /* 霓虹呼吸灯特效 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 6px solid transparent;
+            border-image: linear-gradient(45deg, #ff0033, #ff9900, #ffff00, #0066ff) 1;
+            filter: blur(4px);
+            animation: neonBreath 3s linear infinite alternate;
+            z-index: 100000;
+            pointer-events: none;
+        }
+
+        @keyframes neonBreath {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        .status-bar {
+            background-color: white;
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .order-header {
+            background: linear-gradient(135deg, #059669 0%, #10b981 50%, #059669 100%);
+            padding: 16px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .order-info {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .order-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 6px;
+        }
+
+        .order-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .member-name-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .member-id-text {
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .order-details {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        .close-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            margin-left: 12px;
+            position: relative;
+            z-index: 10002;
+        }
+
+        .close-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .header {
+            background-color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+
+        .back-arrow {
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+            text-align: center;
+        }
+
+        .select-all {
+            background-color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #d1d5db;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .checkbox.checked {
+            background-color: #007aff;
+            border-color: #007aff;
+            color: white;
+        }
+
+        .cart-items {
+            padding: 12px;
+        }
+
+        .cart-item-wrapper {
+            position: relative;
+            margin-bottom: 12px;
+            overflow: hidden;
+            border-radius: 16px;
+        }
+
+        .cart-item {
+            background-color: white;
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+            z-index: 2;
+        }
+
+        .cart-item.swiped {
+            transform: translateX(-80px);
+        }
+
+        .swipe-delete-btn {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 80px;
+            background-color: #ef4444;
+            border-radius: 0 16px 16px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1;
+        }
+
+        .item-checkbox {
+            align-self: center;
+        }
+
+        .item-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            background-color: #f9fafb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            flex-shrink: 0;
+        }
+
+        .item-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .item-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            line-height: 1.3;
+            flex: 1;
+            margin-right: 8px;
+        }
+
+        .item-remove {
+            font-size: 20px;
+            color: #9ca3af;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .item-tags {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .item-tag {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .item-tag.gray {
+            background-color: #6b7280;
+            color: white;
+        }
+
+        .item-tag.green {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .item-tag.orange {
+            background-color: #f59e0b;
+            color: white;
+        }
+
+        .item-tag.blue {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .item-tag.purple {
+            background-color: #8b5cf6;
+            color: white;
+        }
+
+        /* 可点击的规格标签 */
+        .item-tag.editable {
+            cursor: pointer;
+            position: relative;
+            padding-right: 20px;
+        }
+
+        .item-tag.editable::after {
+            content: '▼';
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 8px;
+            opacity: 0.7;
+        }
+
+        .item-price-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .item-price {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .item-bv {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .qty-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            color: #6b7280;
+        }
+
+        .qty-btn:active {
+            background-color: #f3f4f6;
+        }
+
+        .qty-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .delete-btn {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 80px;
+            background-color: #ef4444;
+            border-radius: 0 16px 16px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border-top: 1px solid #e5e7eb;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        .total-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 底部优惠券选择条 */
+        .voucher-select-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            margin-bottom: 4px;
+            font-size: 13px;
+        }
+
+        .voucher-select-icon {
+            font-size: 16px;
+        }
+
+        .voucher-select-label {
+            color: #374151;
+            font-weight: 500;
+        }
+
+        .voucher-select-value {
+            color: #3b82f6;
+            font-weight: 500;
+            margin-left: auto;
+        }
+
+        .voucher-select-value.selected {
+            color: #10b981;
+        }
+
+        .total-label {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .total-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #10b981;
+        }
+
+        .total-bv {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .checkout-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .checkout-btn:active {
+            transform: scale(0.98);
+        }
+
+        .checkout-btn:disabled {
+            background: linear-gradient(135deg, #9ca3af 0%, #d1d5db 100%);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .checkout-btn:disabled:active {
+            transform: none;
+        }
+
+        /* 规格修改弹窗 */
+        .variant-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .variant-overlay.active {
+            display: flex;
+        }
+
+        .variant-modal {
+            background-color: white;
+            border-radius: 20px 20px 0 0;
+            padding: 24px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slide-up 0.3s ease-out;
+        }
+
+        @keyframes slide-up {
+            0% { transform: translateY(100%); }
+            100% { transform: translateY(0); }
+        }
+
+        .variant-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            color: #6b7280;
+        }
+
+        .variant-header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .variant-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .variant-product {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .variant-product-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            background-color: #f9fafb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            flex-shrink: 0;
+        }
+
+        .variant-product-info {
+            flex: 1;
+        }
+
+        .variant-product-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .variant-product-price {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .variant-product-bv {
+            font-size: 14px;
+            color: #1e3a8a;
+            font-weight: 600;
+        }
+
+        .variant-section {
+            margin-bottom: 20px;
+        }
+
+        .variant-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .variant-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .variant-option {
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .variant-option.selected {
+            border-color: #1e3a8a;
+            background-color: #eff6ff;
+            color: #1e3a8a;
+        }
+
+        .variant-option:active {
+            transform: scale(0.95);
+        }
+
+        .confirm-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .confirm-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* 优惠券选择弹窗 */
+        .voucher-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .voucher-overlay.active {
+            display: flex;
+        }
+
+        .voucher-modal {
+            background-color: white;
+            border-radius: 20px 20px 0 0;
+            padding: 24px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slide-up 0.3s ease-out;
+        }
+
+        .voucher-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .voucher-modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .voucher-modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            color: #6b7280;
+            border: none;
+        }
+
+        .voucher-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .voucher-item {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .voucher-item.selected {
+            border-color: #1e3a8a;
+            background-color: #eff6ff;
+        }
+
+        .voucher-item-radio {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #d1d5db;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .voucher-item.selected .voucher-item-radio {
+            border-color: #1e3a8a;
+            background-color: #1e3a8a;
+            color: white;
+        }
+
+        .voucher-item-info {
+            flex: 1;
+        }
+
+        .voucher-item-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .voucher-item-desc {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .voucher-item-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ef4444;
+            flex-shrink: 0;
+        }
+
+        /* 成功提示 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 100001;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast.show {
+            display: flex;
+            animation: toast-in 0.3s ease-out;
+        }
+
+        @keyframes toast-in {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="status-bar">
+        <span>9:41</span>
+        <div style="display: flex; gap: 4px; align-items: center;">
+            <span>📶</span>
+            <span>📶</span>
+            <span>🔋</span>
+        </div>
+    </div>
+
+    <div class="order-header">
+        <div class="order-info">
+            <div class="order-label">You are ordering for</div>
+            <div class="order-name">
+                <span class="member-name-text" id="memberName">Jonathan Doe De First/ Liew Second Name</span>
+                <span class="member-id-text" id="memberId">| 100001234</span>
+            </div>
+            <div class="order-details" id="memberDetails">Platinum Rank | Membership expires on 2027-02-21</div>
+        </div>
+        <div class="close-btn" onclick="window.location.href='mall.html'">×</div>
+    </div>
+
+    <div class="header">
+        <div class="back-arrow" onclick="window.location.href='order_for_member.html'">←</div>
+        <div class="header-title">My Cart</div>
+        <div style="width: 24px;"></div>
+    </div>
+
+    <div class="select-all">
+        <div class="checkbox checked" id="selectAll" onclick="toggleSelectAll()">✓</div>
+        <span style="font-size: 14px; color: #374151;">Select All</span>
+    </div>
+
+    <div class="cart-items" id="cartItems">
+        <div class="cart-item-wrapper" data-id="1">
+            <div class="cart-item" data-id="1">
+                <div class="checkbox checked item-checkbox" onclick="toggleItem(this)">✓</div>
+                <div class="item-image">👗</div>
+                <div class="item-details">
+                    <div class="item-header">
+                        <div class="item-name">Elysyle Charms Full Set</div>
+                        <div class="item-remove" onclick="removeItem(1)">×</div>
+                    </div>
+                    <div class="item-tags">
+                        <span class="item-tag gray editable" onclick="openVariantModal(1)">Black, M, Design 2</span>
+                        <span class="item-tag green">AMP</span>
+                    </div>
+                    <div class="item-price-row">
+                        <span class="item-price">RM3500</span>
+                        <span class="item-bv">AMP BV 300</span>
+                    </div>
+                    <div class="quantity-control">
+                        <div class="qty-btn" onclick="updateQty(1, -1)">−</div>
+                        <span class="qty-value" id="qty-1">1</span>
+                        <div class="qty-btn" onclick="updateQty(1, 1)">+</div>
+                    </div>
+                </div>
+            </div>
+            <div class="swipe-delete-btn" onclick="removeItem(1)">🗑️</div>
+        </div>
+
+        <div class="cart-item-wrapper" data-id="2">
+            <div class="cart-item" data-id="2">
+                <div class="checkbox checked item-checkbox" onclick="toggleItem(this)">✓</div>
+                <div class="item-image">💧</div>
+                <div class="item-details">
+                    <div class="item-header">
+                        <div class="item-name">Kington Minerale 30 Vials</div>
+                        <div class="item-remove" onclick="removeItem(2)">×</div>
+                    </div>
+                    <div class="item-tags">
+                        <span class="item-tag orange editable" onclick="openVariantModal(2)">Upgrade</span>
+                    </div>
+                    <div class="item-price-row">
+                        <span class="item-price">RM188</span>
+                        <span class="item-bv">AMP BV 13.50</span>
+                    </div>
+                    <div class="quantity-control">
+                        <div class="qty-btn" onclick="updateQty(2, -1)">−</div>
+                        <span class="qty-value" id="qty-2">1</span>
+                        <div class="qty-btn" onclick="updateQty(2, 1)">+</div>
+                    </div>
+                </div>
+            </div>
+            <div class="swipe-delete-btn" onclick="removeItem(2)">🗑️</div>
+        </div>
+
+        <div class="cart-item-wrapper" data-id="3">
+            <div class="cart-item" data-id="3">
+                <div class="checkbox checked item-checkbox" onclick="toggleItem(this)">✓</div>
+                <div class="item-image">🍬</div>
+                <div class="item-details">
+                    <div class="item-header">
+                        <div class="item-name">Gummy Vizio 60 Gummies</div>
+                        <div class="item-remove" onclick="removeItem(3)">×</div>
+                    </div>
+                    <div class="item-tags">
+                        <span class="item-tag gray editable" onclick="openVariantModal(3)">Repurchase</span>
+                    </div>
+                    <div class="item-price-row">
+                        <span class="item-price">RM188</span>
+                        <span class="item-bv">AMP BV 13.50</span>
+                    </div>
+                    <div class="quantity-control">
+                        <div class="qty-btn" onclick="updateQty(3, -1)">−</div>
+                        <span class="qty-value" id="qty-3">1</span>
+                        <div class="qty-btn" onclick="updateQty(3, 1)">+</div>
+                    </div>
+                </div>
+            </div>
+            <div class="swipe-delete-btn" onclick="removeItem(3)">🗑️</div>
+        </div>
+    </div>
+
+    <div class="bottom-bar">
+        <div class="total-info">
+            <!-- 优惠券选择放在 Total 上方 -->
+            <div class="voucher-select-bar" onclick="openVoucherModal()">
+                <span class="voucher-select-icon">🏷️</span>
+                <span class="voucher-select-label">Select Voucher</span>
+                <span class="voucher-select-value" id="voucherAction">Select One ›</span>
+            </div>
+            <div class="total-label">Total</div>
+            <div class="total-price" id="totalPrice">MYR 4064.00</div>
+            <div class="total-bv" id="totalBv">Total BV 340.50</div>
+        </div>
+        <button class="checkout-btn" id="checkoutBtn" onclick="goToCheckout()">Check Out</button>
+    </div>
+
+    <!-- 规格修改弹窗 -->
+    <div class="variant-overlay" id="variantOverlay">
+        <div class="variant-modal">
+            <div class="variant-close" onclick="closeVariantModal()">×</div>
+            <div class="variant-header">
+                <div class="variant-title">Edit Variant</div>
+            </div>
+            
+            <div class="variant-product">
+                <div class="variant-product-image" id="variantProductImage">👗</div>
+                <div class="variant-product-info">
+                    <div class="variant-product-name" id="variantProductName">Elysyle Charms Full Set</div>
+                    <div class="variant-product-price" id="variantProductPrice">RM3500</div>
+                    <div class="variant-product-bv" id="variantProductBv">AMP BV 300</div>
+                </div>
+            </div>
+
+            <div class="variant-section" id="sizeSection">
+                <div class="variant-section-title">Size</div>
+                <div class="variant-options" id="sizeOptions">
+                    <div class="variant-option" onclick="selectVariant(this, 'size')">S</div>
+                    <div class="variant-option selected" onclick="selectVariant(this, 'size')"><span>✓</span> M</div>
+                    <div class="variant-option" onclick="selectVariant(this, 'size')">L</div>
+                    <div class="variant-option" onclick="selectVariant(this, 'size')">XL</div>
+                </div>
+            </div>
+
+            <div class="variant-section" id="colorSection">
+                <div class="variant-section-title">Color</div>
+                <div class="variant-options" id="colorOptions">
+                    <div class="variant-option selected" onclick="selectVariant(this, 'color')"><span>✓</span> Black</div>
+                    <div class="variant-option" onclick="selectVariant(this, 'color')">White</div>
+                    <div class="variant-option" onclick="selectVariant(this, 'color')">Red</div>
+                    <div class="variant-option" onclick="selectVariant(this, 'color')">Blue</div>
+                </div>
+            </div>
+
+            <div class="variant-section" id="designSection">
+                <div class="variant-section-title">Design</div>
+                <div class="variant-options" id="designOptions">
+                    <div class="variant-option" onclick="selectVariant(this, 'design')">Design 1</div>
+                    <div class="variant-option selected" onclick="selectVariant(this, 'design')"><span>✓</span> Design 2</div>
+                    <div class="variant-option" onclick="selectVariant(this, 'design')">Design 3</div>
+                </div>
+            </div>
+
+            <div class="variant-section" id="typeSection">
+                <div class="variant-section-title">
+                    Purchase Type
+                    <span style="font-size: 16px; color: #9ca3af;">ⓘ</span>
+                </div>
+                <div class="variant-options" id="typeOptions">
+                    <div class="variant-option" onclick="selectVariant(this, 'type')">New</div>
+                    <div class="variant-option" onclick="selectVariant(this, 'type')">Repurchase</div>
+                    <div class="variant-option selected" onclick="selectVariant(this, 'type')"><span>✓</span> Upgrade</div>
+                    <div class="variant-option" onclick="selectVariant(this, 'type')">AMP</div>
+                </div>
+            </div>
+
+            <button class="confirm-btn" onclick="confirmVariantChange()">Confirm</button>
+        </div>
+    </div>
+
+    <!-- 优惠券选择弹窗 -->
+    <div class="voucher-overlay" id="voucherOverlay">
+        <div class="voucher-modal">
+            <div class="voucher-modal-header">
+                <div class="voucher-modal-title">Select Voucher</div>
+                <button class="voucher-modal-close" onclick="closeVoucherModal()">×</button>
+            </div>
+            <div class="voucher-list" id="voucherList">
+                <div class="voucher-item" data-id="1" onclick="selectVoucher(this)">
+                    <div class="voucher-item-radio"></div>
+                    <div class="voucher-item-info">
+                        <div class="voucher-item-name">New Member Discount</div>
+                        <div class="voucher-item-desc">Valid for first purchase only</div>
+                    </div>
+                    <div class="voucher-item-value">-RM50</div>
+                </div>
+                <div class="voucher-item" data-id="2" onclick="selectVoucher(this)">
+                    <div class="voucher-item-radio"></div>
+                    <div class="voucher-item-info">
+                        <div class="voucher-item-name">Platinum Member Voucher</div>
+                        <div class="voucher-item-desc">Exclusive for Platinum members</div>
+                    </div>
+                    <div class="voucher-item-value">-RM100</div>
+                </div>
+                <div class="voucher-item" data-id="3" onclick="selectVoucher(this)">
+                    <div class="voucher-item-radio"></div>
+                    <div class="voucher-item-info">
+                        <div class="voucher-item-name">Birthday Month Special</div>
+                        <div class="voucher-item-desc">Valid until end of month</div>
+                    </div>
+                    <div class="voucher-item-value">-RM200</div>
+                </div>
+            </div>
+            <button class="confirm-btn" onclick="confirmVoucher()" style="margin-top: 20px;">Confirm</button>
+        </div>
+    </div>
+
+    <!-- 成功提示 -->
+    <div class="toast" id="toast">
+        <span>✓</span>
+        <span id="toastMessage">Variant updated successfully!</span>
+    </div>
+
+    <script>
+        const cartData = {
+            1: { 
+                price: 3500, 
+                bv: 300, 
+                qty: 1,
+                name: 'Elysyle Charms Full Set',
+                image: '👗',
+                variants: {
+                    size: 'M',
+                    color: 'Black',
+                    design: 'Design 2',
+                    type: 'AMP'
+                }
+            },
+            2: { 
+                price: 188, 
+                bv: 13.50, 
+                qty: 1,
+                name: 'Kington Minerale 30 Vials',
+                image: '💧',
+                variants: {
+                    type: 'Upgrade'
+                }
+            },
+            3: { 
+                price: 188, 
+                bv: 13.50, 
+                qty: 1,
+                name: 'Gummy Vizio 60 Gummies',
+                image: '🍬',
+                variants: {
+                    type: 'Repurchase'
+                }
+            }
+        };
+
+        // 产品规格配置
+        const productVariants = {
+            1: {
+                sizes: ['S', 'M', 'L', 'XL'],
+                colors: ['Black', 'White', 'Red', 'Blue'],
+                designs: ['Design 1', 'Design 2', 'Design 3'],
+                types: ['New', 'Repurchase', 'Upgrade', 'AMP']
+            },
+            2: {
+                types: ['New', 'Repurchase', 'Upgrade', 'AMP']
+            },
+            3: {
+                types: ['New', 'Repurchase', 'Upgrade', 'AMP']
+            }
+        };
+
+        // 优惠券数据
+        const voucherData = {
+            1: { name: 'New Member Discount', value: 50 },
+            2: { name: 'Platinum Member Voucher', value: 100 },
+            3: { name: 'Birthday Month Special', value: 200 }
+        };
+
+        let currentEditingId = null;
+        let tempVariants = {};
+        let selectedVoucherId = null;
+        let tempVoucherId = null;
+
+        // ========== 规格修改功能 ==========
+        function openVariantModal(id) {
+            currentEditingId = id;
+            const item = cartData[id];
+            tempVariants = { ...item.variants };
+            
+            document.getElementById('variantProductImage').textContent = item.image;
+            document.getElementById('variantProductName').textContent = item.name;
+            document.getElementById('variantProductPrice').textContent = `RM${item.price}`;
+            document.getElementById('variantProductBv').textContent = `AMP BV ${item.bv}`;
+            
+            const config = productVariants[id];
+            
+            const sizeSection = document.getElementById('sizeSection');
+            if (config.sizes) {
+                sizeSection.style.display = 'block';
+                renderOptions('sizeOptions', config.sizes, item.variants.size, 'size');
+            } else {
+                sizeSection.style.display = 'none';
+            }
+            
+            const colorSection = document.getElementById('colorSection');
+            if (config.colors) {
+                colorSection.style.display = 'block';
+                renderOptions('colorOptions', config.colors, item.variants.color, 'color');
+            } else {
+                colorSection.style.display = 'none';
+            }
+            
+            const designSection = document.getElementById('designSection');
+            if (config.designs) {
+                designSection.style.display = 'block';
+                renderOptions('designOptions', config.designs, item.variants.design, 'design');
+            } else {
+                designSection.style.display = 'none';
+            }
+            
+            const typeSection = document.getElementById('typeSection');
+            if (config.types) {
+                typeSection.style.display = 'block';
+                renderOptions('typeOptions', config.types, item.variants.type, 'type');
+            } else {
+                typeSection.style.display = 'none';
+            }
+            
+            document.getElementById('variantOverlay').classList.add('active');
+        }
+
+        function renderOptions(containerId, options, selectedValue, type) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            options.forEach(option => {
+                const isSelected = option === selectedValue;
+                const div = document.createElement('div');
+                div.className = `variant-option ${isSelected ? 'selected' : ''}`;
+                div.onclick = function() { selectVariant(this, type); };
+                div.innerHTML = isSelected ? `<span>✓</span> ${option}` : option;
+                container.appendChild(div);
+            });
+        }
+
+        function closeVariantModal() {
+            document.getElementById('variantOverlay').classList.remove('active');
+            currentEditingId = null;
+        }
+
+        function selectVariant(element, type) {
+            const parent = element.parentElement;
+            parent.querySelectorAll('.variant-option').forEach(opt => {
+                opt.classList.remove('selected');
+                const check = opt.querySelector('span');
+                if (check) check.remove();
+            });
+            
+            element.classList.add('selected');
+            if (!element.querySelector('span')) {
+                element.insertAdjacentHTML('afterbegin', '<span>✓</span> ');
+            }
+            
+            const value = element.textContent.trim().replace('✓ ', '');
+            tempVariants[type] = value;
+        }
+
+        function confirmVariantChange() {
+            if (!currentEditingId) return;
+            
+            cartData[currentEditingId].variants = { ...tempVariants };
+            updateItemTags(currentEditingId);
+            
+            closeVariantModal();
+            showToast('Variant updated successfully!');
+        }
+
+        function updateItemTags(id) {
+            const item = cartData[id];
+            const wrapper = document.querySelector(`.cart-item-wrapper[data-id="${id}"]`);
+            const tagsContainer = wrapper.querySelector('.item-tags');
+            
+            let tagsHtml = '';
+            const variants = item.variants;
+            
+            if (variants.size || variants.color || variants.design) {
+                const specs = [];
+                if (variants.color) specs.push(variants.color);
+                if (variants.size) specs.push(variants.size);
+                if (variants.design) specs.push(variants.design);
+                tagsHtml += `<span class="item-tag gray editable" onclick="openVariantModal(${id})">${specs.join(', ')}</span>`;
+            }
+            
+            if (variants.type) {
+                const typeColors = {
+                    'New': 'blue',
+                    'Repurchase': 'gray',
+                    'Upgrade': 'orange',
+                    'AMP': 'green'
+                };
+                const color = typeColors[variants.type] || 'gray';
+                tagsHtml += `<span class="item-tag ${color} editable" onclick="openVariantModal(${id})">${variants.type}</span>`;
+            }
+            
+            tagsContainer.innerHTML = tagsHtml;
+        }
+
+        // ========== 优惠券功能 ==========
+        function openVoucherModal() {
+            tempVoucherId = selectedVoucherId;
+            
+            document.querySelectorAll('.voucher-item').forEach(item => {
+                item.classList.remove('selected');
+                const radio = item.querySelector('.voucher-item-radio');
+                radio.innerHTML = '';
+            });
+            
+            if (selectedVoucherId) {
+                const selectedItem = document.querySelector(`.voucher-item[data-id="${selectedVoucherId}"]`);
+                if (selectedItem) {
+                    selectedItem.classList.add('selected');
+                    selectedItem.querySelector('.voucher-item-radio').innerHTML = '✓';
+                }
+            }
+            
+            document.getElementById('voucherOverlay').classList.add('active');
+        }
+
+        function closeVoucherModal() {
+            document.getElementById('voucherOverlay').classList.remove('active');
+            tempVoucherId = null;
+        }
+
+        function selectVoucher(element) {
+            document.querySelectorAll('.voucher-item').forEach(item => {
+                item.classList.remove('selected');
+                item.querySelector('.voucher-item-radio').innerHTML = '';
+            });
+            
+            element.classList.add('selected');
+            element.querySelector('.voucher-item-radio').innerHTML = '✓';
+            tempVoucherId = element.dataset.id;
+        }
+
+        function confirmVoucher() {
+            selectedVoucherId = tempVoucherId;
+            
+            const voucherAction = document.getElementById('voucherAction');
+            if (selectedVoucherId) {
+                const voucher = voucherData[selectedVoucherId];
+                voucherAction.textContent = `${voucher.name} ›`;
+                voucherAction.classList.add('selected');
+            } else {
+                voucherAction.textContent = 'Select One ›';
+                voucherAction.classList.remove('selected');
+            }
+            
+            closeVoucherModal();
+            updateTotal();
+            showToast('Voucher applied successfully!');
+        }
+
+        // ========== 购物车基础功能 ==========
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll');
+            const isChecked = selectAll.classList.contains('checked');
+            
+            if (isChecked) {
+                selectAll.classList.remove('checked');
+                selectAll.innerHTML = '';
+                document.querySelectorAll('.item-checkbox').forEach(cb => {
+                    cb.classList.remove('checked');
+                    cb.innerHTML = '';
+                });
+            } else {
+                selectAll.classList.add('checked');
+                selectAll.innerHTML = '✓';
+                document.querySelectorAll('.item-checkbox').forEach(cb => {
+                    cb.classList.add('checked');
+                    cb.innerHTML = '✓';
+                });
+            }
+            updateTotal();
+        }
+
+        function toggleItem(checkbox) {
+            const isChecked = checkbox.classList.contains('checked');
+            if (isChecked) {
+                checkbox.classList.remove('checked');
+                checkbox.innerHTML = '';
+                document.getElementById('selectAll').classList.remove('checked');
+                document.getElementById('selectAll').innerHTML = '';
+            } else {
+                checkbox.classList.add('checked');
+                checkbox.innerHTML = '✓';
+            }
+            updateTotal();
+        }
+
+        function updateQty(id, change) {
+            const qtyEl = document.getElementById(`qty-${id}`);
+            let newQty = parseInt(qtyEl.textContent) + change;
+            if (newQty < 1) newQty = 1;
+            qtyEl.textContent = newQty;
+            cartData[id].qty = newQty;
+            updateTotal();
+        }
+
+        function removeItem(id) {
+            const wrapper = document.querySelector(`.cart-item-wrapper[data-id="${id}"]`);
+            wrapper.style.transform = 'translateX(-100%)';
+            wrapper.style.transition = 'transform 0.3s ease';
+            setTimeout(() => {
+                wrapper.remove();
+                delete cartData[id];
+                updateTotal();
+            }, 300);
+        }
+
+        function updateTotal() {
+            let total = 0;
+            let totalBv = 0;
+            let hasItems = false;
+            
+            document.querySelectorAll('.cart-item').forEach(item => {
+                const checkbox = item.querySelector('.item-checkbox');
+                if (checkbox.classList.contains('checked')) {
+                    const id = item.dataset.id;
+                    const data = cartData[id];
+                    if (data) {
+                        total += data.price * data.qty;
+                        totalBv += data.bv * data.qty;
+                        hasItems = true;
+                    }
+                }
+            });
+            
+            // 应用优惠券折扣
+            let discount = 0;
+            if (selectedVoucherId) {
+                discount = voucherData[selectedVoucherId].value;
+            }
+            const finalTotal = Math.max(0, total - discount);
+            
+            document.getElementById('totalPrice').textContent = `MYR ${finalTotal.toFixed(2)}`;
+            document.getElementById('totalBv').textContent = `Total BV ${totalBv.toFixed(2)}`;
+            
+            const checkoutBtn = document.getElementById('checkoutBtn');
+            if (hasItems) {
+                checkoutBtn.disabled = false;
+            } else {
+                checkoutBtn.disabled = true;
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        function goToCheckout() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const memberName = urlParams.get('name');
+            const memberId = urlParams.get('id');
+            let url = 'checkout.html';
+            if (memberName && memberId) {
+                url += `?name=${memberName}&id=${memberId}`;
+            }
+            window.location.href = url;
+        }
+
+        // ========== 左滑删除功能 ==========
+        let touchStartX = 0;
+        let touchEndX = 0;
+        let currentSwipeItem = null;
+
+        document.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+            const item = e.target.closest('.cart-item');
+            if (item) {
+                currentSwipeItem = item;
+            }
+        }, { passive: true });
+
+        document.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+
+        document.addEventListener('mousedown', function(e) {
+            touchStartX = e.screenX;
+            const item = e.target.closest('.cart-item');
+            if (item) {
+                currentSwipeItem = item;
+            }
+        }, { passive: true });
+
+        document.addEventListener('mouseup', function(e) {
+            touchEndX = e.screenX;
+            handleSwipe();
+        }, { passive: true });
+
+        function handleSwipe() {
+            if (!currentSwipeItem) return;
+            
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+            
+            if (diff > swipeThreshold) {
+                document.querySelectorAll('.cart-item.swiped').forEach(item => {
+                    if (item !== currentSwipeItem) {
+                        item.classList.remove('swiped');
+                    }
+                });
+                currentSwipeItem.classList.add('swiped');
+            }
+            else if (diff < -swipeThreshold) {
+                currentSwipeItem.classList.remove('swiped');
+            }
+            
+            currentSwipeItem = null;
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.cart-item-wrapper')) {
+                document.querySelectorAll('.cart-item.swiped').forEach(item => {
+                    item.classList.remove('swiped');
+                });
+            }
+        });
+
+        // ========== 弹窗外部点击关闭 ==========
+        document.getElementById('variantOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeVariantModal();
+            }
+        });
+
+        document.getElementById('voucherOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeVoucherModal();
+            }
+        });
+
+        // 从URL参数获取会员信息
+        const urlParams = new URLSearchParams(window.location.search);
+        const memberName = urlParams.get('name');
+        const memberId = urlParams.get('id');
+        
+        if (memberName && memberId) {
+            let name = decodeURIComponent(memberName);
+            if (name.length > 20) {
+                name = name.substring(0, 20) + '...';
+            }
+            document.getElementById('memberName').textContent = name;
+            document.getElementById('memberId').textContent = `| ${decodeURIComponent(memberId)}`;
+        }
+    </script>
+</body>
+</html>

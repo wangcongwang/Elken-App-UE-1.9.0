@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>商城</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f5f7fa;
+            color: #111827;
+            min-width: 100%;
+            overflow-x: hidden;
+            padding-bottom: 80px;
+        }
+        
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #f5f7fa;
+        }
+        
+        /* 顶部状态栏 */
+        .status-bar {
+            background-color: white;
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+        
+        /* 顶部搜索区域 */
+        .search-header {
+            background-color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .search-box {
+            flex: 1;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 10px 12px 10px 40px;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            font-size: 14px;
+            background-color: #f9fafb;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #007aff;
+            background-color: white;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+        
+        .country-selector {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            background-color: #f9fafb;
+        }
+        
+        .header-icons {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+        
+        .header-icon {
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .profile-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        
+        /* 积分和优惠券卡片 */
+        .cards-section {
+            padding: 16px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .stat-card {
+            border-radius: 16px;
+            padding: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card.prp {
+            background: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 50%, #a5f3fc 100%);
+        }
+        
+        .stat-card.voucher {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #fbcfe8 100%);
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #4b5563;
+            margin-bottom: 4px;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        
+        .stat-detail {
+            font-size: 12px;
+            font-weight: 500;
+            color: #007aff;
+            cursor: pointer;
+        }
+        
+        .stat-icon {
+            position: absolute;
+            right: 16px;
+            bottom: 16px;
+            font-size: 24px;
+            opacity: 0.8;
+        }
+        
+        /* 轮播图 */
+        .carousel-section {
+            padding: 0 16px 16px;
+        }
+        
+        .carousel-container {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        .carousel-slide {
+            width: 100%;
+            display: block;
+        }
+        
+        .carousel-dots {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+        }
+        
+        .carousel-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .carousel-dot.active {
+            background-color: white;
+            width: 20px;
+            border-radius: 4px;
+        }
+        
+        /* 标签导航 */
+        .tabs-section {
+            background-color: white;
+            padding: 12px 0;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        
+        .tabs-container {
+            display: flex;
+            overflow-x: auto;
+            gap: 24px;
+            padding: 0 16px;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .tabs-container::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .tab-item {
+            flex-shrink: 0;
+            font-size: 14px;
+            font-weight: 500;
+            color: #9ca3af;
+            cursor: pointer;
+            padding-bottom: 8px;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .tab-item.active {
+            color: #007aff;
+            border-bottom-color: #007aff;
+        }
+        
+        /* 产品网格 */
+        .products-section {
+            padding: 16px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .product-card {
+            background-color: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .product-image-container {
+            position: relative;
+            background-color: #f9fafb;
+            padding: 16px;
+        }
+        
+        .product-new-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+        
+        .product-image {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: contain;
+        }
+        
+        .product-info {
+            padding: 12px;
+        }
+        
+        .product-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        
+        .product-price {
+            font-size: 16px;
+            font-weight: 700;
+            color: #007aff;
+            margin-bottom: 4px;
+        }
+        
+        .product-bv {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+        
+        .add-to-cart-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #007aff;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .add-to-cart-btn:active {
+            background-color: #0066cc;
+            transform: scale(0.98);
+        }
+        
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 11px;
+            color: #9ca3af;
+            cursor: pointer;
+        }
+        
+        .nav-item.active {
+            color: #007aff;
+        }
+        
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 2px;
+        }
+        
+        /* 用户菜单 */
+        .user-menu-container {
+            position: relative;
+        }
+        
+        .user-menu {
+            position: absolute;
+            top: 48px;
+            right: 0;
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            min-width: 220px;
+            z-index: 200;
+            display: none;
+            overflow: hidden;
+        }
+        
+        .user-menu.open {
+            display: block;
+        }
+        
+        .user-menu-item {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .user-menu-item:hover {
+            background-color: #f9fafb;
+        }
+        
+        .user-menu-item:first-child {
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .user-menu-icon {
+            font-size: 24px;
+        }
+        
+        .user-menu-text {
+            font-size: 16px;
+            font-weight: 500;
+            color: #1f2937;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <span>9:41</span>
+            <div style="display: flex; gap: 4px; align-items: center;">
+                <span>📶</span>
+                <span>📶</span>
+                <span>🔋</span>
+            </div>
+        </div>
+        
+        <!-- 搜索头部 -->
+        <div class="search-header">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" placeholder="Search Here">
+            </div>
+            <div class="country-selector">
+                <span>🇺🇸</span>
+                <span>MY</span>
+                <span>∨</span>
+            </div>
+            <div class="header-icons">
+                <span class="header-icon">🛒</span>
+                <div class="user-menu-container">
+                    <div class="profile-avatar" id="userAvatar" onclick="toggleUserMenu()">👤</div>
+                    <div class="user-menu" id="userMenu">
+                        <div class="user-menu-item" onclick="window.location.href='my_orders.html'">
+                            <span class="user-menu-icon">📜</span>
+                            <span class="user-menu-text">My Orders</span>
+                        </div>
+                        <div class="user-menu-item" onclick="window.location.href='order_for_downline.html'">
+                            <span class="user-menu-icon">🤝</span>
+                            <span class="user-menu-text">Order for Downline</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 积分和优惠券卡片 -->
+        <div class="cards-section">
+            <div class="stat-card prp">
+                <div class="stat-label">PRP Point(s)</div>
+                <div class="stat-value">2,345</div>
+                <div class="stat-detail">View Details &gt;</div>
+                <div class="stat-icon">😎</div>
+            </div>
+            <div class="stat-card voucher">
+                <div class="stat-label">Collected Voucher(s)</div>
+                <div class="stat-value">0</div>
+                <div class="stat-detail">View Details &gt;</div>
+                <div class="stat-icon">🎟️</div>
+            </div>
+        </div>
+        
+        <!-- 轮播图 -->
+        <div class="carousel-section">
+            <div class="carousel-container">
+                <img class="carousel-slide" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=elken%20spirulina%20product%20banner%2C%20woman%20holding%20spirulina%20bottle%2C%20green%20theme%2C%20health%20product%20advertisement&image_size=landscape_16_9" alt="Banner">
+                <div class="carousel-dots">
+                    <div class="carousel-dot active"></div>
+                    <div class="carousel-dot"></div>
+                    <div class="carousel-dot"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 标签导航 -->
+        <div class="tabs-section">
+            <div class="tabs-container">
+                <div class="tab-item active">ALL</div>
+                <div class="tab-item">MRT</div>
+                <div class="tab-item">ELYSTYLE</div>
+                <div class="tab-item">BIOPURE</div>
+                <div class="tab-item">FMO</div>
+            </div>
+        </div>
+        
+        <!-- 产品网格 -->
+        <div class="products-section">
+            <div class="product-card">
+                <div class="product-image-container">
+                    <div class="product-new-badge">NEW</div>
+                    <img class="product-image" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=elken%20spirulina%20bottle%20product%20packaging%2C%20white%20bottle%20with%20green%20label&image_size=square" alt="Elken Spirulina">
+                </div>
+                <div class="product-info">
+                    <div class="product-name">Elken Spirulina</div>
+                    <div class="product-price">MYR 388.00</div>
+                    <div class="product-bv">BV 0.38</div>
+                    <button class="add-to-cart-btn">Add to Cart</button>
+                </div>
+            </div>
+            
+            <div class="product-card">
+                <div class="product-image-container">
+                    <img class="product-image" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=elfahex%2030%20softgels%20box%20product%20packaging%2C%20medical%20supplement%20box&image_size=square" alt="Elfahex 30 Softgels">
+                </div>
+                <div class="product-info">
+                    <div class="product-name">Elfahex 30 Softgels</div>
+                    <div class="product-price">MYR 388.00</div>
+                    <div class="product-bv">BV 0.38</div>
+                    <button class="add-to-cart-btn">Add to Cart</button>
+                </div>
+            </div>
+            
+            <div class="product-card">
+                <div class="product-image-container">
+                    <img class="product-image" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=ginseng%20essence%20massage%20cream%20tube%2C%20beige%20cosmetic%20tube&image_size=square" alt="Ginseng Essence Massage Cream">
+                </div>
+                <div class="product-info">
+                    <div class="product-name">Ginseng Essence Massage Cream</div>
+                    <div class="product-price">MYR 388.00</div>
+                    <div class="product-bv">BV 0.38</div>
+                    <button class="add-to-cart-btn">Add to Cart</button>
+                </div>
+            </div>
+            
+            <div class="product-card">
+                <div class="product-image-container">
+                    <img class="product-image" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=ginseng%20essence%20massage%20cream%20tube%2C%20beige%20cosmetic%20tube&image_size=square" alt="Ginseng Essence Massage Cream">
+                </div>
+                <div class="product-info">
+                    <div class="product-name">Ginseng Essence Massage Cream</div>
+                    <div class="product-price">MYR 388.00</div>
+                    <div class="product-bv">BV 0.38</div>
+                    <button class="add-to-cart-btn">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <div class="nav-item active">
+            <div class="nav-icon">🛒</div>
+            <div>商城</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon">📰</div>
+            <div>资讯中心</div>
+        </div>
+        <div class="nav-item" onclick="window.location.href='business_center.html'">
+            <div class="nav-icon">💼</div>
+            <div>事业中心</div>
+        </div>
+        <div class="nav-item" onclick="window.location.href='profile_page1.html'">
+            <div class="nav-icon">👤</div>
+            <div>个人中心</div>
+        </div>
+    </div>
+    
+    <script>
+        function toggleUserMenu() {
+            const menu = document.getElementById('userMenu');
+            menu.classList.toggle('open');
+        }
+        
+        // 点击页面其他地方关闭菜单
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('userMenu');
+            const avatar = document.getElementById('userAvatar');
+            if (!avatar.contains(event.target) && !menu.contains(event.target)) {
+                menu.classList.remove('open');
+            }
+        });
+    </script>
+</body>
+</html>

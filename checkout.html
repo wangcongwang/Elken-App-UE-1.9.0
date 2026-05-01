@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Checkout</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f5f7fa;
+            color: #111827;
+            min-width: 100%;
+            overflow-x: hidden;
+            padding-bottom: 140px;
+            position: relative;
+        }
+
+        /* 霓虹呼吸灯特效 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 6px solid transparent;
+            border-image: linear-gradient(45deg, #ff0033, #ff9900, #ffff00, #0066ff) 1;
+            filter: blur(4px);
+            animation: neonBreath 3s linear infinite alternate;
+            z-index: 100000;
+            pointer-events: none;
+        }
+
+        @keyframes neonBreath {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        .status-bar {
+            background-color: white;
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .order-header {
+            background: linear-gradient(135deg, #059669 0%, #10b981 50%, #059669 100%);
+            padding: 16px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .order-info {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .order-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 6px;
+        }
+
+        .order-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .member-name-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .member-id-text {
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .order-details {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        .close-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            margin-left: 12px;
+            position: relative;
+            z-index: 10002;
+        }
+
+        .close-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .header {
+            background-color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+
+        .back-arrow {
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+            text-align: center;
+        }
+
+        /* 配送方式切换 */
+        .delivery-tabs {
+            background-color: white;
+            padding: 12px 16px;
+            display: flex;
+            gap: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .delivery-tab {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid #e5e7eb;
+            background-color: white;
+            color: #374151;
+            transition: all 0.2s ease;
+        }
+
+        .delivery-tab.active {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            border-color: #1e3a8a;
+        }
+
+        /* 地址卡片 */
+        .address-section {
+            background-color: white;
+            margin: 12px 16px;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .address-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .address-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .address-card.selected {
+            border-color: #1e3a8a;
+            background-color: #eff6ff;
+        }
+
+        .address-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .address-recipient {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .address-edit {
+            font-size: 18px;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .address-detail {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+
+        .address-icon {
+            font-size: 16px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .add-address-btn {
+            width: 100%;
+            padding: 12px;
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            background-color: #f9fafb;
+            color: #6b7280;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .add-address-btn:hover {
+            border-color: #1e3a8a;
+            color: #1e3a8a;
+            background-color: #eff6ff;
+        }
+
+        /* 自提点信息 */
+        .self-collection-info {
+            background-color: white;
+            margin: 12px 16px;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            display: none;
+        }
+
+        .self-collection-info.active {
+            display: block;
+        }
+
+        /* 商品列表 */
+        .products-section {
+            background-color: white;
+            margin: 12px 16px;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .product-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .product-item:last-child {
+            border-bottom: none;
+        }
+
+        .product-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            background-color: #f9fafb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            flex-shrink: 0;
+        }
+
+        .product-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 6px;
+        }
+
+        .product-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            flex: 1;
+        }
+
+        .product-qty {
+            font-size: 14px;
+            color: #9ca3af;
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+
+        .product-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            background-color: #6b7280;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .product-bv {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .product-price {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        /* 优惠券选择 */
+        .voucher-section {
+            background-color: white;
+            margin: 12px 16px;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .voucher-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .voucher-icon {
+            font-size: 20px;
+        }
+
+        .voucher-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .voucher-right {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #3b82f6;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .voucher-right.selected {
+            color: #10b981;
+        }
+
+        /* 底部结算栏 */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border-top: 1px solid #e5e7eb;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        .total-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .total-label {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .total-price {
+            font-size: 24px;
+            font-weight: 700;
+            color: #10b981;
+        }
+
+        .total-bv {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .checkout-btn {
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .checkout-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* 弹窗样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-container {
+            background-color: white;
+            border-radius: 20px;
+            padding: 24px;
+            width: 100%;
+            max-width: 360px;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: modal-appear 0.3s ease-out;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        @keyframes modal-appear {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            color: #6b7280;
+            border: none;
+        }
+
+        /* 地址列表弹窗 */
+        .address-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .address-list-item {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .address-list-item.selected {
+            border-color: #1e3a8a;
+            background-color: #eff6ff;
+        }
+
+        .address-list-item .address-radio {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #d1d5db;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .address-list-item.selected .address-radio {
+            border-color: #1e3a8a;
+            background-color: #1e3a8a;
+            color: white;
+        }
+
+        /* 地址表单 */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 14px;
+            background-color: #f9fafb;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            border-color: #1e3a8a;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 14px;
+            background-color: #f9fafb;
+            outline: none;
+            resize: none;
+            min-height: 80px;
+            transition: all 0.2s ease;
+        }
+
+        .form-textarea:focus {
+            border-color: #1e3a8a;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+        }
+
+        .confirm-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 8px;
+        }
+
+        .confirm-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* 优惠券弹窗 */
+        .voucher-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .voucher-item {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .voucher-item.selected {
+            border-color: #1e3a8a;
+            background-color: #eff6ff;
+        }
+
+        .voucher-item-radio {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #d1d5db;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .voucher-item.selected .voucher-item-radio {
+            border-color: #1e3a8a;
+            background-color: #1e3a8a;
+            color: white;
+        }
+
+        .voucher-item-info {
+            flex: 1;
+        }
+
+        .voucher-item-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .voucher-item-desc {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .voucher-item-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ef4444;
+            flex-shrink: 0;
+        }
+
+        /* OTP 弹窗样式 */
+        .otp-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .otp-overlay.active {
+            display: flex;
+        }
+
+        .otp-container {
+            background-color: white;
+            border-radius: 20px;
+            padding: 24px;
+            width: 100%;
+            max-width: 320px;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: modal-appear 0.3s ease-out;
+        }
+
+        .otp-logo {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: -52px auto 16px;
+            font-size: 32px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.4);
+        }
+
+        .otp-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: none;
+            font-size: 20px;
+            color: #6b7280;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .otp-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .otp-content {
+            font-size: 14px;
+            color: #6b7280;
+            text-align: center;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .otp-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .otp-input {
+            width: 56px;
+            height: 56px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            color: #1f2937;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .otp-input:focus {
+            border-color: #1e3a8a;
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+        }
+
+        .otp-input.error {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+
+        .otp-error {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            color: #ef4444;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            padding-left: 4px;
+        }
+
+        .otp-error.show {
+            display: flex;
+        }
+
+        .otp-error-icon {
+            font-size: 16px;
+        }
+
+        .otp-resend {
+            text-align: center;
+            font-size: 14px;
+            color: #9ca3af;
+            margin-bottom: 20px;
+        }
+
+        .otp-resend.active {
+            color: #3b82f6;
+            cursor: pointer;
+        }
+
+        .otp-verify-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 12px;
+        }
+
+        .otp-verify-btn:active {
+            transform: scale(0.98);
+        }
+
+        .otp-cancel {
+            text-align: center;
+            font-size: 14px;
+            color: #3b82f6;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        /* 成功提示 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 100001;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast.show {
+            display: flex;
+            animation: toast-in 0.3s ease-out;
+        }
+
+        @keyframes toast-in {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="status-bar">
+        <span>9:41</span>
+        <div style="display: flex; gap: 4px; align-items: center;">
+            <span>📶</span>
+            <span>📶</span>
+            <span>🔋</span>
+        </div>
+    </div>
+
+    <div class="order-header">
+        <div class="order-info">
+            <div class="order-label">You are ordering for</div>
+            <div class="order-name">
+                <span class="member-name-text" id="memberName">Jonathan Doe De First/ Liew Second Name</span>
+                <span class="member-id-text" id="memberId">| 100001234</span>
+            </div>
+            <div class="order-details" id="memberDetails">Platinum Rank | Membership expires on 2027-02-21</div>
+        </div>
+        <div class="close-btn" onclick="window.location.href='mall.html'">×</div>
+    </div>
+
+    <div class="header">
+        <div class="back-arrow" onclick="window.location.href='cart.html'">←</div>
+        <div class="header-title">Checkout</div>
+        <div style="width: 24px;"></div>
+    </div>
+
+    <!-- 配送方式切换 -->
+    <div class="delivery-tabs">
+        <div class="delivery-tab active" onclick="switchDeliveryTab('delivery')">Delivery</div>
+        <div class="delivery-tab" onclick="switchDeliveryTab('self')">Self Collection</div>
+    </div>
+
+    <!-- 配送地址 -->
+    <div class="address-section" id="deliverySection">
+        <div class="address-title">Delivery Information</div>
+        <div class="address-card selected" id="currentAddress" onclick="openAddressListModal()">
+            <div class="address-header">
+                <span class="address-recipient" id="addressRecipient">Testing Account</span>
+                <span class="address-edit" onclick="event.stopPropagation(); openEditAddressModal()">✏️</span>
+            </div>
+            <div class="address-detail">
+                <span class="address-icon">📍</span>
+                <span id="addressDetail">20Jalan Test, Taman Test, Shah Alam, Malaysia, 12345</span>
+            </div>
+            <div class="address-detail">
+                <span class="address-icon">📞</span>
+                <span id="addressPhone">+60121234567</span>
+            </div>
+        </div>
+        <div class="add-address-btn" onclick="openAddAddressModal()">
+            <span>+</span>
+            <span>Add New Address</span>
+        </div>
+    </div>
+
+    <!-- 自提点信息 -->
+    <div class="self-collection-info" id="selfCollectionSection">
+        <div class="address-title">Self Collection Point</div>
+        <div class="address-card">
+            <div class="address-header">
+                <span class="address-recipient">Elken HQ Distribution Center</span>
+            </div>
+            <div class="address-detail">
+                <span class="address-icon">📍</span>
+                <span>20 Jalan Test, Taman Test, Shah Alam, Malaysia, 12345</span>
+            </div>
+            <div class="address-detail">
+                <span class="address-icon">🕐</span>
+                <span>Mon-Fri 9:00 AM - 6:00 PM</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 商品列表 -->
+    <div class="products-section" id="productsSection">
+        <!-- 商品由JS动态生成 -->
+    </div>
+
+    <!-- 优惠券选择 -->
+    <div class="voucher-section" onclick="openVoucherModal()">
+        <div class="voucher-left">
+            <span class="voucher-icon">🏷️</span>
+            <span class="voucher-label">Select Voucher</span>
+        </div>
+        <div class="voucher-right" id="voucherDisplay">
+            <span>Select One</span>
+            <span>›</span>
+        </div>
+    </div>
+
+    <!-- 底部结算栏 -->
+    <div class="bottom-bar">
+        <div class="total-info">
+            <div class="total-label">Total</div>
+            <div class="total-price" id="totalPrice">MYR 2138.00</div>
+            <div class="total-bv" id="totalBv">Total BV 136.60</div>
+        </div>
+        <button class="checkout-btn" onclick="placeOrder()">Checkout</button>
+    </div>
+
+    <!-- 地址列表弹窗 -->
+    <div class="modal-overlay" id="addressListModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title">Select Address</div>
+                <button class="modal-close" onclick="closeAddressListModal()">×</button>
+            </div>
+            <div class="address-list" id="addressList">
+                <!-- 地址列表由JS生成 -->
+            </div>
+            <button class="confirm-btn" onclick="confirmAddressSelection()" style="margin-top: 16px;">Confirm</button>
+        </div>
+    </div>
+
+    <!-- 添加/编辑地址弹窗 -->
+    <div class="modal-overlay" id="addressFormModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title" id="addressFormTitle">Add New Address</div>
+                <button class="modal-close" onclick="closeAddressFormModal()">×</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Recipient Name</label>
+                <input type="text" class="form-input" id="formRecipient" placeholder="Enter recipient name">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Phone Number</label>
+                <input type="text" class="form-input" id="formPhone" placeholder="Enter phone number">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Address</label>
+                <textarea class="form-textarea" id="formAddress" placeholder="Enter full address"></textarea>
+            </div>
+            <button class="confirm-btn" onclick="saveAddress()">Save Address</button>
+        </div>
+    </div>
+
+    <!-- 优惠券弹窗 -->
+    <div class="modal-overlay" id="voucherModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title">Select Voucher</div>
+                <button class="modal-close" onclick="closeVoucherModal()">×</button>
+            </div>
+            <div class="voucher-list" id="voucherList">
+                <div class="voucher-item selected" data-id="0" onclick="selectVoucher(this)">
+                    <div class="voucher-item-radio">✓</div>
+                    <div class="voucher-item-info">
+                        <div class="voucher-item-name">No Voucher</div>
+                        <div class="voucher-item-desc">Proceed without voucher</div>
+                    </div>
+                    <div class="voucher-item-value">-</div>
+                </div>
+                <div class="voucher-item" data-id="1" onclick="selectVoucher(this)">
+                    <div class="voucher-item-radio"></div>
+                    <div class="voucher-item-info">
+                        <div class="voucher-item-name">New Member Discount</div>
+                        <div class="voucher-item-desc">Valid for first purchase only</div>
+                    </div>
+                    <div class="voucher-item-value">-RM50</div>
+                </div>
+                <div class="voucher-item" data-id="2" onclick="selectVoucher(this)">
+                    <div class="voucher-item-radio"></div>
+                    <div class="voucher-item-info">
+                        <div class="voucher-item-name">Platinum Member Voucher</div>
+                        <div class="voucher-item-desc">Exclusive for Platinum members</div>
+                    </div>
+                    <div class="voucher-item-value">-RM100</div>
+                </div>
+                <div class="voucher-item" data-id="3" onclick="selectVoucher(this)">
+                    <div class="voucher-item-radio"></div>
+                    <div class="voucher-item-info">
+                        <div class="voucher-item-name">Birthday Month Special</div>
+                        <div class="voucher-item-desc">Valid until end of month</div>
+                    </div>
+                    <div class="voucher-item-value">-RM200</div>
+                </div>
+            </div>
+            <button class="confirm-btn" onclick="confirmVoucher()" style="margin-top: 16px;">Confirm</button>
+        </div>
+    </div>
+
+    <!-- OTP Verification 弹窗 -->
+    <div class="otp-overlay" id="otpModal">
+        <div class="otp-container">
+            <div class="otp-logo">𝓮</div>
+            <button class="otp-close" onclick="closeOTPModal()">×</button>
+            <div class="otp-title">OTP Verification</div>
+            <div class="otp-content">A 4-digit OTP has been sent to your downline. Please enter it to continue using Vouchers/PRP Vouchers.</div>
+            <div class="otp-error" id="otpError">
+                <span class="otp-error-icon">⚠️</span>
+                <span>Invalid OTP</span>
+            </div>
+            <div class="otp-inputs">
+                <input type="text" class="otp-input" maxlength="1" id="otp1" oninput="handleOTPInput(this, 1)" onkeydown="handleOTPKeydown(event, 1)">
+                <input type="text" class="otp-input" maxlength="1" id="otp2" oninput="handleOTPInput(this, 2)" onkeydown="handleOTPKeydown(event, 2)">
+                <input type="text" class="otp-input" maxlength="1" id="otp3" oninput="handleOTPInput(this, 3)" onkeydown="handleOTPKeydown(event, 3)">
+                <input type="text" class="otp-input" maxlength="1" id="otp4" oninput="handleOTPInput(this, 4)" onkeydown="handleOTPKeydown(event, 4)">
+            </div>
+            <div class="otp-resend" id="otpResend">Resend code in <span id="countdown">59</span> seconds</div>
+            <button class="otp-verify-btn" onclick="verifyOTP()">Verify</button>
+            <div class="otp-cancel" onclick="closeOTPModal()">Cancel</div>
+        </div>
+    </div>
+
+    <!-- 成功提示 -->
+    <div class="toast" id="toast">
+        <span>✓</span>
+        <span id="toastMessage">Success!</span>
+    </div>
+
+    <script>
+        // 购物车数据（从cart.html同步）
+        const cartItems = [
+            { id: 1, name: 'ELYSYLE TRICHO', qty: 2, price: 45, bv: 2.80, image: '🧴', tag: 'Repurchase' },
+            { id: 2, name: 'BIO PURE POE II', qty: 1, price: 2048, bv: 131.00, image: '💧', tag: 'Repurchase' }
+        ];
+
+        // 地址数据
+        let addresses = [
+            { id: 1, recipient: 'Testing Account', phone: '+60121234567', detail: '20Jalan Test, Taman Test, Shah Alam, Malaysia, 12345', isDefault: true }
+        ];
+
+        // 临时地址（仅本次下单有效，不保存到数据库）
+        let tempAddresses = [];
+
+        // 优惠券数据
+        const voucherData = {
+            0: { name: 'No Voucher', value: 0 },
+            1: { name: 'New Member Discount', value: 50 },
+            2: { name: 'Platinum Member Voucher', value: 100 },
+            3: { name: 'Birthday Month Special', value: 200 }
+        };
+
+        let selectedAddressId = 1;
+        let selectedVoucherId = 0;
+        let tempVoucherId = 0;
+        let editingAddressId = null;
+        let deliveryMode = 'delivery';
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            renderProducts();
+            updateTotal();
+            loadMemberInfo();
+        });
+
+        // 加载会员信息
+        function loadMemberInfo() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const memberName = urlParams.get('name');
+            const memberId = urlParams.get('id');
+            
+            if (memberName && memberId) {
+                let name = decodeURIComponent(memberName);
+                if (name.length > 20) {
+                    name = name.substring(0, 20) + '...';
+                }
+                document.getElementById('memberName').textContent = name;
+                document.getElementById('memberId').textContent = `| ${decodeURIComponent(memberId)}`;
+            }
+        }
+
+        // 切换配送方式
+        function switchDeliveryTab(mode) {
+            deliveryMode = mode;
+            document.querySelectorAll('.delivery-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (mode === 'delivery') {
+                document.getElementById('deliverySection').style.display = 'block';
+                document.getElementById('selfCollectionSection').classList.remove('active');
+            } else {
+                document.getElementById('deliverySection').style.display = 'none';
+                document.getElementById('selfCollectionSection').classList.add('active');
+            }
+        }
+
+        // 渲染商品列表
+        function renderProducts() {
+            const container = document.getElementById('productsSection');
+            let html = '';
+            
+            cartItems.forEach(item => {
+                html += `
+                    <div class="product-item">
+                        <div class="product-image">${item.image}</div>
+                        <div class="product-details">
+                            <div class="product-header">
+                                <div class="product-name">${item.name}</div>
+                                <div class="product-qty">x ${item.qty}</div>
+                            </div>
+                            <div class="product-tag">${item.tag}</div>
+                            <div class="product-bv">BV${item.bv.toFixed(2)}</div>
+                            <div class="product-price">MYR${(item.price * item.qty).toFixed(2)}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // 更新总价
+        function updateTotal() {
+            let total = 0;
+            let totalBv = 0;
+            
+            cartItems.forEach(item => {
+                total += item.price * item.qty;
+                totalBv += item.bv * item.qty;
+            });
+            
+            // 应用优惠券
+            const discount = voucherData[selectedVoucherId].value;
+            const finalTotal = Math.max(0, total - discount);
+            
+            document.getElementById('totalPrice').textContent = `MYR ${finalTotal.toFixed(2)}`;
+            document.getElementById('totalBv').textContent = `Total BV ${totalBv.toFixed(2)}`;
+        }
+
+        // ========== 地址选择弹窗 ==========
+        function openAddressListModal() {
+            renderAddressList();
+            document.getElementById('addressListModal').classList.add('active');
+        }
+
+        function closeAddressListModal() {
+            document.getElementById('addressListModal').classList.remove('active');
+        }
+
+        function renderAddressList() {
+            const container = document.getElementById('addressList');
+            const allAddresses = [...addresses, ...tempAddresses];
+            
+            let html = '';
+            allAddresses.forEach(addr => {
+                const isSelected = addr.id === selectedAddressId;
+                html += `
+                    <div class="address-list-item ${isSelected ? 'selected' : ''}" onclick="selectAddress(${addr.id})">
+                        <div class="address-radio">${isSelected ? '✓' : ''}</div>
+                        <div class="address-recipient">${addr.recipient}</div>
+                        <div class="address-detail" style="margin-top: 4px;">
+                            <span class="address-icon">📍</span>
+                            <span>${addr.detail}</span>
+                        </div>
+                        <div class="address-detail">
+                            <span class="address-icon">📞</span>
+                            <span>${addr.phone}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function selectAddress(id) {
+            selectedAddressId = id;
+            renderAddressList();
+        }
+
+        function confirmAddressSelection() {
+            const allAddresses = [...addresses, ...tempAddresses];
+            const addr = allAddresses.find(a => a.id === selectedAddressId);
+            if (addr) {
+                document.getElementById('addressRecipient').textContent = addr.recipient;
+                document.getElementById('addressDetail').textContent = addr.detail;
+                document.getElementById('addressPhone').textContent = addr.phone;
+            }
+            closeAddressListModal();
+        }
+
+        // ========== 添加/编辑地址 ==========
+        function openAddAddressModal() {
+            editingAddressId = null;
+            document.getElementById('addressFormTitle').textContent = 'Add New Address';
+            document.getElementById('formRecipient').value = '';
+            document.getElementById('formPhone').value = '';
+            document.getElementById('formAddress').value = '';
+            document.getElementById('addressFormModal').classList.add('active');
+        }
+
+        function openEditAddressModal() {
+            const allAddresses = [...addresses, ...tempAddresses];
+            const addr = allAddresses.find(a => a.id === selectedAddressId);
+            if (!addr) return;
+            
+            editingAddressId = selectedAddressId;
+            document.getElementById('addressFormTitle').textContent = 'Edit Address';
+            document.getElementById('formRecipient').value = addr.recipient;
+            document.getElementById('formPhone').value = addr.phone;
+            document.getElementById('formAddress').value = addr.detail;
+            document.getElementById('addressFormModal').classList.add('active');
+        }
+
+        function closeAddressFormModal() {
+            document.getElementById('addressFormModal').classList.remove('active');
+            editingAddressId = null;
+        }
+
+        function saveAddress() {
+            const recipient = document.getElementById('formRecipient').value.trim();
+            const phone = document.getElementById('formPhone').value.trim();
+            const detail = document.getElementById('formAddress').value.trim();
+            
+            if (!recipient || !phone || !detail) {
+                showToast('Please fill in all fields');
+                return;
+            }
+            
+            if (editingAddressId) {
+                // 编辑现有地址
+                const addr = addresses.find(a => a.id === editingAddressId);
+                if (addr) {
+                    addr.recipient = recipient;
+                    addr.phone = phone;
+                    addr.detail = detail;
+                } else {
+                    const tempAddr = tempAddresses.find(a => a.id === editingAddressId);
+                    if (tempAddr) {
+                        tempAddr.recipient = recipient;
+                        tempAddr.phone = phone;
+                        tempAddr.detail = detail;
+                    }
+                }
+            } else {
+                // 添加新地址（仅保存到临时地址，不进入数据库）
+                const newId = Date.now();
+                const newAddr = {
+                    id: newId,
+                    recipient: recipient,
+                    phone: phone,
+                    detail: detail,
+                    isTemp: true
+                };
+                tempAddresses.push(newAddr);
+                selectedAddressId = newId;
+            }
+            
+            // 更新显示
+            const allAddresses = [...addresses, ...tempAddresses];
+            const addr = allAddresses.find(a => a.id === selectedAddressId);
+            if (addr) {
+                document.getElementById('addressRecipient').textContent = addr.recipient;
+                document.getElementById('addressDetail').textContent = addr.detail;
+                document.getElementById('addressPhone').textContent = addr.phone;
+            }
+            
+            closeAddressFormModal();
+            showToast(editingAddressId ? 'Address updated' : 'New address added');
+        }
+
+        // ========== 优惠券 ==========
+        function openVoucherModal() {
+            tempVoucherId = selectedVoucherId;
+            
+            document.querySelectorAll('.voucher-item').forEach(item => {
+                item.classList.remove('selected');
+                item.querySelector('.voucher-item-radio').innerHTML = '';
+            });
+            
+            const selectedItem = document.querySelector(`.voucher-item[data-id="${selectedVoucherId}"]`);
+            if (selectedItem) {
+                selectedItem.classList.add('selected');
+                selectedItem.querySelector('.voucher-item-radio').innerHTML = '✓';
+            }
+            
+            document.getElementById('voucherModal').classList.add('active');
+        }
+
+        function closeVoucherModal() {
+            document.getElementById('voucherModal').classList.remove('active');
+            tempVoucherId = null;
+        }
+
+        function selectVoucher(element) {
+            document.querySelectorAll('.voucher-item').forEach(item => {
+                item.classList.remove('selected');
+                item.querySelector('.voucher-item-radio').innerHTML = '';
+            });
+            
+            element.classList.add('selected');
+            element.querySelector('.voucher-item-radio').innerHTML = '✓';
+            tempVoucherId = element.dataset.id;
+        }
+
+        function confirmVoucher() {
+            selectedVoucherId = tempVoucherId;
+            
+            const voucherDisplay = document.getElementById('voucherDisplay');
+            if (selectedVoucherId && selectedVoucherId !== '0') {
+                const voucher = voucherData[selectedVoucherId];
+                voucherDisplay.innerHTML = `<span>${voucher.name}</span><span>›</span>`;
+                voucherDisplay.classList.add('selected');
+            } else {
+                voucherDisplay.innerHTML = `<span>Select One</span><span>›</span>`;
+                voucherDisplay.classList.remove('selected');
+            }
+            
+            closeVoucherModal();
+            updateTotal();
+            showToast('Voucher applied');
+        }
+
+        // 下单
+        function placeOrder() {
+            // 如果使用了优惠券（非No Voucher），需要OTP验证
+            if (selectedVoucherId && selectedVoucherId !== '0' && selectedVoucherId !== 0) {
+                showOTPModal();
+                return;
+            }
+            // 未使用优惠券，直接下单
+            processOrder();
+        }
+
+        function processOrder() {
+            // 计算订单金额
+            let total = 0;
+            cartItems.forEach(item => {
+                total += item.price * item.qty;
+            });
+            const discount = voucherData[selectedVoucherId].value;
+            const finalTotal = Math.max(0, total - discount);
+
+            // 构建支付页面URL，传递订单信息
+            const urlParams = new URLSearchParams(window.location.search);
+            const memberName = urlParams.get('name');
+            const memberId = urlParams.get('id');
+            let paymentUrl = `payment.html?total=${finalTotal.toFixed(2)}&discount=${discount.toFixed(2)}`;
+            if (memberName && memberId) {
+                paymentUrl += `&name=${memberName}&id=${memberId}`;
+            }
+            window.location.href = paymentUrl;
+        }
+
+        // OTP 弹窗功能
+        let countdownTimer = null;
+        let countdownValue = 59;
+
+        function showOTPModal() {
+            document.getElementById('otpModal').classList.add('active');
+            // 重置 OTP 输入
+            document.querySelectorAll('.otp-input').forEach(input => {
+                input.value = '';
+            });
+            document.getElementById('otp1').focus();
+            // 开始倒计时
+            startCountdown();
+        }
+
+        function closeOTPModal() {
+            document.getElementById('otpModal').classList.remove('active');
+            // 清除倒计时
+            if (countdownTimer) {
+                clearInterval(countdownTimer);
+                countdownTimer = null;
+            }
+        }
+
+        function startCountdown() {
+            countdownValue = 59;
+            const countdownEl = document.getElementById('countdown');
+            const resendEl = document.getElementById('otpResend');
+
+            resendEl.classList.remove('active');
+            resendEl.onclick = null;
+
+            if (countdownTimer) {
+                clearInterval(countdownTimer);
+            }
+
+            countdownTimer = setInterval(() => {
+                countdownValue--;
+                countdownEl.textContent = countdownValue;
+
+                if (countdownValue <= 0) {
+                    clearInterval(countdownTimer);
+                    countdownTimer = null;
+                    resendEl.innerHTML = 'Resend code';
+                    resendEl.classList.add('active');
+                    resendEl.onclick = function() {
+                        resendEl.innerHTML = 'Resend code in <span id="countdown">59</span> seconds';
+                        resendEl.classList.remove('active');
+                        startCountdown();
+                    };
+                }
+            }, 1000);
+        }
+
+        function handleOTPInput(input, index) {
+            // 清除错误状态
+            clearOTPError();
+
+            // 只允许数字
+            input.value = input.value.replace(/[^0-9]/g, '');
+
+            if (input.value.length === 1) {
+                // 自动跳到下一个输入框
+                const nextInput = document.getElementById(`otp${index + 1}`);
+                if (nextInput) {
+                    nextInput.focus();
+                }
+            }
+        }
+
+        function handleOTPKeydown(event, index) {
+            if (event.key === 'Backspace') {
+                const input = document.getElementById(`otp${index}`);
+                if (input.value === '') {
+                    // 跳到上一个输入框
+                    const prevInput = document.getElementById(`otp${index - 1}`);
+                    if (prevInput) {
+                        prevInput.focus();
+                    }
+                }
+            }
+        }
+
+        function verifyOTP() {
+            const otp1 = document.getElementById('otp1').value;
+            const otp2 = document.getElementById('otp2').value;
+            const otp3 = document.getElementById('otp3').value;
+            const otp4 = document.getElementById('otp4').value;
+
+            const otp = otp1 + otp2 + otp3 + otp4;
+
+            if (otp.length !== 4) {
+                showOTPError();
+                return;
+            }
+
+            // 模拟验证 - 假设正确 OTP 是 1234
+            if (otp === '1234') {
+                closeOTPModal();
+                processOrder();
+            } else {
+                showOTPError();
+            }
+        }
+
+        function showOTPError() {
+            document.getElementById('otpError').classList.add('show');
+            document.querySelectorAll('.otp-input').forEach(input => {
+                input.classList.add('error');
+            });
+        }
+
+        function clearOTPError() {
+            document.getElementById('otpError').classList.remove('show');
+            document.querySelectorAll('.otp-input').forEach(input => {
+                input.classList.remove('error');
+            });
+        }
+
+        // 提示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // 点击弹窗外部关闭
+        document.getElementById('addressListModal').addEventListener('click', function(e) {
+            if (e.target === this) closeAddressListModal();
+        });
+
+        document.getElementById('addressFormModal').addEventListener('click', function(e) {
+            if (e.target === this) closeAddressFormModal();
+        });
+
+        document.getElementById('voucherModal').addEventListener('click', function(e) {
+            if (e.target === this) closeVoucherModal();
+        });
+
+        document.getElementById('otpModal').addEventListener('click', function(e) {
+            if (e.target === this) closeOTPModal();
+        });
+    </script>
+</body>
+</html>

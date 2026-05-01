@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Order for Member</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f5f7fa;
+            color: #111827;
+            min-width: 100%;
+            overflow-x: hidden;
+            padding-bottom: 0;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 6px solid transparent;
+            border-image: linear-gradient(45deg, #ff0033, #ff9900, #ffff00, #0066ff) 1;
+            filter: blur(4px);
+            animation: neonBreath 3s linear infinite alternate;
+            z-index: 100000;
+            pointer-events: none;
+        }
+
+        @keyframes neonBreath {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        .status-bar {
+            background-color: white;
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+            z-index: 10001;
+        }
+
+        .order-header {
+            background: linear-gradient(135deg, #059669 0%, #10b981 50%, #059669 100%);
+            padding: 16px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10000;
+        }
+
+        .order-info {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .order-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 6px;
+        }
+
+        .order-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .member-name-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .member-id-text {
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .order-details {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.75);
+            margin-top: 0;
+        }
+
+        .close-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            margin-left: 12px;
+            position: relative;
+            z-index: 10002;
+        }
+
+        .close-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 弹窗遮罩 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        /* 弹窗容器 */
+        .modal-container {
+            background-color: white;
+            border-radius: 20px;
+            padding: 24px;
+            width: 100%;
+            max-width: 320px;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: modal-appear 0.3s ease-out;
+        }
+
+        @keyframes modal-appear {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* 弹窗顶部图标 */
+        .modal-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: -52px auto 16px;
+            font-size: 28px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        /* 弹窗关闭按钮 */
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: none;
+            font-size: 20px;
+            color: #6b7280;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            color: #374151;
+        }
+
+        /* 弹窗标题 */
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        /* 弹窗内容 */
+        .modal-content {
+            font-size: 14px;
+            color: #6b7280;
+            text-align: center;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        /* 弹窗按钮 */
+        .modal-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .modal-btn:hover {
+            background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+            transform: translateY(-1px);
+        }
+
+        .modal-btn:active {
+            transform: translateY(0);
+        }
+
+        .search-header {
+            background-color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            position: relative;
+            z-index: 10;
+        }
+
+        .search-box {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 12px 10px 40px;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            font-size: 14px;
+            background-color: #f9fafb;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #007aff;
+            background-color: white;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .country-selector {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            background-color: #f9fafb;
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .header-icon {
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .cards-section {
+            padding: 16px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .stat-card {
+            border-radius: 16px;
+            padding: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card.prp {
+            background: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 50%, #a5f3fc 100%);
+        }
+
+        .stat-card.voucher {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #fbcfe8 100%);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #4b5563;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .stat-detail {
+            font-size: 12px;
+            font-weight: 500;
+            color: #007aff;
+            cursor: pointer;
+        }
+
+        .stat-icon {
+            position: absolute;
+            right: 16px;
+            bottom: 16px;
+            font-size: 24px;
+            opacity: 0.8;
+        }
+
+        .carousel-section {
+            padding: 0 16px 16px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .carousel-container {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .carousel-slide {
+            width: 100%;
+            display: block;
+        }
+
+        .banner-text {
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            padding: 40px 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .carousel-dots {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+        }
+
+        .carousel-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .carousel-dot.active {
+            background-color: white;
+            width: 20px;
+            border-radius: 4px;
+        }
+
+        .tabs-section {
+            background-color: white;
+            padding: 12px 0;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .tabs-container {
+            display: flex;
+            overflow-x: auto;
+            gap: 24px;
+            padding: 0 16px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tabs-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-item {
+            flex-shrink: 0;
+            font-size: 14px;
+            font-weight: 500;
+            color: #9ca3af;
+            cursor: pointer;
+            padding-bottom: 8px;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-item.active {
+            color: #007aff;
+            border-bottom-color: #007aff;
+        }
+
+        .products-section {
+            padding: 16px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .product-card {
+            background-color: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .product-image-container {
+            position: relative;
+            background-color: #f9fafb;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 150px;
+        }
+
+        .product-new-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+
+        .product-image {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: contain;
+        }
+
+        .product-placeholder {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 100%);
+        }
+
+        .product-info {
+            padding: 12px;
+        }
+
+        .product-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .product-price {
+            font-size: 16px;
+            font-weight: 700;
+            color: #007aff;
+            margin-bottom: 4px;
+        }
+
+        .product-bv {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+
+        .add-to-cart-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #007aff;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .add-to-cart-btn:active {
+            background-color: #0066cc;
+            transform: scale(0.98);
+        }
+
+        .add-to-cart-btn.disabled {
+            background-color: #d1d5db;
+            cursor: not-allowed;
+        }
+
+        /* OTP 弹窗样式 */
+        .otp-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .otp-overlay.active {
+            display: flex;
+        }
+
+        .otp-container {
+            background-color: white;
+            border-radius: 20px;
+            padding: 24px;
+            width: 100%;
+            max-width: 320px;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: modal-appear 0.3s ease-out;
+        }
+
+        .otp-logo {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: -52px auto 16px;
+            font-size: 32px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.4);
+        }
+
+        .otp-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: none;
+            font-size: 20px;
+            color: #6b7280;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .otp-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .otp-content {
+            font-size: 14px;
+            color: #6b7280;
+            text-align: center;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .otp-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .otp-input {
+            width: 56px;
+            height: 56px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            color: #1f2937;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .otp-input:focus {
+            border-color: #1e3a8a;
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+        }
+
+        .otp-input.error {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+
+        .otp-error {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            color: #ef4444;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            padding-left: 4px;
+        }
+
+        .otp-error.show {
+            display: flex;
+        }
+
+        .otp-error-icon {
+            font-size: 16px;
+        }
+
+        .otp-resend {
+            text-align: center;
+            font-size: 14px;
+            color: #9ca3af;
+            margin-bottom: 20px;
+        }
+
+        .otp-resend.active {
+            color: #3b82f6;
+            cursor: pointer;
+        }
+
+        .otp-verify-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 12px;
+        }
+
+        .otp-verify-btn:active {
+            transform: scale(0.98);
+        }
+
+        .otp-cancel {
+            text-align: center;
+            font-size: 14px;
+            color: #3b82f6;
+            cursor: pointer;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="status-bar">
+        <span>9:41</span>
+        <div style="display: flex; gap: 4px; align-items: center;">
+            <span>📶</span>
+            <span>📶</span>
+            <span>🔋</span>
+        </div>
+    </div>
+
+    <div class="order-header" id="orderHeader">
+        <div class="order-info">
+            <div class="order-label">You are ordering for</div>
+            <div class="order-name">
+                <span class="member-name-text" id="memberName">Jonathan Doe De First/ Liew Second Name</span>
+                <span class="member-id-text" id="memberId">| 100001234</span>
+            </div>
+            <div class="order-details" id="memberDetails">Platinum Rank | Membership expires on 2027-02-21</div>
+        </div>
+        <div class="close-btn" onclick="showExitModal()">×</div>
+    </div>
+
+    <div class="search-header">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" placeholder="Search Here">
+        </div>
+        <div class="country-selector">
+            <span>🇲🇾</span>
+            <span>MY</span>
+            <span>∨</span>
+        </div>
+        <div class="header-icons">
+            <span class="header-icon" onclick="window.location.href='cart.html'">🛒</span>
+        </div>
+    </div>
+
+    <div class="cards-section">
+        <div class="stat-card prp" onclick="window.location.href='prp_points.html'" style="cursor: pointer;">
+            <div class="stat-label">PRP Point(s)</div>
+            <div class="stat-value">2,345</div>
+            <div class="stat-detail">View Details &gt;</div>
+            <div class="stat-icon">😎</div>
+        </div>
+        <div class="stat-card voucher" onclick="showOTPModal()" style="cursor: pointer;">
+            <div class="stat-label">Collected Voucher(s)</div>
+            <div class="stat-value">0</div>
+            <div class="stat-detail">View Details &gt;</div>
+            <div class="stat-icon">🎟️</div>
+        </div>
+    </div>
+
+    <div class="carousel-section">
+        <div class="carousel-container">
+            <div class="banner-text">Elken Spirulina<br>My Health My Choice!</div>
+            <div class="carousel-dots">
+                <div class="carousel-dot active"></div>
+                <div class="carousel-dot"></div>
+                <div class="carousel-dot"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tabs-section">
+        <div class="tabs-container">
+            <div class="tab-item active">ALL</div>
+            <div class="tab-item">MRT</div>
+            <div class="tab-item">ELYSTYLE</div>
+            <div class="tab-item">BIOPURE</div>
+            <div class="tab-item">FMO</div>
+        </div>
+    </div>
+
+    <div class="products-section">
+        <div class="product-card" onclick="window.location.href='product_detail.html'" style="cursor: pointer;">
+            <div class="product-image-container">
+                <div class="product-new-badge">NEW</div>
+                <div class="product-placeholder">🌿</div>
+            </div>
+            <div class="product-info">
+                <div class="product-name">Elken Spirulina</div>
+                <div class="product-price">MYR 388.00</div>
+                <div class="product-bv">BV 0.38</div>
+                <button class="add-to-cart-btn" onclick="event.stopPropagation(); window.location.href='product_detail.html'">Add to Cart</button>
+            </div>
+        </div>
+
+        <div class="product-card" onclick="window.location.href='product_detail.html'" style="cursor: pointer;">
+            <div class="product-image-container">
+                <div class="product-placeholder">💊</div>
+            </div>
+            <div class="product-info">
+                <div class="product-name">Elfahex 30 Softgels</div>
+                <div class="product-price">MYR 388.00</div>
+                <div class="product-bv">BV 0.38</div>
+                <button class="add-to-cart-btn disabled" onclick="event.stopPropagation();">Add to Cart</button>
+            </div>
+        </div>
+
+        <div class="product-card" onclick="window.location.href='product_detail.html'" style="cursor: pointer;">
+            <div class="product-image-container">
+                <div class="product-placeholder">🧴</div>
+            </div>
+            <div class="product-info">
+                <div class="product-name">Ginseng Essence Massage Cream</div>
+                <div class="product-price">MYR 388.00</div>
+                <div class="product-bv">BV 0.38</div>
+                <button class="add-to-cart-btn" onclick="event.stopPropagation(); window.location.href='product_detail.html'">Add to Cart</button>
+            </div>
+        </div>
+
+        <div class="product-card" onclick="window.location.href='product_detail.html'" style="cursor: pointer;">
+            <div class="product-image-container">
+                <div class="product-placeholder">🧴</div>
+            </div>
+            <div class="product-info">
+                <div class="product-name">Ginseng Essence Massage Cream</div>
+                <div class="product-price">MYR 388.00</div>
+                <div class="product-bv">BV 0.38</div>
+                <button class="add-to-cart-btn" onclick="event.stopPropagation(); window.location.href='product_detail.html'">Add to Cart</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 退出确认弹窗 -->
+    <div class="modal-overlay" id="exitModal">
+        <div class="modal-container">
+            <div class="modal-icon">🔔</div>
+            <button class="modal-close" onclick="closeExitModal()">×</button>
+            <div class="modal-title">Exit Order for Downline?</div>
+            <div class="modal-content">Are you sure you want to leave this page? Your current progress may not be saved.</div>
+            <button class="modal-btn" onclick="confirmExit()">Okay</button>
+        </div>
+    </div>
+
+    <!-- OTP Verification 弹窗 -->
+    <div class="otp-overlay" id="otpModal">
+        <div class="otp-container">
+            <div class="otp-logo">𝓮</div>
+            <button class="otp-close" onclick="closeOTPModal()">×</button>
+            <div class="otp-title">OTP Verification</div>
+            <div class="otp-content">A 4-digit OTP has been sent to your downline. Please enter it to view collected vouchers.</div>
+            <div class="otp-error" id="otpError">
+                <span class="otp-error-icon">⚠️</span>
+                <span>Invalid OTP</span>
+            </div>
+            <div class="otp-inputs">
+                <input type="text" class="otp-input" maxlength="1" id="otp1" oninput="handleOTPInput(this, 1)" onkeydown="handleOTPKeydown(event, 1)">
+                <input type="text" class="otp-input" maxlength="1" id="otp2" oninput="handleOTPInput(this, 2)" onkeydown="handleOTPKeydown(event, 2)">
+                <input type="text" class="otp-input" maxlength="1" id="otp3" oninput="handleOTPInput(this, 3)" onkeydown="handleOTPKeydown(event, 3)">
+                <input type="text" class="otp-input" maxlength="1" id="otp4" oninput="handleOTPInput(this, 4)" onkeydown="handleOTPKeydown(event, 4)">
+            </div>
+            <div class="otp-resend" id="otpResend">Resend code in <span id="countdown">59</span> seconds</div>
+            <button class="otp-verify-btn" onclick="verifyOTP()">Verify</button>
+            <div class="otp-cancel" onclick="closeOTPModal()">Cancel</div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 霓虹呼吸灯特效已通过CSS实现
+            // 绿色区域默认显示完整信息，无需展开动画
+            
+            // 从URL参数获取会员信息
+            const urlParams = new URLSearchParams(window.location.search);
+            const memberName = urlParams.get('name');
+            const memberId = urlParams.get('id');
+            
+            if (memberName && memberId) {
+                let name = decodeURIComponent(memberName);
+                // 保留20个字符，超过后省略
+                if (name.length > 20) {
+                    name = name.substring(0, 20) + '...';
+                }
+                document.getElementById('memberName').textContent = name;
+                document.getElementById('memberId').textContent = `| ${decodeURIComponent(memberId)}`;
+            }
+        });
+
+        function showExitModal() {
+            document.getElementById('exitModal').classList.add('active');
+        }
+
+        function closeExitModal() {
+            document.getElementById('exitModal').classList.remove('active');
+        }
+
+        function confirmExit() {
+            window.location.href = 'mall.html';
+        }
+
+        // OTP 弹窗功能
+        let countdownTimer = null;
+        let countdownValue = 59;
+
+        function showOTPModal() {
+            document.getElementById('otpModal').classList.add('active');
+            // 重置 OTP 输入
+            document.querySelectorAll('.otp-input').forEach(input => {
+                input.value = '';
+            });
+            document.getElementById('otp1').focus();
+            // 开始倒计时
+            startCountdown();
+        }
+
+        function closeOTPModal() {
+            document.getElementById('otpModal').classList.remove('active');
+            // 清除倒计时
+            if (countdownTimer) {
+                clearInterval(countdownTimer);
+                countdownTimer = null;
+            }
+        }
+
+        function startCountdown() {
+            countdownValue = 59;
+            const countdownEl = document.getElementById('countdown');
+            const resendEl = document.getElementById('otpResend');
+
+            resendEl.classList.remove('active');
+            resendEl.onclick = null;
+
+            if (countdownTimer) {
+                clearInterval(countdownTimer);
+            }
+
+            countdownTimer = setInterval(() => {
+                countdownValue--;
+                countdownEl.textContent = countdownValue;
+
+                if (countdownValue <= 0) {
+                    clearInterval(countdownTimer);
+                    countdownTimer = null;
+                    resendEl.innerHTML = 'Resend code';
+                    resendEl.classList.add('active');
+                    resendEl.onclick = function() {
+                        resendEl.innerHTML = 'Resend code in <span id="countdown">59</span> seconds';
+                        resendEl.classList.remove('active');
+                        startCountdown();
+                    };
+                }
+            }, 1000);
+        }
+
+        function handleOTPInput(input, index) {
+            // 清除错误状态
+            clearOTPError();
+
+            // 只允许数字
+            input.value = input.value.replace(/[^0-9]/g, '');
+
+            if (input.value.length === 1) {
+                // 自动跳到下一个输入框
+                const nextInput = document.getElementById(`otp${index + 1}`);
+                if (nextInput) {
+                    nextInput.focus();
+                }
+            }
+        }
+
+        function handleOTPKeydown(event, index) {
+            if (event.key === 'Backspace') {
+                const input = document.getElementById(`otp${index}`);
+                if (input.value === '') {
+                    // 跳到上一个输入框
+                    const prevInput = document.getElementById(`otp${index - 1}`);
+                    if (prevInput) {
+                        prevInput.focus();
+                    }
+                }
+            }
+        }
+
+        function verifyOTP() {
+            const otp1 = document.getElementById('otp1').value;
+            const otp2 = document.getElementById('otp2').value;
+            const otp3 = document.getElementById('otp3').value;
+            const otp4 = document.getElementById('otp4').value;
+
+            const otp = otp1 + otp2 + otp3 + otp4;
+
+            if (otp.length !== 4) {
+                showOTPError();
+                return;
+            }
+
+            // 模拟验证 - 假设正确 OTP 是 1234
+            if (otp === '1234') {
+                alert('OTP Verified: ' + otp);
+                closeOTPModal();
+            } else {
+                showOTPError();
+            }
+        }
+
+        function showOTPError() {
+            document.getElementById('otpError').classList.add('show');
+            document.querySelectorAll('.otp-input').forEach(input => {
+                input.classList.add('error');
+            });
+        }
+
+        function clearOTPError() {
+            document.getElementById('otpError').classList.remove('show');
+            document.querySelectorAll('.otp-input').forEach(input => {
+                input.classList.remove('error');
+            });
+        }
+
+        // 点击弹窗外部关闭
+        document.getElementById('exitModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeExitModal();
+            }
+        });
+
+        document.getElementById('otpModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeOTPModal();
+            }
+        });
+    </script>
+</body>
+</html>

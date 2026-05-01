@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Payment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f5f7fa;
+            color: #111827;
+            min-width: 100%;
+            overflow-x: hidden;
+            padding-bottom: 100px;
+            position: relative;
+        }
+
+        /* 霓虹呼吸灯特效 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 6px solid transparent;
+            border-image: linear-gradient(45deg, #ff0033, #ff9900, #ffff00, #0066ff) 1;
+            filter: blur(4px);
+            animation: neonBreath 3s linear infinite alternate;
+            z-index: 100000;
+            pointer-events: none;
+        }
+
+        @keyframes neonBreath {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        .status-bar {
+            background-color: white;
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .order-header {
+            background: linear-gradient(135deg, #059669 0%, #10b981 50%, #059669 100%);
+            padding: 16px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .order-info {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .order-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 6px;
+        }
+
+        .order-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .member-name-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .member-id-text {
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .order-details {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        .close-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            margin-left: 12px;
+            position: relative;
+            z-index: 10002;
+        }
+
+        .close-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .header {
+            background-color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+
+        .back-arrow {
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+            text-align: center;
+        }
+
+        /* 支付金额卡片 */
+        .amount-card {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            margin: 16px;
+            border-radius: 20px;
+            padding: 32px 24px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(30, 58, 138, 0.3);
+        }
+
+        .amount-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 8px;
+        }
+
+        .amount-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .amount-order-id {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* 支付方式 */
+        .payment-section {
+            background-color: white;
+            margin: 12px 16px;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 16px;
+        }
+
+        .payment-method {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 12px;
+        }
+
+        .payment-method:last-child {
+            margin-bottom: 0;
+        }
+
+        .payment-method.selected {
+            border-color: #1e3a8a;
+            background-color: #eff6ff;
+        }
+
+        .payment-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .payment-icon.blue {
+            background-color: #dbeafe;
+        }
+
+        .payment-icon.green {
+            background-color: #d1fae5;
+        }
+
+        .payment-icon.orange {
+            background-color: #ffedd5;
+        }
+
+        .payment-info {
+            flex: 1;
+        }
+
+        .payment-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 2px;
+        }
+
+        .payment-desc {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .payment-radio {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #d1d5db;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .payment-method.selected .payment-radio {
+            border-color: #1e3a8a;
+            background-color: #1e3a8a;
+            color: white;
+        }
+
+        /* 订单摘要 */
+        .summary-section {
+            background-color: white;
+            margin: 12px 16px;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 14px;
+        }
+
+        .summary-row.border-top {
+            border-top: 1px solid #e5e7eb;
+            margin-top: 8px;
+            padding-top: 16px;
+        }
+
+        .summary-label {
+            color: #6b7280;
+        }
+
+        .summary-value {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .summary-value.total {
+            font-size: 18px;
+            color: #10b981;
+        }
+
+        /* 底部支付按钮 */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border-top: 1px solid #e5e7eb;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        .pay-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .pay-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* 成功提示 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 100001;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast.show {
+            display: flex;
+            animation: toast-in 0.3s ease-out;
+        }
+
+        @keyframes toast-in {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="status-bar">
+        <span>9:41</span>
+        <div style="display: flex; gap: 4px; align-items: center;">
+            <span>📶</span>
+            <span>📶</span>
+            <span>🔋</span>
+        </div>
+    </div>
+
+    <div class="order-header">
+        <div class="order-info">
+            <div class="order-label">You are ordering for</div>
+            <div class="order-name">
+                <span class="member-name-text" id="memberName">Jonathan Doe De First/ Liew Second Name</span>
+                <span class="member-id-text" id="memberId">| 100001234</span>
+            </div>
+            <div class="order-details" id="memberDetails">Platinum Rank | Membership expires on 2027-02-21</div>
+        </div>
+        <div class="close-btn" onclick="window.location.href='mall.html'">×</div>
+    </div>
+
+    <div class="header">
+        <div class="back-arrow" onclick="window.location.href='checkout.html'">←</div>
+        <div class="header-title">Payment</div>
+        <div style="width: 24px;"></div>
+    </div>
+
+    <!-- 支付金额 -->
+    <div class="amount-card">
+        <div class="amount-label">Total Amount</div>
+        <div class="amount-value" id="totalAmount">MYR 2138.00</div>
+        <div class="amount-order-id">Order ID: #ELK20250501001</div>
+    </div>
+
+    <!-- 支付方式 -->
+    <div class="payment-section">
+        <div class="section-title">Payment Method</div>
+        <div class="payment-method selected" onclick="selectPayment(this, 'card')">
+            <div class="payment-icon blue">💳</div>
+            <div class="payment-info">
+                <div class="payment-name">Credit / Debit Card</div>
+                <div class="payment-desc">Visa, Mastercard, Amex</div>
+            </div>
+            <div class="payment-radio">✓</div>
+        </div>
+        <div class="payment-method" onclick="selectPayment(this, 'fpx')">
+            <div class="payment-icon green">🏦</div>
+            <div class="payment-info">
+                <div class="payment-name">Online Banking (FPX)</div>
+                <div class="payment-desc">Maybank, CIMB, Public Bank</div>
+            </div>
+            <div class="payment-radio"></div>
+        </div>
+        <div class="payment-method" onclick="selectPayment(this, 'ewallet')">
+            <div class="payment-icon orange">📱</div>
+            <div class="payment-info">
+                <div class="payment-name">E-Wallet</div>
+                <div class="payment-desc">Touch 'n Go, GrabPay, Boost</div>
+            </div>
+            <div class="payment-radio"></div>
+        </div>
+    </div>
+
+    <!-- 订单摘要 -->
+    <div class="summary-section">
+        <div class="section-title">Order Summary</div>
+        <div class="summary-row">
+            <span class="summary-label">Subtotal</span>
+            <span class="summary-value" id="subtotal">MYR 2138.00</span>
+        </div>
+        <div class="summary-row">
+            <span class="summary-label">Shipping Fee</span>
+            <span class="summary-value">MYR 0.00</span>
+        </div>
+        <div class="summary-row">
+            <span class="summary-label">Voucher Discount</span>
+            <span class="summary-value" id="voucherDiscount">-MYR 0.00</span>
+        </div>
+        <div class="summary-row border-top">
+            <span class="summary-label">Total</span>
+            <span class="summary-value total" id="summaryTotal">MYR 2138.00</span>
+        </div>
+    </div>
+
+    <!-- 底部支付按钮 -->
+    <div class="bottom-bar">
+        <button class="pay-btn" onclick="processPayment()">Pay Now</button>
+    </div>
+
+    <!-- 成功提示 -->
+    <div class="toast" id="toast">
+        <span>✓</span>
+        <span id="toastMessage">Payment successful!</span>
+    </div>
+
+    <script>
+        let selectedPayment = 'card';
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMemberInfo();
+            loadOrderInfo();
+        });
+
+        // 加载会员信息
+        function loadMemberInfo() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const memberName = urlParams.get('name');
+            const memberId = urlParams.get('id');
+            
+            if (memberName && memberId) {
+                let name = decodeURIComponent(memberName);
+                if (name.length > 20) {
+                    name = name.substring(0, 20) + '...';
+                }
+                document.getElementById('memberName').textContent = name;
+                document.getElementById('memberId').textContent = `| ${decodeURIComponent(memberId)}`;
+            }
+        }
+
+        // 加载订单信息
+        function loadOrderInfo() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const total = urlParams.get('total') || '2138.00';
+            const discount = urlParams.get('discount') || '0';
+            
+            const finalTotal = parseFloat(total) - parseFloat(discount);
+            
+            document.getElementById('totalAmount').textContent = `MYR ${parseFloat(total).toFixed(2)}`;
+            document.getElementById('subtotal').textContent = `MYR ${parseFloat(total).toFixed(2)}`;
+            document.getElementById('voucherDiscount').textContent = `-MYR ${parseFloat(discount).toFixed(2)}`;
+            document.getElementById('summaryTotal').textContent = `MYR ${finalTotal.toFixed(2)}`;
+        }
+
+        // 选择支付方式
+        function selectPayment(element, method) {
+            selectedPayment = method;
+            document.querySelectorAll('.payment-method').forEach(pm => {
+                pm.classList.remove('selected');
+                pm.querySelector('.payment-radio').innerHTML = '';
+            });
+            element.classList.add('selected');
+            element.querySelector('.payment-radio').innerHTML = '✓';
+        }
+
+        // 处理支付
+        function processPayment() {
+            showToast('Processing payment...');
+            setTimeout(() => {
+                showToast('Payment successful!');
+                setTimeout(() => {
+                    window.location.href = 'order_for_member.html';
+                }, 1500);
+            }, 2000);
+        }
+
+        // 提示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Product Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f5f7fa;
+            color: #111827;
+            min-width: 100%;
+            overflow-x: hidden;
+            padding-bottom: 80px;
+            position: relative;
+        }
+
+        /* 霓虹呼吸灯特效 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 6px solid transparent;
+            border-image: linear-gradient(45deg, #ff0033, #ff9900, #ffff00, #0066ff) 1;
+            filter: blur(4px);
+            animation: neonBreath 3s linear infinite alternate;
+            z-index: 100000;
+            pointer-events: none;
+        }
+
+        @keyframes neonBreath {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        .status-bar {
+            background-color: white;
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+            z-index: 10001;
+        }
+
+        .order-header {
+            background: linear-gradient(135deg, #059669 0%, #10b981 50%, #059669 100%);
+            padding: 16px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10000;
+        }
+
+        .order-info {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .order-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 6px;
+        }
+
+        .order-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .order-details {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        .close-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            margin-left: 12px;
+            position: relative;
+            z-index: 10002;
+        }
+
+        .close-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .header {
+            background-color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+
+        .back-arrow {
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+            text-align: center;
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .header-icon {
+            font-size: 20px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #ef4444;
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-images {
+            background-color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+        }
+
+        .product-image-main {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            margin-bottom: 16px;
+        }
+
+        .product-image-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .image-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #d1d5db;
+        }
+
+        .image-dot.active {
+            background-color: #1e3a8a;
+            width: 20px;
+            border-radius: 4px;
+        }
+
+        .product-info-section {
+            background-color: white;
+            padding: 16px;
+            margin-top: 8px;
+        }
+
+        .product-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 12px;
+        }
+
+        .product-price-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .product-price {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .product-original-price {
+            font-size: 16px;
+            color: #9ca3af;
+            text-decoration: line-through;
+        }
+
+        .product-bv {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+
+        .product-tags {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .product-tag {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .product-tag.new {
+            background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
+            color: white;
+        }
+
+        .product-tag.bestseller {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: white;
+        }
+
+        .product-description {
+            background-color: white;
+            padding: 16px;
+            margin-top: 8px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .description-text {
+            font-size: 14px;
+            color: #4b5563;
+            line-height: 1.6;
+        }
+
+        .product-features {
+            background-color: white;
+            padding: 16px;
+            margin-top: 8px;
+        }
+
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .feature-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .feature-text {
+            flex: 1;
+        }
+
+        .feature-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 2px;
+        }
+
+        .feature-desc {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .product-specs {
+            background-color: white;
+            padding: 16px;
+            margin-top: 8px;
+        }
+
+        .spec-table {
+            width: 100%;
+        }
+
+        .spec-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .spec-label {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .spec-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .add-to-cart-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .add-to-cart-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* 底部固定栏 */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        .quantity-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: none;
+            background-color: #f3f4f6;
+            font-size: 18px;
+            font-weight: 600;
+            color: #374151;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quantity-btn:active {
+            background-color: #e5e7eb;
+        }
+
+        .quantity-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .bottom-cart-btn {
+            flex: 1;
+            padding: 12px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .bottom-cart-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* 选择规格弹窗 */
+        .variant-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .variant-overlay.active {
+            display: flex;
+        }
+
+        .variant-modal {
+            background-color: white;
+            border-radius: 20px 20px 0 0;
+            padding: 24px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slide-up 0.3s ease-out;
+        }
+
+        @keyframes slide-up {
+            0% { transform: translateY(100%); }
+            100% { transform: translateY(0); }
+        }
+
+        .variant-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            color: #6b7280;
+        }
+
+        .variant-header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .variant-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .variant-product {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .variant-product-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            flex-shrink: 0;
+        }
+
+        .variant-product-info {
+            flex: 1;
+        }
+
+        .variant-product-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .variant-product-price {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .variant-product-bv {
+            font-size: 14px;
+            color: #1e3a8a;
+            font-weight: 600;
+        }
+
+        .variant-section {
+            margin-bottom: 20px;
+        }
+
+        .variant-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .variant-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .variant-option {
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .variant-option.selected {
+            border-color: #1e3a8a;
+            background-color: #eff6ff;
+            color: #1e3a8a;
+        }
+
+        .variant-option:active {
+            transform: scale(0.95);
+        }
+
+        .confirm-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .confirm-btn:active {
+            transform: scale(0.98);
+        }
+
+        .confirm-btn:disabled {
+            background: linear-gradient(135deg, #9ca3af 0%, #d1d5db 100%);
+            cursor: not-allowed;
+        }
+
+        /* 退出确认弹窗 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-container {
+            background-color: white;
+            border-radius: 20px;
+            padding: 24px;
+            width: 100%;
+            max-width: 320px;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: modal-appear 0.3s ease-out;
+        }
+
+        @keyframes modal-appear {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: -52px auto 16px;
+            font-size: 28px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: none;
+            font-size: 20px;
+            color: #6b7280;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .modal-content {
+            font-size: 14px;
+            color: #6b7280;
+            text-align: center;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .modal-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* 成功提示 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 100001;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast.show {
+            display: flex;
+            animation: toast-in 0.3s ease-out;
+        }
+
+        @keyframes toast-in {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="status-bar">
+        <span>9:41</span>
+        <div style="display: flex; gap: 4px; align-items: center;">
+            <span>📶</span>
+            <span>📶</span>
+            <span>🔋</span>
+        </div>
+    </div>
+
+    <div class="order-header">
+        <div class="order-info">
+            <div class="order-label">You are ordering for</div>
+            <div class="order-name" id="memberName">Jonathan Doe De First/ Liew Second Name | 100001234</div>
+            <div class="order-details" id="memberDetails">Platinum Rank | Membership expires on 2027-02-21</div>
+        </div>
+        <div class="close-btn" onclick="showExitModal()">×</div>
+    </div>
+
+    <div class="header">
+        <div class="back-arrow" onclick="window.location.href='order_for_member.html'">←</div>
+        <div class="header-title">Product Details</div>
+        <div class="header-icons">
+            <div class="header-icon" onclick="window.location.href='cart.html'">
+                🛒
+                <span class="cart-badge" id="cartBadge">4</span>
+            </div>
+            <div class="header-icon">↗️</div>
+        </div>
+    </div>
+
+    <!-- 产品图片展示 -->
+    <div class="product-images">
+        <div class="product-image-main">🌿</div>
+        <div class="product-image-dots">
+            <div class="image-dot active"></div>
+            <div class="image-dot"></div>
+            <div class="image-dot"></div>
+        </div>
+    </div>
+
+    <!-- 产品基本信息 -->
+    <div class="product-info-section">
+        <div class="product-title">Elken Spirulina</div>
+        <div class="product-price-row">
+            <span class="product-price">MYR 84.00</span>
+            <span class="product-original-price">MYR 120.00</span>
+        </div>
+        <div class="product-bv">RNK BV 6.40</div>
+        <div class="product-tags">
+            <span class="product-tag new">NEW</span>
+            <span class="product-tag bestseller">BESTSELLER</span>
+        </div>
+    </div>
+
+    <!-- 产品描述 -->
+    <div class="product-description">
+        <div class="section-title">
+            <span>📝</span>
+            Product Description
+        </div>
+        <div class="description-text">
+            Elken Spirulina is a nutrient-dense superfood packed with protein, vitamins, minerals, and antioxidants. Sourced from pristine waters, our spirulina supports immune health, boosts energy levels, and promotes overall wellness. Perfect for those seeking a natural supplement to enhance their daily nutrition.
+        </div>
+    </div>
+
+    <!-- 产品特点 -->
+    <div class="product-features">
+        <div class="section-title">
+            <span>✨</span>
+            Key Benefits
+        </div>
+        <div class="feature-list">
+            <div class="feature-item">
+                <div class="feature-icon">💪</div>
+                <div class="feature-text">
+                    <div class="feature-title">Boosts Immune System</div>
+                    <div class="feature-desc">Rich in antioxidants and nutrients that support immune function</div>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">⚡</div>
+                <div class="feature-text">
+                    <div class="feature-title">Increases Energy</div>
+                    <div class="feature-desc">Natural energy boost without the crash</div>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🌱</div>
+                <div class="feature-text">
+                    <div class="feature-title">100% Natural</div>
+                    <div class="feature-desc">Pure and organic, free from artificial additives</div>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🔬</div>
+                <div class="feature-text">
+                    <div class="feature-title">Scientifically Proven</div>
+                    <div class="feature-desc">Clinically tested for purity and effectiveness</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 产品规格 -->
+    <div class="product-specs">
+        <div class="section-title">
+            <span>📋</span>
+            Product Specifications
+        </div>
+        <div class="spec-table">
+            <div class="spec-row">
+                <span class="spec-label">Brand</span>
+                <span class="spec-value">Elken</span>
+            </div>
+            <div class="spec-row">
+                <span class="spec-label">Product Name</span>
+                <span class="spec-value">Spirulina</span>
+            </div>
+            <div class="spec-row">
+                <span class="spec-label">Category</span>
+                <span class="spec-value">Health Supplement</span>
+            </div>
+            <div class="spec-row">
+                <span class="spec-label">Country of Origin</span>
+                <span class="spec-value">Japan</span>
+            </div>
+            <div class="spec-row">
+                <span class="spec-label">Shelf Life</span>
+                <span class="spec-value">24 Months</span>
+            </div>
+            <div class="spec-row">
+                <span class="spec-label">Storage</span>
+                <span class="spec-value">Keep in cool, dry place</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部固定栏 -->
+    <div class="bottom-bar">
+        <div class="quantity-control">
+            <button class="quantity-btn" onclick="decreaseQuantity()">−</button>
+            <span class="quantity-value" id="quantityValue">1</span>
+            <button class="quantity-btn" onclick="increaseQuantity()">+</button>
+        </div>
+        <button class="bottom-cart-btn" onclick="showVariantModal()">Add to Cart</button>
+    </div>
+
+    <!-- 选择规格弹窗 -->
+    <div class="variant-overlay" id="variantOverlay">
+        <div class="variant-modal">
+            <div class="variant-close" onclick="closeVariantModal()">×</div>
+            <div class="variant-header">
+                <div class="variant-title">Select Variant</div>
+            </div>
+            
+            <div class="variant-product">
+                <div class="variant-product-image">🌿</div>
+                <div class="variant-product-info">
+                    <div class="variant-product-name">Elken Spirulina</div>
+                    <div class="variant-product-price">MYR 84.00</div>
+                    <div class="variant-product-bv">RNK BV 6.40</div>
+                </div>
+            </div>
+
+            <div class="variant-section">
+                <div class="variant-section-title">Size</div>
+                <div class="variant-options">
+                    <div class="variant-option selected" onclick="selectVariant(this, 'size')">
+                        <span>✓</span> 150T
+                    </div>
+                    <div class="variant-option" onclick="selectVariant(this, 'size')">3000T</div>
+                    <div class="variant-option" onclick="selectVariant(this, 'size')">1000T</div>
+                    <div class="variant-option" onclick="selectVariant(this, 'size')">650T</div>
+                    <div class="variant-option" onclick="selectVariant(this, 'size')">350T</div>
+                </div>
+            </div>
+
+            <div class="variant-section">
+                <div class="variant-section-title">
+                    Purchase Type
+                    <span style="font-size: 16px; color: #9ca3af;">ⓘ</span>
+                </div>
+                <div class="variant-options">
+                    <div class="variant-option" onclick="selectVariant(this, 'type')">New/Repur...</div>
+                    <div class="variant-option selected" onclick="selectVariant(this, 'type')">
+                        <span>✓</span> Upgrade
+                    </div>
+                    <div class="variant-option" onclick="selectVariant(this, 'type')">AMP</div>
+                </div>
+            </div>
+
+            <button class="confirm-btn" onclick="addToCart()">Confirm</button>
+        </div>
+    </div>
+
+    <!-- 退出确认弹窗 -->
+    <div class="modal-overlay" id="exitModal">
+        <div class="modal-container">
+            <div class="modal-icon">🔔</div>
+            <button class="modal-close" onclick="closeExitModal()">×</button>
+            <div class="modal-title">Exit Order for Downline?</div>
+            <div class="modal-content">Are you sure you want to leave this page? Your current progress may not be saved.</div>
+            <button class="modal-btn" onclick="confirmExit()">Okay</button>
+        </div>
+    </div>
+
+    <!-- 成功提示 -->
+    <div class="toast" id="toast">
+        <span>✓</span>
+        <span id="toastMessage">Added to cart successfully!</span>
+    </div>
+
+    <script>
+        let selectedSize = '150T';
+        let selectedType = 'Upgrade';
+        let cartCount = 4;
+        let quantity = 1;
+
+        function showVariantModal() {
+            document.getElementById('variantOverlay').classList.add('active');
+        }
+
+        function closeVariantModal() {
+            document.getElementById('variantOverlay').classList.remove('active');
+        }
+
+        function selectVariant(element, type) {
+            const parent = element.parentElement;
+            parent.querySelectorAll('.variant-option').forEach(opt => {
+                opt.classList.remove('selected');
+                const check = opt.querySelector('span');
+                if (check) check.remove();
+            });
+            
+            element.classList.add('selected');
+            if (!element.querySelector('span')) {
+                element.insertAdjacentHTML('afterbegin', '<span>✓</span> ');
+            }
+            
+            if (type === 'size') {
+                selectedSize = element.textContent.trim().replace('✓ ', '');
+            } else {
+                selectedType = element.textContent.trim().replace('✓ ', '');
+            }
+        }
+
+        function increaseQuantity() {
+            quantity++;
+            document.getElementById('quantityValue').textContent = quantity;
+        }
+
+        function decreaseQuantity() {
+            if (quantity > 1) {
+                quantity--;
+                document.getElementById('quantityValue').textContent = quantity;
+            }
+        }
+
+        function addToCart() {
+            cartCount += quantity;
+            document.getElementById('cartBadge').textContent = cartCount;
+            closeVariantModal();
+            
+            // 显示成功提示
+            showToast(`Added ${quantity} item(s) to cart`);
+            
+            // 重置数量
+            quantity = 1;
+            document.getElementById('quantityValue').textContent = quantity;
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        function showExitModal() {
+            document.getElementById('exitModal').classList.add('active');
+        }
+
+        function closeExitModal() {
+            document.getElementById('exitModal').classList.remove('active');
+        }
+
+        function confirmExit() {
+            window.location.href = 'mall.html';
+        }
+
+        // 点击弹窗外部关闭
+        document.getElementById('variantOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeVariantModal();
+            }
+        });
+
+        // 退出弹窗外部点击关闭
+        document.getElementById('exitModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeExitModal();
+            }
+        });
+
+        // 从URL参数获取会员信息
+        const urlParams = new URLSearchParams(window.location.search);
+        const memberName = urlParams.get('name');
+        const memberId = urlParams.get('id');
+        
+        if (memberName && memberId) {
+            document.getElementById('memberName').textContent = `${decodeURIComponent(memberName)} | ${decodeURIComponent(memberId)}`;
+        }
+    </script>
+</body>
+</html>
