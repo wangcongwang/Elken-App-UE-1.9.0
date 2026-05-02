@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Downline Order</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f5f7fa;
+            color: #111827;
+            min-width: 100%;
+            overflow-x: hidden;
+            padding-bottom: 40px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 6px solid transparent;
+            border-image: linear-gradient(45deg, #ff0033, #ff9900, #ffff00, #0066ff) 1;
+            filter: blur(4px);
+            animation: neonBreath 3s linear infinite alternate;
+            z-index: 100000;
+            pointer-events: none;
+        }
+
+        @keyframes neonBreath {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        .status-bar {
+            background-color: white;
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .header {
+            background-color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .back-arrow {
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+            text-align: center;
+        }
+
+        .search-section {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            padding: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cpath d='M20 40 Q40 20 60 40 Q80 60 100 40 Q120 20 140 40 Q160 60 180 40' fill='none' stroke='rgba(59,130,246,0.1)' stroke-width='2'/%3E%3Cpath d='M20 80 Q40 60 60 80 Q80 100 100 80 Q120 60 140 80 Q160 100 180 80' fill='none' stroke='rgba(59,130,246,0.1)' stroke-width='2'/%3E%3C/svg%3E") repeat;
+            opacity: 0.5;
+        }
+
+        .search-input-container {
+            position: relative;
+            z-index: 1;
+            background-color: white;
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .search-icon {
+            font-size: 18px;
+            color: #9ca3af;
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            color: #374151;
+        }
+
+        .search-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .selected-downline {
+            background-color: white;
+            margin: 12px 16px;
+            border-radius: 12px;
+            padding: 12px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .selected-downline.active {
+            display: flex;
+        }
+
+        .downline-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .downline-info {
+            flex: 1;
+        }
+
+        .downline-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .downline-id {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .remove-downline {
+            font-size: 18px;
+            color: #9ca3af;
+            cursor: pointer;
+        }
+
+        .search-btn {
+            margin: 0 16px 12px;
+            padding: 10px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: none;
+        }
+
+        .search-btn.active {
+            display: block;
+        }
+
+        .tabs-container {
+            background-color: white;
+            padding: 0 16px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            gap: 0;
+        }
+
+        .tab {
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #9ca3af;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab.active {
+            color: #1e3a8a;
+            border-bottom-color: #1e3a8a;
+            font-weight: 600;
+        }
+
+        .filter-section {
+            background-color: white;
+            padding: 12px 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .filter-dropdown {
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #6b7280;
+            background-color: #f9fafb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            width: fit-content;
+        }
+
+        .order-list {
+            padding: 16px;
+        }
+
+        .order-card {
+            background-color: white;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .order-card:active {
+            transform: scale(0.98);
+        }
+
+        .order-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .order-user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .order-user-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .order-user-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .order-id {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+        .order-status {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .order-status.pending {
+            color: #d97706;
+        }
+
+        .order-status.completed {
+            color: #059669;
+        }
+
+        .order-status.cancelled {
+            color: #dc2626;
+        }
+
+        .order-content {
+            display: flex;
+            gap: 12px;
+        }
+
+        .order-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            background-color: #f9fafb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            flex-shrink: 0;
+        }
+
+        .order-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .order-product-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .order-bv {
+            font-size: 12px;
+            color: #059669;
+            font-weight: 500;
+        }
+
+        .order-qty {
+            font-size: 12px;
+            color: #9ca3af;
+            flex-shrink: 0;
+        }
+
+        .order-price {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-top: 4px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9ca3af;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .empty-text {
+            font-size: 14px;
+        }
+
+        /* 弹窗样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-container {
+            background-color: white;
+            border-radius: 24px;
+            padding: 24px 24px 32px;
+            width: 100%;
+            max-width: 320px;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: modal-appear 0.3s ease-out;
+        }
+
+        @keyframes modal-appear {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: -56px auto 20px;
+            font-size: 32px;
+            color: white;
+            box-shadow: 0 4px 16px rgba(5, 150, 105, 0.4);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            font-size: 24px;
+            color: #9ca3af;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #111827;
+            text-align: center;
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        .modal-content {
+            font-size: 15px;
+            color: #6b7280;
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .modal-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .modal-btn:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+    <div class="status-bar">
+        <span>9:41</span>
+        <div style="display: flex; gap: 4px; align-items: center;">
+            <span>📶</span>
+            <span>📶</span>
+            <span>🔋</span>
+        </div>
+    </div>
+
+    <div class="header">
+        <div class="back-arrow" onclick="history.back()">←</div>
+        <div class="header-title">Downline Order</div>
+        <div style="width: 24px;"></div>
+    </div>
+
+    <!-- 搜索区域 -->
+    <div class="search-section">
+        <div class="search-input-container">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" id="searchInput" placeholder="Insert Elken id or name" oninput="handleSearch()">
+        </div>
+    </div>
+
+    <!-- 搜索结果下拉 -->
+    <div id="searchResults" style="background-color: white; margin: 0 16px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: none; position: relative; z-index: 10;">
+        <div class="p-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50" onclick="selectDownline('Jonathan doe le neverdermy', '1234567')">
+            <div style="font-size: 12px; color: #6b7280;">Downline Name:</div>
+            <div style="font-size: 14px; font-weight: 600; color: #1f2937;">Jonathan doe le neverdermy</div>
+            <div style="font-size: 12px; color: #6b7280;">ID: 1234567</div>
+        </div>
+    </div>
+
+    <!-- 已选下线信息 -->
+    <div class="selected-downline" id="selectedDownline">
+        <div class="downline-avatar">J</div>
+        <div class="downline-info">
+            <div class="downline-name" id="selectedName">Jonathan doe le neverdermy</div>
+            <div class="downline-id" id="selectedId">ID: 1234567</div>
+        </div>
+        <span class="remove-downline" onclick="removeDownline()">×</span>
+    </div>
+
+    <!-- 状态标签 -->
+    <div class="tabs-container">
+        <div class="tab active" onclick="switchTab(this, 'all')">ALL</div>
+        <div class="tab" onclick="switchTab(this, 'completed')">Completed</div>
+        <div class="tab" onclick="switchTab(this, 'pending')">Pending</div>
+        <div class="tab" onclick="switchTab(this, 'cancelled')">Cancelled</div>
+    </div>
+
+    <!-- 筛选器 -->
+    <div class="filter-section">
+        <div class="filter-dropdown">
+            <span>Pay cycle</span>
+            <span>▼</span>
+        </div>
+    </div>
+
+    <!-- 订单列表 -->
+    <div class="order-list" id="orderList">
+        <!-- 未选择下线时显示空状态 -->
+        <div class="empty-state" id="emptyState">
+            <div class="empty-icon">📋</div>
+            <div class="empty-text">Please search for a downline to view orders</div>
+        </div>
+
+        <!-- 订单列表（默认隐藏） -->
+        <div id="ordersContainer" style="display: none;">
+            <!-- Pending 订单 -->
+            <div class="order-card" onclick="window.location.href='order_detail.html?hideActions=true'">
+                <div class="order-card-header">
+                    <div class="order-user-info">
+                        <div class="order-user-icon">👤</div>
+                        <div>
+                            <div class="order-user-name">Downline</div>
+                            <div class="order-id">202409102343234</div>
+                        </div>
+                    </div>
+                    <div class="order-status pending">Pending</div>
+                </div>
+                <div class="order-content">
+                    <div class="order-image">💊</div>
+                    <div class="order-details">
+                        <div class="order-product-name">Elken Spirulina 650 Tablets</div>
+                        <div class="order-bv">
+                            <span style="background: #059669; color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-right: 4px;">AMP</span>
+                            AMP BV 36.00
+                        </div>
+                        <div class="order-price">RM3588</div>
+                    </div>
+                    <div class="order-qty">x1</div>
+                </div>
+            </div>
+
+            <!-- Completed 订单 -->
+            <div class="order-card" onclick="window.location.href='order_detail.html?hideActions=true'">
+                <div class="order-card-header">
+                    <div class="order-user-info">
+                        <div class="order-user-icon">👤</div>
+                        <div>
+                            <div class="order-user-name">Downline</div>
+                            <div class="order-id">202409102343235</div>
+                        </div>
+                    </div>
+                    <div class="order-status completed">Completed</div>
+                </div>
+                <div class="order-content">
+                    <div class="order-image">📦</div>
+                    <div class="order-details">
+                        <div class="order-product-name">Immune Booster Bundle</div>
+                        <div class="order-bv">
+                            <span style="color: #059669; font-weight: 600;">BV 116.00</span>
+                        </div>
+                        <div class="order-price">RM1885</div>
+                    </div>
+                    <div class="order-qty">x1</div>
+                </div>
+            </div>
+
+            <!-- Cancelled 订单 -->
+            <div class="order-card" onclick="window.location.href='order_detail.html?hideActions=true'">
+                <div class="order-card-header">
+                    <div class="order-user-info">
+                        <div class="order-user-icon">👤</div>
+                        <div>
+                            <div class="order-user-name">Downline</div>
+                            <div class="order-id">202409102343236</div>
+                        </div>
+                    </div>
+                    <div class="order-status cancelled">Cancelled</div>
+                </div>
+                <div class="order-content">
+                    <div class="order-image">🧴</div>
+                    <div class="order-details">
+                        <div class="order-product-name">Ginseng Essence Massage Cream</div>
+                        <div class="order-bv">
+                            <span style="color: #059669; font-weight: 600;">BV 24.50</span>
+                        </div>
+                        <div class="order-price">RM688</div>
+                    </div>
+                    <div class="order-qty">x2</div>
+                </div>
+            </div>
+
+            <!-- Pending 订单 2 -->
+            <div class="order-card" onclick="window.location.href='order_detail.html?hideActions=true'">
+                <div class="order-card-header">
+                    <div class="order-user-info">
+                        <div class="order-user-icon">👤</div>
+                        <div>
+                            <div class="order-user-name">Downline</div>
+                            <div class="order-id">202409102343237</div>
+                        </div>
+                    </div>
+                    <div class="order-status pending">Pending</div>
+                </div>
+                <div class="order-content">
+                    <div class="order-image">💉</div>
+                    <div class="order-details">
+                        <div class="order-product-name">Elken Bio Pure Cleanser</div>
+                        <div class="order-bv">
+                            <span style="background: #059669; color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-right: 4px;">AMP</span>
+                            AMP BV 48.00
+                        </div>
+                        <div class="order-price">RM2188</div>
+                    </div>
+                    <div class="order-qty">x1</div>
+                </div>
+            </div>
+
+            <!-- Completed 订单 2 -->
+            <div class="order-card" onclick="window.location.href='order_detail.html?hideActions=true'">
+                <div class="order-card-header">
+                    <div class="order-user-info">
+                        <div class="order-user-icon"></div>
+                        <div>
+                            <div class="order-user-name">Downline</div>
+                            <div class="order-id">202409102343238</div>
+                        </div>
+                    </div>
+                    <div class="order-status completed">Completed</div>
+                </div>
+                <div class="order-content">
+                    <div class="order-image">🧪</div>
+                    <div class="order-details">
+                        <div class="order-product-name">Elfahex 30 Softgels</div>
+                        <div class="order-bv">
+                            <span style="color: #059669; font-weight: 600;">BV 18.20</span>
+                        </div>
+                        <div class="order-price">RM568</div>
+                    </div>
+                    <div class="order-qty">x3</div>
+                </div>
+            </div>
+
+            <!-- Shipped 订单 -->
+            <div class="order-card" onclick="window.location.href='order_detail.html?hideActions=true'">
+                <div class="order-card-header">
+                    <div class="order-user-info">
+                        <div class="order-user-icon">👤</div>
+                        <div>
+                            <div class="order-user-name">Downline</div>
+                            <div class="order-id">202409102343239</div>
+                        </div>
+                    </div>
+                    <div class="order-status completed">Shipped</div>
+                </div>
+                <div class="order-content">
+                    <div class="order-image"></div>
+                    <div class="order-details">
+                        <div class="order-product-name">Elysyle Charms Panties M (2PCS)</div>
+                        <div class="order-bv">
+                            <span style="background: #059669; color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-right: 4px;">AMP</span>
+                            AMP BV 46.50
+                        </div>
+                        <div class="order-price">RM1495</div>
+                    </div>
+                    <div class="order-qty">x5</div>
+                </div>
+            </div>
+
+            <!-- Pending 订单 3 -->
+            <div class="order-card" onclick="window.location.href='order_detail.html?hideActions=true'">
+                <div class="order-card-header">
+                    <div class="order-user-info">
+                        <div class="order-user-icon"></div>
+                        <div>
+                            <div class="order-user-name">Downline</div>
+                            <div class="order-id">202409102343240</div>
+                        </div>
+                    </div>
+                    <div class="order-status pending">Pending</div>
+                </div>
+                <div class="order-content">
+                    <div class="order-image">🧴</div>
+                    <div class="order-details">
+                        <div class="order-product-name">Elken Spirulina Power+ Powder</div>
+                        <div class="order-bv">
+                            <span style="color: #059669; font-weight: 600;">BV 32.00</span>
+                        </div>
+                        <div class="order-price">RM288</div>
+                    </div>
+                    <div class="order-qty">x4</div>
+                </div>
+            </div>
+
+            <!-- Cancelled 订单 2 -->
+            <div class="order-card" onclick="window.location.href='order_detail.html?hideActions=true'">
+                <div class="order-card-header">
+                    <div class="order-user-info">
+                        <div class="order-user-icon"></div>
+                        <div>
+                            <div class="order-user-name">Downline</div>
+                            <div class="order-id">202409102343241</div>
+                        </div>
+                    </div>
+                    <div class="order-status cancelled">Cancelled</div>
+                </div>
+                <div class="order-content">
+                    <div class="order-image">💉</div>
+                    <div class="order-details">
+                        <div class="order-product-name">Elken Bio Pure Cleanser</div>
+                        <div class="order-bv">
+                            <span style="color: #059669; font-weight: 600;">BV 28.50</span>
+                        </div>
+                        <div class="order-price">RM888</div>
+                    </div>
+                    <div class="order-qty">x2</div>
+                </div>
+            </div>
+
+            <!-- Completed 订单 3 -->
+            <div class="order-card" onclick="window.location.href='order_detail.html?hideActions=true'">
+                <div class="order-card-header">
+                    <div class="order-user-info">
+                        <div class="order-user-icon">👤</div>
+                        <div>
+                            <div class="order-user-name">Downline</div>
+                            <div class="order-id">202409102343242</div>
+                        </div>
+                    </div>
+                    <div class="order-status completed">Completed</div>
+                </div>
+                <div class="order-content">
+                    <div class="order-image">💊</div>
+                    <div class="order-details">
+                        <div class="order-product-name">Ginseng Essence Massage Cream</div>
+                        <div class="order-bv">
+                            <span style="background: #059669; color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-right: 4px;">AMP</span>
+                            AMP BV 24.50
+                        </div>
+                        <div class="order-price">RM688</div>
+                    </div>
+                    <div class="order-qty">x1</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedDownlineData = null;
+
+        function handleSearch() {
+            const input = document.getElementById('searchInput').value;
+            const results = document.getElementById('searchResults');
+            
+            if (input.length > 0) {
+                results.style.display = 'block';
+            } else {
+                results.style.display = 'none';
+            }
+        }
+
+        function selectDownline(name, id) {
+            selectedDownlineData = { name, id };
+            
+            document.getElementById('searchResults').style.display = 'none';
+            document.getElementById('searchInput').value = '';
+            
+            document.getElementById('selectedName').textContent = name;
+            document.getElementById('selectedId').textContent = `ID: ${id}`;
+            document.getElementById('selectedDownline').classList.add('active');
+            
+            // 显示订单
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('ordersContainer').style.display = 'block';
+        }
+
+        function removeDownline() {
+            selectedDownlineData = null;
+            document.getElementById('selectedDownline').classList.remove('active');
+            
+            // 隐藏订单，显示空状态
+            document.getElementById('emptyState').style.display = 'block';
+            document.getElementById('ordersContainer').style.display = 'none';
+        }
+
+        function switchTab(tab, type) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+        }
+
+        // 点击外部关闭搜索结果
+        document.addEventListener('click', function(e) {
+            const results = document.getElementById('searchResults');
+            const input = document.getElementById('searchInput');
+            if (!results.contains(e.target) && e.target !== input) {
+                results.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -62,12 +62,16 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            max-width: 100%;
+            overflow: hidden;
         }
 
         .order-info {
             display: flex;
             flex-direction: column;
             flex: 1;
+            min-width: 0;
+            max-width: calc(100% - 40px);
         }
 
         .order-label {
@@ -84,6 +88,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            overflow: hidden;
         }
 
         .member-name-text {
@@ -92,6 +97,7 @@
             text-overflow: ellipsis;
             min-width: 0;
             flex: 1;
+            max-width: 100%;
         }
 
         .member-id-text {
@@ -102,6 +108,9 @@
         .order-details {
             font-size: 13px;
             color: rgba(255, 255, 255, 0.75);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .close-btn {
@@ -461,6 +470,24 @@
             transform: scale(0.98);
         }
 
+        .payment-link-btn {
+            padding: 14px 24px;
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-right: 8px;
+            white-space: nowrap;
+        }
+
+        .payment-link-btn:active {
+            transform: scale(0.98);
+        }
+
         /* 弹窗样式 */
         .modal-overlay {
             position: fixed;
@@ -482,8 +509,8 @@
 
         .modal-container {
             background-color: white;
-            border-radius: 20px;
-            padding: 24px;
+            border-radius: 24px;
+            padding: 24px 24px 32px;
             width: 100%;
             max-width: 360px;
             position: relative;
@@ -906,7 +933,18 @@
             </div>
             <div class="order-details" id="memberDetails">Platinum Rank | Membership expires on 2027-02-21</div>
         </div>
-        <div class="close-btn" onclick="window.location.href='mall.html'">×</div>
+        <div class="close-btn" onclick="showExitModal()">×</div>
+    </div>
+
+    <!-- 退出确认弹窗 -->
+    <div class="modal-overlay" id="exitModal">
+        <div class="modal-container">
+            <div class="modal-icon">🔔</div>
+            <button class="modal-close" onclick="closeExitModal()">×</button>
+            <div class="modal-title">Exit Order for Downline?</div>
+            <div class="modal-content">Are you sure you want to leave this page? Your current progress may not be saved.</div>
+            <button class="modal-btn" onclick="confirmExit()">Okay</button>
+        </div>
     </div>
 
     <div class="header">
@@ -986,7 +1024,10 @@
             <div class="total-price" id="totalPrice">MYR 2138.00</div>
             <div class="total-bv" id="totalBv">Total BV 136.60</div>
         </div>
-        <button class="checkout-btn" onclick="placeOrder()">Checkout</button>
+        <div style="display: flex; gap: 8px;">
+            <button class="payment-link-btn" onclick="showPaymentLinkModal()">Payment Link</button>
+            <button class="checkout-btn" onclick="placeOrder()">Check Out</button>
+        </div>
     </div>
 
     <!-- 地址列表弹窗 -->
@@ -1098,6 +1139,25 @@
     <div class="toast" id="toast">
         <span>✓</span>
         <span id="toastMessage">Success!</span>
+    </div>
+
+    <!-- Payment Link 二维码弹窗 -->
+    <div class="modal-overlay" id="paymentLinkModal">
+        <div class="modal-container" style="text-align: center; padding: 32px 24px;">
+            <div class="modal-icon" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); box-shadow: 0 4px 16px rgba(5, 150, 105, 0.4);">🔔</div>
+            <button class="modal-close" onclick="closePaymentLinkModal()">×</button>
+            <div style="font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 8px;">Scan the QR code</div>
+            <div style="font-size: 13px; color: #6b7280; margin-bottom: 20px;">Or copy the link and share it with your downline to proceed with the payment.</div>
+            <div style="width: 180px; height: 180px; background-color: #f9fafb; border-radius: 16px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; border: 2px solid #e5e7eb;">
+                <div style="font-size: 80px; line-height: 1;">📱</div>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 24px;">
+                <span style="font-size: 16px; color: #6b7280;">🔗</span>
+                <span style="font-size: 13px; color: #3b82f6; word-break: break-all;">https://api-staging.pay.asia/...</span>
+            </div>
+            <button class="modal-btn" onclick="copyPaymentLink()" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);">Copy URL</button>
+            <button class="modal-btn" onclick="continuePayment()" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); margin-top: 12px;">Continue</button>
+        </div>
     </div>
 
     <script>
@@ -1569,6 +1629,48 @@
 
         document.getElementById('otpModal').addEventListener('click', function(e) {
             if (e.target === this) closeOTPModal();
+        });
+
+        // 退出确认弹窗
+        function showExitModal() {
+            document.getElementById('exitModal').classList.add('active');
+        }
+
+        function closeExitModal() {
+            document.getElementById('exitModal').classList.remove('active');
+        }
+
+        function confirmExit() {
+            window.location.href = 'mall.html';
+        }
+
+        document.getElementById('exitModal').addEventListener('click', function(e) {
+            if (e.target === this) closeExitModal();
+        });
+
+        // Payment Link 弹窗
+        function showPaymentLinkModal() {
+            document.getElementById('paymentLinkModal').classList.add('active');
+        }
+
+        function closePaymentLinkModal() {
+            document.getElementById('paymentLinkModal').classList.remove('active');
+        }
+
+        function copyPaymentLink() {
+            navigator.clipboard.writeText('https://api-staging.pay.asia/...').then(() => {
+                showToast('Payment link copied!');
+            }).catch(() => {
+                showToast('Failed to copy link');
+            });
+        }
+
+        function continuePayment() {
+            window.location.href = 'order_detail.html';
+        }
+
+        document.getElementById('paymentLinkModal').addEventListener('click', function(e) {
+            if (e.target === this) closePaymentLinkModal();
         });
     </script>
 </body>

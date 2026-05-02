@@ -62,12 +62,16 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            max-width: 100%;
+            overflow: hidden;
         }
 
         .order-info {
             display: flex;
             flex-direction: column;
             flex: 1;
+            min-width: 0;
+            max-width: calc(100% - 40px);
         }
 
         .order-label {
@@ -84,6 +88,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            overflow: hidden;
         }
 
         .member-name-text {
@@ -92,6 +97,7 @@
             text-overflow: ellipsis;
             min-width: 0;
             flex: 1;
+            max-width: 100%;
         }
 
         .member-id-text {
@@ -102,6 +108,9 @@
         .order-details {
             font-size: 13px;
             color: rgba(255, 255, 255, 0.75);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .close-btn {
@@ -120,6 +129,105 @@
             margin-left: 12px;
             position: relative;
             z-index: 10002;
+        }
+
+        /* 弹窗样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-container {
+            background-color: white;
+            border-radius: 24px;
+            padding: 24px 24px 32px;
+            width: 100%;
+            max-width: 320px;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: modal-appear 0.3s ease-out;
+        }
+
+        @keyframes modal-appear {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: -56px auto 20px;
+            font-size: 32px;
+            color: white;
+            box-shadow: 0 4px 16px rgba(5, 150, 105, 0.4);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: none;
+            font-size: 20px;
+            color: #6b7280;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .modal-content {
+            font-size: 14px;
+            color: #6b7280;
+            text-align: center;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .modal-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .modal-btn:hover {
+            background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+            transform: translateY(-1px);
         }
 
         .close-btn:hover {
@@ -588,7 +696,18 @@
             </div>
             <div class="order-details" id="memberDetails">Platinum Rank | Membership expires on 2027-02-21</div>
         </div>
-        <div class="close-btn" onclick="window.location.href='mall.html'">×</div>
+        <div class="close-btn" onclick="showExitModal()">×</div>
+    </div>
+
+    <!-- 退出确认弹窗 -->
+    <div class="modal-overlay" id="exitModal">
+        <div class="modal-container">
+            <div class="modal-icon">🔔</div>
+            <button class="modal-close" onclick="closeExitModal()">×</button>
+            <div class="modal-title">Exit Order for Downline?</div>
+            <div class="modal-content">Are you sure you want to leave this page? Your current progress may not be saved.</div>
+            <button class="modal-btn" onclick="confirmExit()">Okay</button>
+        </div>
     </div>
 
     <div class="header">
@@ -841,6 +960,25 @@
             document.getElementById('memberName').textContent = name;
             document.getElementById('memberId').textContent = `| ${decodeURIComponent(memberId)}`;
         }
+
+        // 退出确认弹窗
+        function showExitModal() {
+            document.getElementById('exitModal').classList.add('active');
+        }
+
+        function closeExitModal() {
+            document.getElementById('exitModal').classList.remove('active');
+        }
+
+        function confirmExit() {
+            window.location.href = 'mall.html';
+        }
+
+        document.getElementById('exitModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeExitModal();
+            }
+        });
     </script>
 </body>
 </html>

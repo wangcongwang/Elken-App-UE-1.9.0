@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Order Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f5f7fa;
+            color: #111827;
+            min-width: 100%;
+            overflow-x: hidden;
+            padding-bottom: 80px;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 6px solid transparent;
+            border-image: linear-gradient(45deg, #ff0033, #ff9900, #ffff00, #0066ff) 1;
+            filter: blur(4px);
+            animation: neonBreath 3s linear infinite alternate;
+            z-index: 100000;
+            pointer-events: none;
+        }
+
+        @keyframes neonBreath {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        .status-bar {
+            background-color: white;
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .order-header {
+            background: linear-gradient(135deg, #059669 0%, #10b981 50%, #059669 100%);
+            padding: 16px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        .order-info {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 0;
+            max-width: calc(100% - 40px);
+        }
+
+        .order-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 6px;
+        }
+
+        .order-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow: hidden;
+        }
+
+        .member-name-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+            flex: 1;
+            max-width: 100%;
+        }
+
+        .member-id-text {
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .order-details {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.75);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .close-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            margin-left: 12px;
+            position: relative;
+            z-index: 10002;
+        }
+
+        .close-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .header {
+            background-color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .back-arrow {
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+            text-align: center;
+        }
+
+        .order-status-card {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            margin: 16px;
+            border-radius: 20px;
+            padding: 24px 16px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .order-status-card.pending {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        }
+
+        .order-status-card.completed {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        }
+
+        .status-label {
+            font-size: 24px;
+            font-weight: 700;
+            color: #374151;
+            position: relative;
+            z-index: 1;
+        }
+
+        .order-status-card.pending .status-label {
+            color: #92400e;
+        }
+
+        .order-status-card.completed .status-label {
+            color: #065f46;
+        }
+
+        .info-card {
+            background-color: white;
+            margin: 12px 16px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .info-section {
+            padding: 16px;
+        }
+
+        .info-section + .info-section {
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .info-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 12px;
+        }
+
+        .delivery-detail {
+            font-size: 13px;
+            color: #4b5563;
+            line-height: 1.6;
+        }
+
+        .delivery-icon {
+            font-size: 16px;
+            margin-right: 8px;
+        }
+
+        .product-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .product-item:last-child {
+            border-bottom: none;
+        }
+
+        .product-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            background-color: #f9fafb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            flex-shrink: 0;
+        }
+
+        .product-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .product-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .product-variant {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+
+        .product-badges {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-repurchase {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+        }
+
+        .badge-bv {
+            color: #059669;
+            font-weight: 600;
+        }
+
+        .badge-price {
+            color: #1f2937;
+            font-weight: 600;
+        }
+
+        .product-qty {
+            font-size: 13px;
+            color: #9ca3af;
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+
+        .amount-section {
+            padding: 16px;
+        }
+
+        .amount-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .amount-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+        }
+
+        .amount-label {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .amount-value {
+            font-size: 14px;
+            color: #1f2937;
+        }
+
+        .amount-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 0;
+            margin-top: 8px;
+            border-top: 2px solid #e5e7eb;
+        }
+
+        .amount-total-label {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .amount-total-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .bv-section {
+            padding: 16px;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .bv-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .bv-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .bv-label {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .bv-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #059669;
+        }
+
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border-top: 1px solid #e5e7eb;
+            padding: 12px 16px;
+            display: flex;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-download-receipt {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+        }
+
+        .btn-payment-link {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+        }
+
+        .btn-make-payment {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* 弹窗样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-container {
+            background-color: white;
+            border-radius: 24px;
+            padding: 24px 24px 32px;
+            width: 100%;
+            max-width: 320px;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: modal-appear 0.3s ease-out;
+        }
+
+        @keyframes modal-appear {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: -56px auto 20px;
+            font-size: 32px;
+            color: white;
+            box-shadow: 0 4px 16px rgba(5, 150, 105, 0.4);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            font-size: 24px;
+            color: #9ca3af;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #111827;
+            text-align: center;
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        .modal-content {
+            font-size: 15px;
+            color: #6b7280;
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .modal-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .modal-btn:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+    <div class="status-bar">
+        <span>5:37</span>
+        <div style="display: flex; gap: 4px; align-items: center;">
+            <span>📶</span>
+            <span>📶</span>
+            <span>🔋</span>
+        </div>
+    </div>
+
+    <div class="order-header" id="orderHeader">
+        <div class="order-info">
+            <div class="order-label">You are ordering for</div>
+            <div class="order-name">
+                <span class="member-name-text" id="memberName">Jonathan Doe De First/ Liew Second Name</span>
+                <span class="member-id-text" id="memberId">| 100001234</span>
+            </div>
+            <div class="order-details" id="memberDetails">Platinum Rank | Membership expires on 2027-02-21</div>
+        </div>
+        <div class="close-btn" onclick="showExitModal()">×</div>
+    </div>
+
+    <!-- 退出确认弹窗 -->
+    <div class="modal-overlay" id="exitModal">
+        <div class="modal-container">
+            <div class="modal-icon">🔔</div>
+            <button class="modal-close" onclick="closeExitModal()">×</button>
+            <div class="modal-title">Exit Order for Downline?</div>
+            <div class="modal-content">Are you sure you want to leave this page? Your current progress may not be saved.</div>
+            <button class="modal-btn" onclick="confirmExit()">Okay</button>
+        </div>
+    </div>
+
+    <div class="header">
+        <div class="back-arrow" onclick="goBack()">←</div>
+        <div class="header-title">Order Details</div>
+        <div style="width: 24px;"></div>
+    </div>
+
+    <!-- 订单状态卡片 -->
+    <div class="order-status-card" id="orderStatusCard">
+        <div class="status-label" id="orderStatus">System Void</div>
+    </div>
+
+    <!-- 配送信息 -->
+    <div class="info-card">
+        <div class="info-section">
+            <div class="info-title">Delivery Details</div>
+            <div class="delivery-detail">
+                <div style="margin-bottom: 12px; font-weight: 600;">EW1</div>
+                <div style="margin-bottom: 8px;"><span class="delivery-icon"></span>11,, Jalan TP 5,, 47620, SUBANG JAYA, SELANGOR, Malaysia</div>
+                <div><span class="delivery-icon"></span>+60192163398</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 产品详情 -->
+    <div class="info-card">
+        <div class="info-section">
+            <div class="info-title">Product Details:</div>
+            <div class="product-item">
+                <div class="product-image">�</div>
+                <div class="product-details">
+                    <div class="product-name">1 ELYSYLE CHARMS PANTIES M (2PCS) (INC)</div>
+                    <div class="product-variant">M, M, M, M, M</div>
+                    <div class="product-badges">
+                        <span class="badge badge-repurchase">Repurchase</span>
+                        <span class="badge badge-bv">BV 46.50</span>
+                        <span class="badge badge-price">MYR1495.00</span>
+                    </div>
+                </div>
+                <div class="product-qty">x5</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 金额明细 -->
+    <div class="info-card">
+        <div class="amount-section">
+            <div class="amount-title">
+                <span>Total Amount</span>
+                <span>MYR</span>
+            </div>
+            <div class="amount-row">
+                <span class="amount-label">Total Net (Excl. VAT)</span>
+                <span class="amount-value">1495.00</span>
+            </div>
+            <div class="amount-row">
+                <span class="amount-label">Delivery Fee(MYR)</span>
+                <span class="amount-value">0.00</span>
+            </div>
+            <div class="amount-row">
+                <span class="amount-label">Tax Amount(MYR)</span>
+                <span class="amount-value">0.00</span>
+            </div>
+            <div class="amount-total">
+                <span class="amount-total-label">Grand Total(MYR)</span>
+                <span class="amount-total-value">1495.00</span>
+            </div>
+        </div>
+        <div class="bv-section">
+            <div class="bv-title">Total BV</div>
+            <div class="bv-row">
+                <span class="bv-label">BV</span>
+                <span class="bv-value">46.50</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部按钮 -->
+    <div class="bottom-bar" id="bottomBar">
+        <button class="btn btn-download-receipt" onclick="downloadReceipt()">Download Receipt</button>
+    </div>
+
+    <!-- Payment Link 二维码弹窗 -->
+    <div class="modal-overlay" id="paymentLinkModal">
+        <div class="modal-container" style="text-align: center; padding: 32px 24px;">
+            <div class="modal-icon" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); box-shadow: 0 4px 16px rgba(5, 150, 105, 0.4);">🔔</div>
+            <button class="modal-close" onclick="closePaymentLinkModal()">×</button>
+            <div style="font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 8px;">Scan the QR code</div>
+            <div style="font-size: 13px; color: #6b7280; margin-bottom: 20px;">Or copy the link and share it with your downline to proceed with the payment.</div>
+            <div style="width: 180px; height: 180px; background-color: #f9fafb; border-radius: 16px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; border: 2px solid #e5e7eb;">
+                <div style="font-size: 80px; line-height: 1;">📱</div>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 24px;">
+                <span style="font-size: 16px; color: #6b7280;">🔗</span>
+                <span style="font-size: 13px; color: #3b82f6; word-break: break-all;">https://api-staging.pay.asia/...</span>
+            </div>
+            <button class="modal-btn" onclick="copyPaymentLink()" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);">Copy URL</button>
+            <button class="modal-btn" onclick="closePaymentLinkModal()" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); margin-top: 12px;">Continue</button>
+        </div>
+    </div>
+
+    <script>
+        let hideActions = false;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMemberInfo();
+            checkHideActions();
+        });
+
+        function loadMemberInfo() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const memberName = urlParams.get('name');
+            const memberId = urlParams.get('id');
+            
+            if (memberName && memberId) {
+                let name = decodeURIComponent(memberName);
+                if (name.length > 20) {
+                    name = name.substring(0, 20) + '...';
+                }
+                document.getElementById('memberName').textContent = name;
+                document.getElementById('memberId').textContent = `| ${decodeURIComponent(memberId)}`;
+            }
+        }
+
+        function checkHideActions() {
+            const urlParams = new URLSearchParams(window.location.search);
+            hideActions = urlParams.get('hideActions') === 'true';
+            
+            if (hideActions) {
+                // 从下线订单进入，隐藏操作按钮
+                document.getElementById('bottomBar').classList.add('hidden');
+                document.body.style.paddingBottom = '40px';
+            } else {
+                // 正常进入，显示 Payment Link 和 Make Payment 按钮
+                const bottomBar = document.getElementById('bottomBar');
+                bottomBar.innerHTML = `
+                    <button class="btn btn-payment-link" onclick="showPaymentLinkModal()">Payment Link</button>
+                    <button class="btn btn-make-payment" onclick="window.location.href='payment.html'">Make Payment</button>
+                `;
+            }
+        }
+
+        function downloadReceipt() {
+            alert('Downloading receipt...');
+        }
+
+        // 退出确认弹窗
+        function showExitModal() {
+            document.getElementById('exitModal').classList.add('active');
+        }
+
+        function closeExitModal() {
+            document.getElementById('exitModal').classList.remove('active');
+        }
+
+        function goBack() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const hideActions = urlParams.get('hideActions') === 'true';
+            
+            if (hideActions) {
+                // 从下线订单进入，返回下线订单页
+                window.location.href = 'downline_order.html';
+            } else {
+                // 正常进入，返回我的订单页
+                window.location.href = 'my_order.html';
+            }
+        }
+
+        document.getElementById('exitModal').addEventListener('click', function(e) {
+            if (e.target === this) closeExitModal();
+        });
+
+        // Payment Link 弹窗
+        function showPaymentLinkModal() {
+            document.getElementById('paymentLinkModal').classList.add('active');
+        }
+
+        function closePaymentLinkModal() {
+            document.getElementById('paymentLinkModal').classList.remove('active');
+        }
+
+        function copyPaymentLink() {
+            navigator.clipboard.writeText('https://api-staging.pay.asia/...').then(() => {
+                alert('Payment link copied!');
+            }).catch(() => {
+                alert('Failed to copy link');
+            });
+        }
+
+        document.getElementById('paymentLinkModal').addEventListener('click', function(e) {
+            if (e.target === this) closePaymentLinkModal();
+        });
+    </script>
+</body>
+</html>

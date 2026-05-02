@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eToken Checkout</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f7fa;
+            color: #1f2937;
+            min-width: 100%;
+            overflow-x: hidden;
+            padding-bottom: 120px;
+        }
+
+        .status-bar {
+            background-color: white;
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .order-header {
+            background: linear-gradient(135deg, #059669 0%, #10b981 50%, #059669 100%);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        .order-info {
+            flex: 1;
+            min-width: 0;
+            max-width: calc(100% - 40px);
+        }
+
+        .order-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 4px;
+        }
+
+        .order-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            overflow: hidden;
+        }
+
+        .member-name-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+            max-width: 100%;
+            min-width: 0;
+        }
+
+        .order-details {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.75);
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .close-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 16px;
+        }
+
+        .nav-header {
+            background-color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .back-btn {
+            font-size: 20px;
+            cursor: pointer;
+            color: #374151;
+        }
+
+        .page-title {
+            flex: 1;
+            text-align: center;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .product-item {
+            background-color: white;
+            padding: 16px;
+            margin: 12px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .product-icon {
+            width: 48px;
+            height: 48px;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .product-details {
+            flex: 1;
+        }
+
+        .product-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+
+        .product-etoken {
+            font-size: 13px;
+            color: #059669;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .product-price {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .product-qty {
+            font-size: 14px;
+            color: #9ca3af;
+            font-weight: 500;
+        }
+
+        .points-section {
+            background-color: white;
+            margin: 12px;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .points-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .points-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .points-row:last-child {
+            border-bottom: none;
+        }
+
+        .points-label {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .points-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .points-value.highlight {
+            color: #059669;
+            font-weight: 700;
+        }
+
+        .warning-box {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin: 0 12px 12px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .warning-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #ef4444;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .warning-text {
+            font-size: 13px;
+            color: #ef4444;
+            line-height: 1.5;
+        }
+
+        .warning-text strong {
+            font-weight: 600;
+        }
+
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border-top: 1px solid #e5e7eb;
+            padding: 12px 16px;
+            z-index: 100;
+        }
+
+        .checkout-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .checkout-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 8px 0 12px;
+        }
+
+        .total-label {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .total-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #059669;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* 退出确认弹窗 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-container {
+            background-color: white;
+            border-radius: 24px;
+            padding: 24px 24px 32px;
+            width: 100%;
+            max-width: 320px;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: modal-appear 0.3s ease-out;
+        }
+
+        @keyframes modal-appear {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: -56px auto 20px;
+            font-size: 32px;
+            color: white;
+            box-shadow: 0 4px 16px rgba(5, 150, 105, 0.4);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            font-size: 24px;
+            color: #9ca3af;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #111827;
+            text-align: center;
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        .modal-content {
+            font-size: 15px;
+            color: #6b7280;
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .modal-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .modal-btn:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+    <div class="status-bar">
+        <span>9:41</span>
+        <div style="display: flex; gap: 4px;">
+            <span>📶</span><span>📶</span><span>🔋</span>
+        </div>
+    </div>
+
+    <div class="order-header">
+        <div class="order-info">
+            <div class="order-label">You are ordering for</div>
+            <div class="order-name">
+                <span class="member-name-text">Jonathan Doe Le Never...</span>
+                <span>| 100001234</span>
+            </div>
+            <div class="order-details">Platinum Rank | Membership expires on 2027-02-21</div>
+        </div>
+        <div class="close-btn" onclick="showExitModal()">×</div>
+    </div>
+
+    <div class="nav-header">
+        <span class="back-btn" onclick="history.back()">←</span>
+        <span class="page-title">Checkout</span>
+        <span style="width: 20px;"></span>
+    </div>
+
+    <div class="product-item">
+        <div class="product-icon">🌿</div>
+        <div class="product-details">
+            <div class="product-name">72PT_4 ELG6 COLOSTRUM CHEWABLE TABLETS(240 TABLETS)</div>
+            <div class="product-etoken">eToken Points 72.0 MYR 3.0</div>
+        </div>
+        <div class="product-qty">× 6</div>
+    </div>
+
+    <div class="points-section">
+        <div class="points-title">A SEASON OF NEW BEGINNING & EXCLUSIVE PRIVILEGES</div>
+        <div class="points-row">
+            <span class="points-label">Total eToken Points earned</span>
+            <span class="points-value highlight">465</span>
+        </div>
+        <div class="points-row">
+            <span class="points-label">Total eToken Points redeemed</span>
+            <span class="points-value">432</span>
+        </div>
+        <div class="points-row">
+            <span class="points-label">Total eToken Points forfeited</span>
+            <span class="points-value">33</span>
+        </div>
+        <div class="points-row">
+            <span class="points-label">Total eToken Points accumulated previously</span>
+            <span class="points-value">0</span>
+        </div>
+    </div>
+
+    <div class="warning-box">
+        <div class="warning-icon">!</div>
+        <div class="warning-text">
+            <strong>You still have eToken Points available to use.</strong><br>
+            Any remaining eToken Points will be forfeited if left unused
+        </div>
+    </div>
+
+    <div class="bottom-bar">
+        <div class="checkout-row">
+            <span>Total BV</span>
+            <span>3956.00</span>
+        </div>
+        <div class="checkout-row">
+            <span>Total AMP BV</span>
+            <span>0.00</span>
+        </div>
+        <div class="checkout-total">
+            <span class="total-label">Total</span>
+            <span class="total-value">MYR 46524.00</span>
+        </div>
+        <button class="checkout-btn" onclick="alert('Processing checkout...')">Checkout</button>
+    </div>
+
+    <!-- 退出确认弹窗 -->
+    <div class="modal-overlay" id="exitModal">
+        <div class="modal-container">
+            <div class="modal-icon">🔔</div>
+            <button class="modal-close" onclick="closeExitModal()">×</button>
+            <div class="modal-title">Exit Order for Downline?</div>
+            <div class="modal-content">Are you sure you want to leave this page? Your current progress may not be saved.</div>
+            <button class="modal-btn" onclick="confirmExit()">Okay</button>
+        </div>
+    </div>
+
+    <script>
+        function showExitModal() {
+            document.getElementById('exitModal').classList.add('active');
+        }
+
+        function closeExitModal() {
+            document.getElementById('exitModal').classList.remove('active');
+        }
+
+        function confirmExit() {
+            window.location.href = 'etoken_redemption.html';
+        }
+
+        document.getElementById('exitModal').addEventListener('click', function(e) {
+            if (e.target === this) closeExitModal();
+        });
+    </script>
+</body>
+</html>
