@@ -175,6 +175,24 @@
             margin-top: 20px;
         }
         
+        .table-header {
+            background-color: #f5f5f5;
+            padding: 12px 15px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .total-count-number {
+            color: #007aff;
+            font-size: 16px;
+            font-weight: 700;
+            margin-left: 4px;
+        }
+        
         .table-container {
             width: 100%;
             overflow-x: auto;
@@ -618,6 +636,9 @@
         </div>
         
         <div class="table-section">
+            <div class="table-header">
+                <span>下线总数：<span id="totalCount" class="total-count-number">0</span></span>
+            </div>
             <div class="table-container">
                 <table>
                     <thead>
@@ -801,11 +822,15 @@
         
         function updateRecordCount() {
             const recordCountElement = document.getElementById('recordCount');
+            const totalCountElement = document.getElementById('totalCount');
             if (recordCountElement) {
                 const tableBody = document.getElementById('tableBody');
                 if (tableBody) {
                     const rows = tableBody.querySelectorAll('tr');
                     recordCountElement.textContent = `本页有 ${rows.length} 条数据`;
+                    if (totalCountElement) {
+                        totalCountElement.textContent = rows.length;
+                    }
                 }
             }
         }
