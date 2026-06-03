@@ -169,11 +169,47 @@
             position: relative;
             border-radius: 16px;
             overflow: hidden;
+            aspect-ratio: 16 / 9;
+        }
+        
+        .carousel-track {
+            display: flex;
+            width: 200%;
+            height: 100%;
+            transition: transform 0.5s ease-in-out;
         }
         
         .carousel-slide {
-            width: 100%;
+            width: 50%;
+            height: 100%;
+            object-fit: cover;
             display: block;
+            flex-shrink: 0;
+        }
+
+        .slide-wrapper {
+            position: relative;
+            width: 50%;
+            height: 100%;
+            flex-shrink: 0;
+        }
+
+        .slide-wrapper .carousel-slide {
+            width: 100%;
+        }
+
+        .slide-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: linear-gradient(135deg, #34c759, #30d158);
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(52, 199, 89, 0.4);
         }
         
         .carousel-dots {
@@ -429,6 +465,10 @@
                             <span class="user-menu-icon">📜</span>
                             <span class="user-menu-text">My Orders</span>
                         </div>
+                        <div class="user-menu-item" onclick="window.location.href='my_subscriptions.html'">
+                            <span class="user-menu-icon">🔄</span>
+                            <span class="user-menu-text">My Subscriptions</span>
+                        </div>
                         <div class="user-menu-item" onclick="window.location.href='order_for_downline.html'">
                             <span class="user-menu-icon">🤝</span>
                             <span class="user-menu-text">Order for Downline</span>
@@ -457,10 +497,17 @@
         <!-- 轮播图 -->
         <div class="carousel-section">
             <div class="carousel-container">
-                <img class="carousel-slide" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=elken%20spirulina%20product%20banner%2C%20woman%20holding%20spirulina%20bottle%2C%20green%20theme%2C%20health%20product%20advertisement&image_size=landscape_16_9" alt="Banner">
+                <div class="carousel-track">
+                    <div class="slide-wrapper">
+                        <img class="carousel-slide" src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&w=1200&q=80" alt="Banner">
+                    </div>
+                    <div class="slide-wrapper" onclick="window.location.href='subscription.html'" style="cursor: pointer;">
+                        <img class="carousel-slide" src="https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?auto=format&fit=crop&w=1200&q=80" alt="Water Machine Rental">
+                        <span class="slide-badge">Subscribe</span>
+                    </div>
+                </div>
                 <div class="carousel-dots">
                     <div class="carousel-dot active"></div>
-                    <div class="carousel-dot"></div>
                     <div class="carousel-dot"></div>
                 </div>
             </div>
@@ -551,6 +598,21 @@
     </div>
     
     <script>
+        // Simple carousel rotation
+        (function() {
+            const track = document.querySelector('.carousel-track');
+            const dots = document.querySelectorAll('.carousel-dot');
+            let index = 0;
+            const total = document.querySelectorAll('.carousel-slide').length;
+            function show(i) {
+                index = (i + total) % total;
+                track.style.transform = `translateX(-${index * 50}%)`;
+                dots.forEach((d, idx) => d.classList.toggle('active', idx === index));
+            }
+            setInterval(() => show(index + 1), 4000);
+            dots.forEach((d, idx) => d.addEventListener('click', () => show(idx)));
+        })();
+
         function toggleUserMenu() {
             const menu = document.getElementById('userMenu');
             menu.classList.toggle('open');
