@@ -1,0 +1,1976 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Water Machine Subscription</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f0f2f5;
+            color: #111827;
+            min-width: 100%;
+            overflow-x: hidden;
+            padding-bottom: 100px;
+        }
+
+        .status-bar {
+            display: none;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+            box-shadow: 0 2px 12px rgba(30, 58, 138, 0.3);
+        }
+
+        .back-arrow {
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .header-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: white;
+            flex: 1;
+            text-align: center;
+        }
+
+        .header-placeholder {
+            width: 24px;
+        }
+
+        .product-images {
+            background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 40%, #f0f2f5 100%);
+            padding: 24px 20px 28px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+        }
+
+        .product-image-main {
+            width: 100%;
+            max-width: 340px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .product-image-main img {
+            width: 100%;
+            display: block;
+        }
+
+        .product-image-dots {
+            display: flex;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .image-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #d1d5db;
+        }
+
+        .image-dot.active {
+            background-color: #1e3a8a;
+            width: 20px;
+            border-radius: 4px;
+        }
+
+        .badge-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .badge {
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .badge.subscribe {
+            background: linear-gradient(135deg, #34c759, #30d158);
+            color: white;
+        }
+
+        .badge.popular {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: white;
+        }
+
+        .product-info-section {
+            background-color: white;
+            padding: 20px 16px;
+            margin: -12px 12px 0;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            position: relative;
+            z-index: 2;
+        }
+
+        .product-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .product-subtitle {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+
+        .price-row {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .price-main {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1e3a8a;
+            letter-spacing: -0.5px;
+        }
+
+        .price-period {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .price-note {
+            font-size: 13px;
+            color: #9ca3af;
+        }
+
+        /* 计划选择 */
+        .plan-section {
+            background-color: white;
+            padding: 16px;
+            margin: 12px 12px 0;
+            border-radius: 16px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .plan-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .plan-option {
+            border: 2px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .plan-option.selected {
+            border-color: #1e3a8a;
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            box-shadow: 0 2px 8px rgba(30, 58, 138, 0.1);
+        }
+
+        .plan-option:active {
+            transform: scale(0.98);
+        }
+
+        .plan-left {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .plan-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .plan-desc {
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+
+        .plan-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .plan-price {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .plan-check {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid #d1d5db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: transparent;
+            transition: all 0.2s ease;
+        }
+
+        .plan-option.selected .plan-check {
+            background-color: #1e3a8a;
+            border-color: #1e3a8a;
+            color: white;
+        }
+
+        .plan-save {
+            background-color: #fef3c7;
+            color: #d97706;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        /* 套餐包含 */
+        .includes-section {
+            background-color: white;
+            padding: 20px 16px;
+            margin: 12px 12px 0;
+            border-radius: 16px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+        }
+
+        .include-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .include-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            background-color: #f8fafc;
+            padding: 14px;
+            border-radius: 14px;
+            gap: 0;
+        }
+
+        .include-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+            margin-bottom: 6px;
+        }
+
+        .include-text {
+            flex: 1;
+        }
+
+        .include-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 2px;
+        }
+
+        .include-desc {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        /* 规格 */
+        .specs-section {
+            background-color: white;
+            padding: 20px 16px;
+            margin: 12px 12px 0;
+            border-radius: 16px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+        }
+
+        .spec-table {
+            width: 100%;
+        }
+
+        .spec-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .spec-row:last-child {
+            border-bottom: none;
+        }
+
+        .spec-label {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .spec-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        /* 底部固定栏 */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            padding: 14px 20px;
+            padding-bottom: max(14px, env(safe-area-inset-bottom));
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+            z-index: 1000;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .subscribe-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px rgba(30, 58, 138, 0.35);
+            letter-spacing: 0.3px;
+        }
+
+        .subscribe-btn:active {
+            transform: scale(0.98);
+        }
+
+        .bottom-note {
+            text-align: center;
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 8px;
+        }
+
+        /* 成功提示 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 100001;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast.show {
+            display: flex;
+            animation: toast-in 0.3s ease-out;
+        }
+
+        @keyframes toast-in {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* 每月礼包 */
+        .gift-section {
+            background-color: white;
+            padding: 20px 0;
+            margin: 12px 12px 0;
+            border-radius: 16px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+        }
+
+        .gift-section .section-title {
+            padding: 0 16px;
+        }
+
+        .gift-scroll {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 14px 16px 16px;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .gift-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .gift-card {
+            flex-shrink: 0;
+            width: 140px;
+            border-radius: 16px;
+            padding: 16px 14px 14px;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+            background: linear-gradient(145deg, #f8fafc, #f1f5f9);
+            border: 1px solid #e2e8f0;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .gift-card:active {
+            transform: scale(0.97);
+        }
+
+        .gift-card.special {
+            background: linear-gradient(145deg, #fffbeb, #fef3c7);
+            border-color: #fbbf24;
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.2);
+        }
+
+        .gift-card-badge {
+            position: absolute;
+            top: -1px;
+            right: 12px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 0 0 10px 10px;
+            letter-spacing: 0.3px;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+        }
+
+        .gift-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .gift-card-month {
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .gift-card.special .gift-card-month {
+            color: #b45309;
+        }
+
+        .gift-card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .gift-card.special .gift-card-icon {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+        }
+
+        .gift-card-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1.2;
+        }
+
+        .gift-card-items {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .gift-card-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .gift-card-item-icon {
+            font-size: 10px;
+            color: #22c55e;
+        }
+
+        .gift-card.special .gift-card-item-icon {
+            color: #f59e0b;
+        }
+
+        /* 订阅协议弹窗 */
+        .agreement-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .agreement-overlay.active {
+            display: flex;
+        }
+
+        .agreement-modal {
+            background-color: white;
+            border-radius: 20px 20px 0 0;
+            width: 100%;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            animation: slide-up 0.3s ease-out;
+        }
+
+        @keyframes slide-up {
+            0% { transform: translateY(100%); }
+            100% { transform: translateY(0); }
+        }
+
+        .agreement-header {
+            padding: 20px 16px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .agreement-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .agreement-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #f3f4f6;
+            border: none;
+            font-size: 18px;
+            color: #6b7280;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .agreement-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .agreement-body h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 16px 0 8px;
+        }
+
+        .agreement-body h3:first-child {
+            margin-top: 0;
+        }
+
+        .agreement-body p {
+            font-size: 14px;
+            color: #4b5563;
+            line-height: 1.7;
+            margin-bottom: 10px;
+        }
+
+        .agreement-body ul {
+            padding-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        .agreement-body li {
+            font-size: 14px;
+            color: #4b5563;
+            line-height: 1.7;
+            margin-bottom: 4px;
+        }
+
+        .agreement-footer {
+            padding: 12px 16px;
+            padding-bottom: max(16px, env(safe-area-inset-bottom));
+            border-top: 1px solid #e5e7eb;
+            flex-shrink: 0;
+            background-color: white;
+        }
+
+        .agree-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .agree-checkbox {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid #d1d5db;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: transparent;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+            -webkit-appearance: none;
+            appearance: none;
+            background-color: white;
+        }
+
+        .agree-checkbox:checked {
+            background-color: #1e3a8a;
+            border-color: #1e3a8a;
+            color: white;
+        }
+
+        .agree-label {
+            font-size: 14px;
+            color: #374151;
+            cursor: pointer;
+        }
+
+        .agree-label a {
+            color: #1e3a8a;
+            text-decoration: underline;
+        }
+
+        .next-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .next-btn:disabled {
+            background: linear-gradient(135deg, #9ca3af 0%, #d1d5db 100%);
+            cursor: not-allowed;
+        }
+
+        .next-btn:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        /* 签名页面 */
+        .signature-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            width: 100dvw;
+            height: 100dvh;
+            background-color: #f5f7fa;
+            z-index: 3000;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .signature-overlay.active {
+            display: flex;
+        }
+
+        /* Force landscape on portrait devices */
+        @media (orientation: portrait) {
+            .signature-overlay.active {
+                width: 100vh;
+                height: 100vw;
+                position: fixed;
+                top: 100%;
+                left: 0;
+                transform-origin: left top;
+                transform: rotate(-90deg);
+            }
+        }
+
+        .sig-header {
+            background-color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            flex-shrink: 0;
+        }
+
+        .sig-back {
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+            background: none;
+            border: none;
+        }
+
+        .sig-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+            text-align: center;
+        }
+
+        .sig-placeholder {
+            width: 24px;
+        }
+
+        .sig-content {
+            flex: 1;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sig-summary {
+            background-color: white;
+            border-radius: 12px;
+            padding: 16px;
+            width: 280px;
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+
+        .sig-summary-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 12px;
+        }
+
+        .sig-summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .sig-summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .sig-summary-label {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .sig-summary-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .sig-canvas-section {
+            background-color: white;
+            border-radius: 12px;
+            padding: 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .sig-canvas-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .sig-canvas-hint {
+            font-size: 13px;
+            color: #9ca3af;
+            margin-bottom: 12px;
+        }
+
+        .sig-canvas-wrapper {
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            background-color: #fefefe;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .sig-canvas-wrapper.has-signature {
+            border-style: solid;
+            border-color: #1e3a8a;
+        }
+
+        #sigCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+
+        .sig-clear-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0,0,0,0.05);
+            border: none;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 13px;
+            color: #6b7280;
+            cursor: pointer;
+        }
+
+        .sig-footer {
+            padding: 12px 16px;
+            padding-bottom: max(16px, env(safe-area-inset-bottom));
+            background-color: white;
+            border-top: 1px solid #e5e7eb;
+            flex-shrink: 0;
+        }
+
+        .confirm-sub-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .confirm-sub-btn:disabled {
+            background: linear-gradient(135deg, #9ca3af 0%, #d1d5db 100%);
+            cursor: not-allowed;
+        }
+
+        .confirm-sub-btn:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        /* 信用卡页面 */
+        .card-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #f5f7fa;
+            z-index: 3500;
+            display: none;
+            flex-direction: column;
+        }
+
+        .card-overlay.active {
+            display: flex;
+        }
+
+        .card-header {
+            background-color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            flex-shrink: 0;
+        }
+
+        .card-back {
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+            background: none;
+            border: none;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+            text-align: center;
+        }
+
+        .card-header-placeholder {
+            width: 24px;
+        }
+
+        .card-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .card-amount-bar {
+            background: linear-gradient(135deg, #1e3a8a, #1e40af);
+            border-radius: 12px;
+            padding: 16px;
+            color: white;
+            text-align: center;
+        }
+
+        .card-amount-label {
+            font-size: 13px;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+
+        .card-amount-value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .card-amount-note {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+
+        .card-form {
+            background-color: white;
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .card-form-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-brands {
+            display: flex;
+            gap: 6px;
+            margin-left: auto;
+        }
+
+        .card-brand {
+            width: 36px;
+            height: 24px;
+            border-radius: 4px;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: #6b7280;
+        }
+
+        .card-brand.visa {
+            background: #1a1f71;
+            color: white;
+        }
+
+        .card-brand.mastercard {
+            background: #eb001b;
+            color: white;
+        }
+
+        .card-field {
+            margin-bottom: 14px;
+        }
+
+        .card-field:last-child {
+            margin-bottom: 0;
+        }
+
+        .card-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #6b7280;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .card-input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 16px;
+            color: #1f2937;
+            background: #fefefe;
+            outline: none;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+
+        .card-input:focus {
+            border-color: #1e3a8a;
+        }
+
+        .card-input.error {
+            border-color: #ef4444;
+        }
+
+        .card-input::placeholder {
+            color: #d1d5db;
+        }
+
+        .card-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .card-row .card-field {
+            flex: 1;
+        }
+
+        .card-error {
+            font-size: 12px;
+            color: #ef4444;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .card-error.show {
+            display: block;
+        }
+
+        .card-secure {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            justify-content: center;
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 8px;
+        }
+
+        .card-footer {
+            padding: 12px 16px;
+            padding-bottom: max(16px, env(safe-area-inset-bottom));
+            background-color: white;
+            border-top: 1px solid #e5e7eb;
+            flex-shrink: 0;
+        }
+
+        .pay-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .pay-btn:active {
+            transform: scale(0.98);
+        }
+
+        .pay-btn .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            display: none;
+        }
+
+        .pay-btn.loading .spinner {
+            display: block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 成功页面 */
+        .success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #f5f7fa;
+            z-index: 4000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .success-overlay.active {
+            display: flex;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #34c759, #30d158);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 24px rgba(52, 199, 89, 0.3);
+        }
+
+        .success-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .success-desc {
+            font-size: 15px;
+            color: #6b7280;
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 32px;
+            max-width: 300px;
+        }
+
+        .success-btn {
+            width: 100%;
+            max-width: 300px;
+            padding: 14px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="status-bar">
+        <span>9:41</span>
+        <div style="display: flex; gap: 4px; align-items: center;">
+            <span>📶</span>
+            <span>📶</span>
+            <span>🔋</span>
+        </div>
+    </div>
+
+    <div class="header">
+        <div class="back-arrow" onclick="window.location.href='mall.html'">←</div>
+        <div class="header-title">Subscription Details</div>
+        <div class="header-placeholder"></div>
+    </div>
+
+    <!-- 产品图片 -->
+    <div class="product-images">
+        <div class="product-image-main">
+            <img src="https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?auto=format&fit=crop&w=800&q=80" alt="Kenwood Water Purifier">
+        </div>
+        <div class="product-image-dots">
+            <div class="image-dot active"></div>
+            <div class="image-dot"></div>
+            <div class="image-dot"></div>
+        </div>
+        <div class="badge-row">
+            <span class="badge subscribe">Subscribe</span>
+            <span class="badge popular">Popular</span>
+        </div>
+    </div>
+
+    <!-- 产品信息 -->
+    <div class="product-info-section">
+        <div class="product-title">Kenwood Water Purifier</div>
+        <div class="product-subtitle" id="planSubtitle">Hot & Cold Alkaline Water Dispenser with 4-Stage Filtration · Annual Plan (12 Months)</div>
+        <div class="price-row">
+            <span class="price-main" id="priceMain">MYR 98</span>
+            <span class="price-period" id="pricePeriod">/month</span>
+        </div>
+        <div class="price-note" id="priceNote">First month only MYR 68 · 12-month commitment, non-cancellable</div>
+    </div>
+
+    <!-- 订阅计划 -->
+    <div class="plan-section">
+        <div class="section-title">
+            <span>📅</span>
+            Choose Your Plan
+        </div>
+        <div class="plan-options">
+            <div class="plan-option" onclick="selectPlan(this, 'monthly')">
+                <div class="plan-left">
+                    <div class="plan-name">Monthly</div>
+                    <div class="plan-desc">Flexible, cancel anytime</div>
+                </div>
+                <div class="plan-right">
+                    <span class="plan-price">MYR 128/mo</span>
+                    <div class="plan-check">✓</div>
+                </div>
+            </div>
+            <div class="plan-option selected" onclick="selectPlan(this, 'annual')">
+                <div class="plan-left">
+                    <div class="plan-name">Annual — 12 Months</div>
+                    <div class="plan-desc">MYR 98/mo · First month MYR 68 · 12-month commitment, non-cancellable</div>
+                </div>
+                <div class="plan-right">
+                    <span class="plan-save">SAVE 23%</span>
+                    <span class="plan-price">MYR 98/mo</span>
+                    <div class="plan-check">✓</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 套餐包含 -->
+    <div class="includes-section">
+        <div class="section-title">
+            <span>📦</span>
+            What's Included
+        </div>
+        <div class="include-list">
+            <div class="include-item">
+                <div class="include-icon">💧</div>
+                <div class="include-text">
+                    <div class="include-title">Free Installation</div>
+                    <div class="include-desc">Professional setup at your home at no extra cost</div>
+                </div>
+            </div>
+            <div class="include-item">
+                <div class="include-icon">🔧</div>
+                <div class="include-text">
+                    <div class="include-title">Filter Replacement</div>
+                    <div class="include-desc">Automatic filter change every 6 months included</div>
+                </div>
+            </div>
+            <div class="include-item">
+                <div class="include-icon">🛡️</div>
+                <div class="include-text">
+                    <div class="include-title">Full Maintenance</div>
+                    <div class="include-desc">Complete coverage for repairs and servicing</div>
+                </div>
+            </div>
+            <div class="include-item">
+                <div class="include-icon">🔄</div>
+                <div class="include-text">
+                    <div class="include-title">Free Upgrade</div>
+                    <div class="include-desc">Upgrade to newer model after 24 months</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 每月礼包 -->
+    <div class="gift-section">
+        <div class="section-title">
+            <span>🎁</span>
+            Monthly Gift Package
+        </div>
+        <div class="gift-scroll">
+            <div class="gift-card">
+                <div class="gift-card-header">
+                    <span class="gift-card-month">MONTH 1</span>
+                    <div class="gift-card-icon">💧</div>
+                </div>
+                <div class="gift-card-name">Welcome Pack</div>
+                <div class="gift-card-items">
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Alkaline Filter Set</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Cleaning Kit</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> User Guide</div>
+                </div>
+            </div>
+            <div class="gift-card">
+                <div class="gift-card-header">
+                    <span class="gift-card-month">MONTH 2</span>
+                    <div class="gift-card-icon">🔧</div>
+                </div>
+                <div class="gift-card-name">Maintenance Pack</div>
+                <div class="gift-card-items">
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Spare Nozzle</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Descaling Solution</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Microfibre Cloth</div>
+                </div>
+            </div>
+            <div class="gift-card special">
+                <div class="gift-card-badge">+1000 PRP</div>
+                <div class="gift-card-header">
+                    <span class="gift-card-month">MONTH 3</span>
+                    <div class="gift-card-icon">⭐</div>
+                </div>
+                <div class="gift-card-name">Reward Pack</div>
+                <div class="gift-card-items">
+                    <div class="gift-card-item"><span class="gift-card-item-icon">⭐</span> 1000 PRP Points</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Premium Filter</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Cleaning Cloth</div>
+                </div>
+            </div>
+            <div class="gift-card">
+                <div class="gift-card-header">
+                    <span class="gift-card-month">MONTH 4</span>
+                    <div class="gift-card-icon">💧</div>
+                </div>
+                <div class="gift-card-name">Care Pack</div>
+                <div class="gift-card-items">
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Replacement Filter</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Sanitiser Drops</div>
+                </div>
+            </div>
+            <div class="gift-card">
+                <div class="gift-card-header">
+                    <span class="gift-card-month">MONTH 5</span>
+                    <div class="gift-card-icon">🔧</div>
+                </div>
+                <div class="gift-card-name">Service Pack</div>
+                <div class="gift-card-items">
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Nozzle Brush Set</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Anti-bacterial Spray</div>
+                </div>
+            </div>
+            <div class="gift-card">
+                <div class="gift-card-header">
+                    <span class="gift-card-month">MONTH 6</span>
+                    <div class="gift-card-icon">🔄</div>
+                </div>
+                <div class="gift-card-name">Filter Refresh</div>
+                <div class="gift-card-items">
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Full Filter Set</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Descaling Solution</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Cleaning Wipes</div>
+                </div>
+            </div>
+            <div class="gift-card">
+                <div class="gift-card-header">
+                    <span class="gift-card-month">MONTH 7</span>
+                    <div class="gift-card-icon">💧</div>
+                </div>
+                <div class="gift-card-name">Essential Pack</div>
+                <div class="gift-card-items">
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Carbon Filter</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Sanitiser Drops</div>
+                </div>
+            </div>
+            <div class="gift-card">
+                <div class="gift-card-header">
+                    <span class="gift-card-month">MONTH 8</span>
+                    <div class="gift-card-icon">🎁</div>
+                </div>
+                <div class="gift-card-name">Bonus Pack</div>
+                <div class="gift-card-items">
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Premium Filter</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Water Test Kit</div>
+                </div>
+            </div>
+            <div class="gift-card">
+                <div class="gift-card-header">
+                    <span class="gift-card-month">MONTH 9</span>
+                    <div class="gift-card-icon">🔧</div>
+                </div>
+                <div class="gift-card-name">Maintenance Pack</div>
+                <div class="gift-card-items">
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Replacement Nozzle</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> O-ring Set</div>
+                </div>
+            </div>
+            <div class="gift-card">
+                <div class="gift-card-header">
+                    <span class="gift-card-month">MONTH 10</span>
+                    <div class="gift-card-icon">💧</div>
+                </div>
+                <div class="gift-card-name">Care Pack</div>
+                <div class="gift-card-items">
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Replacement Filter</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Cleaning Solution</div>
+                </div>
+            </div>
+            <div class="gift-card">
+                <div class="gift-card-header">
+                    <span class="gift-card-month">MONTH 11</span>
+                    <div class="gift-card-icon">🎁</div>
+                </div>
+                <div class="gift-card-name">Special Pack</div>
+                <div class="gift-card-items">
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> UV Steriliser Bulb</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Anti-scale Pad</div>
+                </div>
+            </div>
+            <div class="gift-card">
+                <div class="gift-card-header">
+                    <span class="gift-card-month">MONTH 12</span>
+                    <div class="gift-card-icon">🔄</div>
+                </div>
+                <div class="gift-card-name">Annual Refresh</div>
+                <div class="gift-card-items">
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Full Filter Set</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Deep Clean Kit</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Service Voucher</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 规格 -->
+    <div class="specs-section">
+        <div class="section-title">
+            <span>📋</span>
+            Specifications
+        </div>
+        <div class="spec-table">
+            <div class="spec-row">
+                <span class="spec-label">Brand</span>
+                <span class="spec-value">Kenwood</span>
+            </div>
+            <div class="spec-row">
+                <span class="spec-label">Model</span>
+                <span class="spec-value">KWP-2280</span>
+            </div>
+            <div class="spec-row">
+                <span class="spec-label">Filtration</span>
+                <span class="spec-value">4-Stage Alkaline</span>
+            </div>
+            <div class="spec-row">
+                <span class="spec-label">Temperature</span>
+                <span class="spec-value">Hot & Cold</span>
+            </div>
+            <div class="spec-row">
+                <span class="spec-label">Capacity</span>
+                <span class="spec-value">8L Tank</span>
+            </div>
+            <div class="spec-row">
+                <span class="spec-label">Warranty</span>
+                <span class="spec-value">Full coverage during subscription</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部固定栏 -->
+    <div class="bottom-bar">
+        <button class="subscribe-btn" onclick="handleSubscribe()">Subscribe Now</button>
+        <div class="bottom-note" id="bottomNote">12-month commitment · Non-cancellable</div>
+    </div>
+
+    <!-- 订阅协议弹窗 -->
+    <div class="agreement-overlay" id="agreementOverlay">
+        <div class="agreement-modal">
+            <div class="agreement-header">
+                <div class="agreement-title">Subscription Agreement</div>
+                <button class="agreement-close" onclick="closeAgreement()">×</button>
+            </div>
+            <div class="agreement-body">
+                <h3>1. Subscription Terms</h3>
+                <p>By subscribing to the Kenwood Water Purifier Subscription Plan ("the Service"), you ("the Subscriber") agree to be bound by the following terms and conditions. This agreement is entered into between you and Elken Marketing (M) Sdn Bhd ("the Company").</p>
+
+                <h3>2. Subscription Plans</h3>
+                <p>The Service offers the following plans:</p>
+                <ul>
+                    <li><strong>Monthly Plan:</strong> MYR 128 per month, billed monthly. Subscriber may cancel at any time with 30 days prior written notice.</li>
+                    <li><strong>Annual Plan (12 Months):</strong> MYR 98 per month, billed annually at MYR 1,176. First month promotional rate of MYR 68. This plan is a 12-month commitment and is non-cancellable during the commitment period.</li>
+                </ul>
+
+                <h3>3. Service Coverage</h3>
+                <p>The subscription includes the following services at no additional cost:</p>
+                <ul>
+                    <li>Professional installation of the Kenwood Water Purifier at the Subscriber's registered address</li>
+                    <li>Replacement of water filters every 6 months</li>
+                    <li>Full maintenance and repair coverage for the duration of the subscription</li>
+                    <li>Eligibility for a free model upgrade after 24 continuous months of subscription</li>
+                </ul>
+
+                <h3>4. Payment Terms</h3>
+                <p>Payment shall be made via the payment method selected at checkout. For monthly plans, payment is due on the same date each month. For annual plans, the full annual amount is due at the beginning of each subscription year. Failed payments may result in suspension of service after a 7-day grace period.</p>
+
+                <h3>5. Installation and Delivery</h3>
+                <p>Installation will be scheduled within 5-7 business days of the first payment. The Subscriber must ensure that a suitable water source and electrical outlet are available at the installation location. The Company reserves the right to reschedule installation due to unforeseen circumstances.</p>
+
+                <h3>6. Equipment Ownership</h3>
+                <p>The water purifier unit remains the property of the Company throughout the subscription period. Upon termination or expiry of the subscription, the Subscriber must return the equipment in good working condition, subject to normal wear and tear.</p>
+
+                <h3>7. Cancellation Policy</h3>
+                <p><strong>Monthly Plan:</strong> The Subscriber may cancel at any time by providing 30 days written notice. A prorated refund will be issued for any unused portion of the current billing cycle.</p>
+                <p><strong>Annual Plan:</strong> The 12-month commitment is non-cancellable. Early termination will incur a penalty fee equal to the remaining months of the commitment period multiplied by MYR 50. After the initial 12-month period, the subscription will automatically renew on a monthly basis unless cancelled.</p>
+
+                <h3>8. Liability</h3>
+                <p>The Company shall not be held liable for any damages arising from misuse, unauthorized modifications, or failure to follow the usage guidelines provided with the equipment. The Company's total liability shall not exceed the total subscription fees paid by the Subscriber in the 12 months preceding any claim.</p>
+
+                <h3>9. Personal Data</h3>
+                <p>The Company will collect and process personal data in accordance with the Personal Data Protection Act 2010 (PDPA) of Malaysia. Personal data will be used for the purposes of service delivery, billing, and communication related to the subscription.</p>
+
+                <h3>10. Governing Law</h3>
+                <p>This agreement shall be governed by and construed in accordance with the laws of Malaysia. Any disputes arising from this agreement shall be subject to the exclusive jurisdiction of the courts of Malaysia.</p>
+            </div>
+            <div class="agreement-footer">
+                <div class="agree-row">
+                    <input type="checkbox" class="agree-checkbox" id="agreeCheckbox" onchange="toggleAgree()">
+                    <label class="agree-label" for="agreeCheckbox">I have read and agree to the <a href="#">Subscription Agreement</a> and <a href="#">Terms of Service</a></label>
+                </div>
+                <button class="next-btn" id="nextBtn" disabled onclick="goToSignature()">Next — Sign Agreement</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 签名页面 -->
+    <div class="signature-overlay" id="signatureOverlay">
+        <div class="sig-header">
+            <button class="sig-back" onclick="closeSignature()">←</button>
+            <div class="sig-title">Signature</div>
+            <div class="sig-placeholder"></div>
+        </div>
+        <div class="sig-content">
+            <div class="sig-canvas-section">
+                <div class="sig-canvas-title">Please sign below</div>
+                <div class="sig-canvas-hint">Use your finger or stylus to sign</div>
+                <div class="sig-canvas-wrapper" id="sigCanvasWrapper">
+                    <canvas id="sigCanvas"></canvas>
+                    <button class="sig-clear-btn" onclick="clearSignature()">Clear</button>
+                </div>
+            </div>
+        </div>
+        <div class="sig-footer">
+            <button class="confirm-sub-btn" id="confirmSubBtn" disabled onclick="confirmSubscription()">Confirm Subscription</button>
+        </div>
+    </div>
+
+    <!-- 信用卡页面 -->
+    <div class="card-overlay" id="cardOverlay">
+        <div class="card-header">
+            <button class="card-back" onclick="closeCardPage()">←</button>
+            <div class="card-title">Payment</div>
+            <div class="card-header-placeholder"></div>
+        </div>
+        <div class="card-body">
+            <div class="card-amount-bar">
+                <div class="card-amount-label">Amount to Pay</div>
+                <div class="card-amount-value" id="cardAmount">MYR 68</div>
+                <div class="card-amount-note" id="cardAmountNote">First month promotional price</div>
+            </div>
+            <div class="card-form">
+                <div class="card-form-title">
+                    💳 Card Details
+                    <div class="card-brands">
+                        <div class="card-brand visa">VISA</div>
+                        <div class="card-brand mastercard">MC</div>
+                    </div>
+                </div>
+                <div class="card-field">
+                    <label class="card-label">Cardholder Name</label>
+                    <input class="card-input" id="cardName" type="text" placeholder="Name on card" autocomplete="cc-name">
+                    <div class="card-error" id="cardNameError">Please enter cardholder name</div>
+                </div>
+                <div class="card-field">
+                    <label class="card-label">Card Number</label>
+                    <input class="card-input" id="cardNumber" type="text" placeholder="1234 5678 9012 3456" maxlength="19" autocomplete="cc-number" inputmode="numeric">
+                    <div class="card-error" id="cardNumberError">Please enter a valid card number</div>
+                </div>
+                <div class="card-row">
+                    <div class="card-field">
+                        <label class="card-label">Expiry Date</label>
+                        <input class="card-input" id="cardExpiry" type="text" placeholder="MM/YY" maxlength="5" autocomplete="cc-exp" inputmode="numeric">
+                        <div class="card-error" id="cardExpiryError">Invalid expiry</div>
+                    </div>
+                    <div class="card-field">
+                        <label class="card-label">CVV</label>
+                        <input class="card-input" id="cardCVV" type="text" placeholder="123" maxlength="4" autocomplete="cc-csc" inputmode="numeric">
+                        <div class="card-error" id="cardCVVError">Invalid CVV</div>
+                    </div>
+                </div>
+                <div class="card-secure">🔒 Secured with 256-bit SSL encryption</div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <button class="pay-btn" id="payBtn" onclick="processPayment()">
+                <span class="spinner"></span>
+                <span class="pay-btn-text">Pay Now</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 成功页面 -->
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-icon">✓</div>
+        <div class="success-title">Payment Successful!</div>
+        <div class="success-desc">Your subscription has been activated. A confirmation email will be sent to you shortly. Installation will be scheduled within 5-7 business days.</div>
+        <button class="success-btn" onclick="window.location.href='mall.html'">Back to Mall</button>
+    </div>
+
+    <!-- 成功提示 -->
+    <div class="toast" id="toast">
+        <span>✓</span>
+        <span id="toastMessage">Subscription confirmed!</span>
+    </div>
+
+    <script>
+        let selectedPlan = 'annual';
+
+        const planData = {
+            monthly: {
+                price: 'MYR 128',
+                period: '/month',
+                note: 'Flexible plan · Cancel anytime',
+                subtitle: 'Hot & Cold Alkaline Water Dispenser with 4-Stage Filtration · Monthly Plan',
+                bottomNote: 'Cancel anytime · No lock-in contract'
+            },
+            annual: {
+                price: 'MYR 98',
+                period: '/month',
+                note: 'First month only MYR 68 · 12-month commitment, non-cancellable',
+                subtitle: 'Hot & Cold Alkaline Water Dispenser with 4-Stage Filtration · Annual Plan (12 Months)',
+                bottomNote: '12-month commitment · Non-cancellable'
+            }
+        };
+
+        function selectPlan(element, plan) {
+            document.querySelectorAll('.plan-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            selectedPlan = plan;
+            updateInfoDisplay();
+        }
+
+        function updateInfoDisplay() {
+            const data = planData[selectedPlan];
+            document.getElementById('priceMain').textContent = data.price;
+            document.getElementById('pricePeriod').textContent = data.period;
+            document.getElementById('priceNote').textContent = data.note;
+            document.getElementById('planSubtitle').textContent = data.subtitle;
+            document.getElementById('bottomNote').textContent = data.bottomNote;
+        }
+
+        // Agreement modal
+        function handleSubscribe() {
+            document.getElementById('agreementOverlay').classList.add('active');
+        }
+
+        function closeAgreement() {
+            document.getElementById('agreementOverlay').classList.remove('active');
+            document.getElementById('agreeCheckbox').checked = false;
+            document.getElementById('nextBtn').disabled = true;
+        }
+
+        function toggleAgree() {
+            document.getElementById('nextBtn').disabled = !document.getElementById('agreeCheckbox').checked;
+        }
+
+        // Signature page
+        let sigCanvas, sigCtx, isDrawing = false, hasSignature = false;
+
+        function goToSignature() {
+            closeAgreement();
+            const overlay = document.getElementById('signatureOverlay');
+            overlay.classList.add('active');
+
+            // Try to lock landscape orientation
+            if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock('landscape').catch(() => {});
+            }
+
+            // Delay canvas init to allow layout to settle
+            setTimeout(() => initSignatureCanvas(), 100);
+        }
+
+        function closeSignature() {
+            document.getElementById('signatureOverlay').classList.remove('active');
+            if (screen.orientation && screen.orientation.unlock) {
+                screen.orientation.unlock();
+            }
+        }
+
+        function initSignatureCanvas() {
+            sigCanvas = document.getElementById('sigCanvas');
+            const wrapper = document.getElementById('sigCanvasWrapper');
+            const rect = wrapper.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+
+            const w = Math.max(rect.width, 200);
+            const h = Math.max(rect.height, 120);
+
+            sigCanvas.width = w * dpr;
+            sigCanvas.height = h * dpr;
+            sigCanvas.style.width = w + 'px';
+            sigCanvas.style.height = h + 'px';
+
+            sigCtx = sigCanvas.getContext('2d');
+            sigCtx.scale(dpr, dpr);
+            sigCtx.strokeStyle = '#1f2937';
+            sigCtx.lineWidth = 2;
+            sigCtx.lineCap = 'round';
+            sigCtx.lineJoin = 'round';
+
+            hasSignature = false;
+            document.getElementById('confirmSubBtn').disabled = true;
+            document.getElementById('sigCanvasWrapper').classList.remove('has-signature');
+
+            // Touch events
+            sigCanvas.addEventListener('pointerdown', startDraw);
+            sigCanvas.addEventListener('pointermove', draw);
+            sigCanvas.addEventListener('pointerup', endDraw);
+            sigCanvas.addEventListener('pointerleave', endDraw);
+        }
+
+        function getPos(e) {
+            const rect = sigCanvas.getBoundingClientRect();
+            return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+        }
+
+        function startDraw(e) {
+            isDrawing = true;
+            const pos = getPos(e);
+            sigCtx.beginPath();
+            sigCtx.moveTo(pos.x, pos.y);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const pos = getPos(e);
+            sigCtx.lineTo(pos.x, pos.y);
+            sigCtx.stroke();
+            hasSignature = true;
+            document.getElementById('confirmSubBtn').disabled = false;
+            document.getElementById('sigCanvasWrapper').classList.add('has-signature');
+        }
+
+        function endDraw() {
+            isDrawing = false;
+        }
+
+        function clearSignature() {
+            const dpr = window.devicePixelRatio || 1;
+            sigCtx.clearRect(0, 0, sigCanvas.width / dpr, sigCanvas.height / dpr);
+            hasSignature = false;
+            document.getElementById('confirmSubBtn').disabled = true;
+            document.getElementById('sigCanvasWrapper').classList.remove('has-signature');
+        }
+
+        // Confirm subscription -> go to card page
+        function confirmSubscription() {
+            if (!hasSignature) return;
+            document.getElementById('signatureOverlay').classList.remove('active');
+            if (screen.orientation && screen.orientation.unlock) {
+                screen.orientation.unlock();
+            }
+            showCardPage();
+        }
+
+        // Card payment page
+        function showCardPage() {
+            const data = planData[selectedPlan];
+            if (selectedPlan === 'annual') {
+                document.getElementById('cardAmount').textContent = 'MYR 68';
+                document.getElementById('cardAmountNote').textContent = 'First month promotional price';
+            } else {
+                document.getElementById('cardAmount').textContent = 'MYR 128';
+                document.getElementById('cardAmountNote').textContent = 'Monthly subscription';
+            }
+            document.getElementById('cardOverlay').classList.add('active');
+            setupCardInputs();
+        }
+
+        function closeCardPage() {
+            document.getElementById('cardOverlay').classList.remove('active');
+        }
+
+        function setupCardInputs() {
+            const numInput = document.getElementById('cardNumber');
+            const expInput = document.getElementById('cardExpiry');
+            const cvvInput = document.getElementById('cardCVV');
+
+            numInput.addEventListener('input', function() {
+                let v = this.value.replace(/\D/g, '').substring(0, 16);
+                let formatted = v.replace(/(\d{4})(?=\d)/g, '$1 ');
+                this.value = formatted;
+            });
+
+            expInput.addEventListener('input', function() {
+                let v = this.value.replace(/\D/g, '').substring(0, 4);
+                if (v.length >= 3) v = v.substring(0, 2) + '/' + v.substring(2);
+                this.value = v;
+            });
+
+            cvvInput.addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '').substring(0, 4);
+            });
+        }
+
+        function validateCard() {
+            let valid = true;
+            const name = document.getElementById('cardName').value.trim();
+            const num = document.getElementById('cardNumber').value.replace(/\s/g, '');
+            const exp = document.getElementById('cardExpiry').value;
+            const cvv = document.getElementById('cardCVV').value;
+
+            // Name
+            if (name.length < 2) {
+                document.getElementById('cardName').classList.add('error');
+                document.getElementById('cardNameError').classList.add('show');
+                valid = false;
+            } else {
+                document.getElementById('cardName').classList.remove('error');
+                document.getElementById('cardNameError').classList.remove('show');
+            }
+
+            // Card number (Luhn check for realism, accept 16 digits)
+            if (num.length < 13 || num.length > 16 || !/^\d+$/.test(num)) {
+                document.getElementById('cardNumber').classList.add('error');
+                document.getElementById('cardNumberError').classList.add('show');
+                valid = false;
+            } else {
+                document.getElementById('cardNumber').classList.remove('error');
+                document.getElementById('cardNumberError').classList.remove('show');
+            }
+
+            // Expiry
+            const expMatch = exp.match(/^(\d{2})\/(\d{2})$/);
+            if (!expMatch) {
+                document.getElementById('cardExpiry').classList.add('error');
+                document.getElementById('cardExpiryError').classList.add('show');
+                valid = false;
+            } else {
+                const m = parseInt(expMatch[1]);
+                const y = parseInt(expMatch[2]) + 2000;
+                const now = new Date();
+                if (m < 1 || m > 12 || y < now.getFullYear() || (y === now.getFullYear() && m < now.getMonth() + 1)) {
+                    document.getElementById('cardExpiry').classList.add('error');
+                    document.getElementById('cardExpiryError').classList.add('show');
+                    valid = false;
+                } else {
+                    document.getElementById('cardExpiry').classList.remove('error');
+                    document.getElementById('cardExpiryError').classList.remove('show');
+                }
+            }
+
+            // CVV
+            if (cvv.length < 3 || !/^\d+$/.test(cvv)) {
+                document.getElementById('cardCVV').classList.add('error');
+                document.getElementById('cardCVVError').classList.add('show');
+                valid = false;
+            } else {
+                document.getElementById('cardCVV').classList.remove('error');
+                document.getElementById('cardCVVError').classList.remove('show');
+            }
+
+            return valid;
+        }
+
+        function processPayment() {
+            if (!validateCard()) return;
+
+            const btn = document.getElementById('payBtn');
+            btn.classList.add('loading');
+            btn.querySelector('.pay-btn-text').textContent = 'Processing...';
+
+            setTimeout(() => {
+                btn.classList.remove('loading');
+                btn.querySelector('.pay-btn-text').textContent = 'Pay Now';
+                document.getElementById('cardOverlay').classList.remove('active');
+                document.getElementById('successOverlay').classList.add('active');
+            }, 2000);
+        }
+
+        // Close agreement on overlay click
+        document.getElementById('agreementOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeAgreement();
+        });
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
