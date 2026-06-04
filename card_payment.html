@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Credit Card Payment</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+            background: #f5f7fa;
+            color: #111827;
+            min-height: 100vh;
+        }
+        .header {
+            background: white;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            padding: 4px 8px;
+            color: #111827;
+        }
+        .header-title {
+            font-size: 17px;
+            font-weight: 700;
+        }
+        .header-placeholder { width: 40px; }
+
+        .amount-banner {
+            background: linear-gradient(135deg, #007aff, #0056cc);
+            color: white;
+            text-align: center;
+            padding: 28px 16px;
+        }
+        .amount-label { font-size: 13px; opacity: 0.85; margin-bottom: 6px; }
+        .amount-value { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; }
+        .amount-note { font-size: 12px; opacity: 0.7; margin-top: 6px; }
+
+        .card-visual {
+            margin: -24px 20px 0;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            border-radius: 16px;
+            padding: 24px 20px;
+            color: white;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+        .card-chip {
+            width: 40px;
+            height: 30px;
+            background: linear-gradient(135deg, #ffd700, #daa520);
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+        .card-number-display {
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            margin-bottom: 16px;
+            font-family: 'Courier New', monospace;
+        }
+        .card-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        .card-holder-display { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        .card-expiry-display { font-size: 12px; text-align: right; }
+        .card-expiry-label { font-size: 9px; opacity: 0.7; margin-bottom: 2px; }
+
+        .form-section {
+            padding: 24px 20px;
+        }
+        .form-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #1e293b;
+        }
+        .form-group { margin-bottom: 16px; }
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px;
+            background: white;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #007aff;
+        }
+        .form-input.error { border-color: #ef4444; }
+        .form-error {
+            font-size: 12px;
+            color: #ef4444;
+            margin-top: 4px;
+            display: none;
+        }
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+        .form-row .form-group { flex: 1; }
+
+        .card-type-icons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .card-type-badge {
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            border: 2px solid #e2e8f0;
+            color: #64748b;
+            transition: all 0.2s;
+        }
+        .card-type-badge.active {
+            border-color: #007aff;
+            color: #007aff;
+            background: #f0f7ff;
+        }
+
+        .save-card-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 0;
+        }
+        .save-card-row input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #007aff;
+        }
+        .save-card-label { font-size: 14px; color: #475569; }
+
+        .pay-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #007aff, #0056cc);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 12px;
+            box-shadow: 0 4px 12px rgba(0,122,255,0.3);
+        }
+        .pay-btn:active { opacity: 0.9; transform: scale(0.99); }
+        .pay-btn:disabled {
+            background: #cbd5e1;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .secure-note {
+            text-align: center;
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 16px;
+            padding-bottom: 32px;
+        }
+        .secure-note span { font-size: 14px; }
+
+        /* Success overlay */
+        .success-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+        .success-overlay.active { display: flex; }
+        .success-card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px 32px;
+            text-align: center;
+            max-width: 320px;
+            width: 90%;
+            animation: popIn 0.3s ease;
+        }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .success-icon { font-size: 56px; margin-bottom: 16px; }
+        .success-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+        .success-desc { font-size: 14px; color: #64748b; margin-bottom: 24px; }
+        .success-btn {
+            padding: 12px 32px;
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="window.history.back()">←</button>
+        <div class="header-title">Credit Card Payment</div>
+        <div class="header-placeholder"></div>
+    </div>
+
+    <div class="amount-banner">
+        <div class="amount-label">Amount to Pay</div>
+        <div class="amount-value">MYR 98</div>
+        <div class="amount-note">Spirulina Bundle · Monthly subscription</div>
+    </div>
+
+    <div class="card-visual">
+        <div class="card-chip"></div>
+        <div class="card-number-display" id="cardDisplayNum">•••• •••• •••• ••••</div>
+        <div class="card-bottom">
+            <div class="card-holder-display" id="cardDisplayHolder">YOUR NAME</div>
+            <div>
+                <div class="card-expiry-label">VALID THRU</div>
+                <div class="card-expiry-display" id="cardDisplayExp">MM/YY</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <div class="form-title">Card Information</div>
+        <div class="card-type-icons">
+            <span class="card-type-badge" id="badgeVisa">VISA</span>
+            <span class="card-type-badge" id="badgeMC">Mastercard</span>
+            <span class="card-type-badge" id="badgeAmex">AMEX</span>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Cardholder Name</label>
+            <input class="form-input" id="cardName" type="text" placeholder="Name on card" autocomplete="cc-name">
+            <div class="form-error" id="nameError">Please enter cardholder name</div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Card Number</label>
+            <input class="form-input" id="cardNumber" type="text" placeholder="1234 5678 9012 3456" maxlength="19" autocomplete="cc-number" inputmode="numeric">
+            <div class="form-error" id="numberError">Please enter a valid card number</div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Expiry Date</label>
+                <input class="form-input" id="cardExpiry" type="text" placeholder="MM/YY" maxlength="5" autocomplete="cc-exp" inputmode="numeric">
+                <div class="form-error" id="expiryError">Invalid expiry date</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">CVV</label>
+                <input class="form-input" id="cardCVV" type="password" placeholder="•••" maxlength="4" autocomplete="cc-csc" inputmode="numeric">
+                <div class="form-error" id="cvvError">Invalid CVV</div>
+            </div>
+        </div>
+
+        <div class="save-card-row">
+            <input type="checkbox" id="saveCard" checked>
+            <label class="save-card-label" for="saveCard">Save card for future payments</label>
+        </div>
+
+        <button class="pay-btn" id="payBtn" onclick="processPayment()">Pay MYR 98</button>
+
+        <div class="secure-note">
+            <span>🔒</span> Your payment is secured with 256-bit SSL encryption
+        </div>
+    </div>
+
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-card">
+            <div class="success-icon">✅</div>
+            <div class="success-title">Payment Successful!</div>
+            <div class="success-desc">Your subscription payment of MYR 98 has been processed.</div>
+            <button class="success-btn" onclick="window.location.href='my_subscriptions.html'">View Subscriptions</button>
+        </div>
+    </div>
+
+    <script>
+        const cardName = document.getElementById('cardName');
+        const cardNumber = document.getElementById('cardNumber');
+        const cardExpiry = document.getElementById('cardExpiry');
+        const cardCVV = document.getElementById('cardCVV');
+
+        cardName.addEventListener('input', function() {
+            document.getElementById('cardDisplayHolder').textContent = this.value || 'YOUR NAME';
+        });
+
+        cardNumber.addEventListener('input', function() {
+            let v = this.value.replace(/\D/g, '').substring(0, 16);
+            let formatted = v.replace(/(\d{4})(?=\d)/g, '$1 ');
+            this.value = formatted;
+            document.getElementById('cardDisplayNum').textContent = formatted || '•••• •••• •••• ••••';
+            detectCardType(v);
+        });
+
+        cardExpiry.addEventListener('input', function() {
+            let v = this.value.replace(/\D/g, '').substring(0, 4);
+            if (v.length >= 2) v = v.substring(0, 2) + '/' + v.substring(2);
+            this.value = v;
+            document.getElementById('cardDisplayExp').textContent = v || 'MM/YY';
+        });
+
+        function detectCardType(num) {
+            document.querySelectorAll('.card-type-badge').forEach(b => b.classList.remove('active'));
+            if (num.startsWith('4')) document.getElementById('badgeVisa').classList.add('active');
+            else if (num.startsWith('5') || num.startsWith('2')) document.getElementById('badgeMC').classList.add('active');
+            else if (num.startsWith('3')) document.getElementById('badgeAmex').classList.add('active');
+        }
+
+        function processPayment() {
+            let valid = true;
+            if (!cardName.value.trim()) { document.getElementById('nameError').style.display = 'block'; cardName.classList.add('error'); valid = false; }
+            else { document.getElementById('nameError').style.display = 'none'; cardName.classList.remove('error'); }
+
+            const num = cardNumber.value.replace(/\s/g, '');
+            if (num.length < 13) { document.getElementById('numberError').style.display = 'block'; cardNumber.classList.add('error'); valid = false; }
+            else { document.getElementById('numberError').style.display = 'none'; cardNumber.classList.remove('error'); }
+
+            const exp = cardExpiry.value;
+            if (!/^\d{2}\/\d{2}$/.test(exp)) { document.getElementById('expiryError').style.display = 'block'; cardExpiry.classList.add('error'); valid = false; }
+            else { document.getElementById('expiryError').style.display = 'none'; cardExpiry.classList.remove('error'); }
+
+            if (cardCVV.value.length < 3) { document.getElementById('cvvError').style.display = 'block'; cardCVV.classList.add('error'); valid = false; }
+            else { document.getElementById('cvvError').style.display = 'none'; cardCVV.classList.remove('error'); }
+
+            if (!valid) return;
+
+            const btn = document.getElementById('payBtn');
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+            setTimeout(() => {
+                document.getElementById('successOverlay').classList.add('active');
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
