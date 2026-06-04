@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Touch 'n Go eWallet</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Inter", "PingFang SC", system-ui, -apple-system, sans-serif;
+            background: linear-gradient(180deg, #0057B8 0%, #003D82 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .tng-logo {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            margin-bottom: 28px;
+        }
+        .tng-logo-inner {
+            font-size: 48px;
+            color: #0057B8;
+            font-weight: 800;
+            text-align: center;
+            line-height: 1.1;
+        }
+        .tng-title {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .tng-subtitle {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 40px;
+        }
+        .tng-btn {
+            background: white;
+            color: #0057B8;
+            border: none;
+            padding: 14px 48px;
+            border-radius: 28px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            margin-bottom: 12px;
+        }
+        .tng-btn:active { opacity: 0.9; transform: scale(0.98); }
+        .tng-btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255,255,255,0.5);
+            padding: 12px 48px;
+            border-radius: 28px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        .tng-footer {
+            position: absolute;
+            bottom: 40px;
+            font-size: 12px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="tng-logo">
+        <div class="tng-logo-inner">T<br>n'G</div>
+    </div>
+    <div class="tng-title">Touch 'n Go eWallet</div>
+    <div class="tng-subtitle">Pay seamlessly with your eWallet balance</div>
+    <button class="tng-btn" onclick="window.location.href='payment.html?method=tng'">Pay with eWallet</button>
+    <button class="tng-btn-secondary" onclick="window.history.back()">Go Back</button>
+    <div class="tng-footer">Touch 'n Go eWallet &copy; 2026</div>
+</body>
+</html>
