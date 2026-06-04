@@ -539,6 +539,88 @@
             font-size: 12px;
             color: #6b7280;
         }
+    
+        .history-item.unpaid-item {
+            background: #fef2f2;
+            border: 1px solid #fca5a5;
+            border-radius: 12px;
+            padding: 12px;
+        }
+        .history-status.unpaid {
+            color: #dc2626;
+            font-weight: 700;
+        }
+        .pay-now-btn {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 6px 16px;
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .pay-now-btn:active { opacity: 0.8; }
+
+    
+        .pay-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .pay-modal-overlay.active { display: flex; }
+        .pay-modal {
+            background: white;
+            width: 100%;
+            max-width: 420px;
+            border-radius: 20px 20px 0 0;
+            padding: 24px 20px 32px;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .pay-modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #1e293b;
+        }
+        .pay-option {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 14px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .pay-option:active, .pay-option:hover { border-color: #007aff; background: #f0f7ff; }
+        .pay-option-icon { font-size: 28px; }
+        .pay-option-info { flex: 1; }
+        .pay-option-name { font-size: 15px; font-weight: 600; color: #1e293b; }
+        .pay-option-desc { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+        .pay-option-arrow { font-size: 18px; color: #cbd5e1; }
+        .pay-modal-cancel {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            background: #f1f5f9;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
     </style>
 </head>
 <body>
@@ -786,6 +868,18 @@
                             </div>
                         </div>
                     `).join('')}
+                    <div class="history-item unpaid-item">
+                        <div class="history-icon" style="background:#fee2e2;color:#dc2626;">⏳</div>
+                        <div class="history-info">
+                            <div class="history-title">Next payment due</div>
+                            <div class="history-date">${formatDate(sub.nextBilling)}</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div class="history-amount">MYR ${sub.price}</div>
+                            <div class="history-status unpaid">Unpaid</div>
+                            <button class="pay-now-btn" onclick="event.stopPropagation(); openPayModal()">Pay Now</button>
+                        </div>
+                    </div>
                     ${(() => {
                         const totalBV = (sub.billingHistory || []).reduce((sum, h) => sum + (h.bv || 0), 0);
                         return '<div class="bv-summary"><span class="bv-summary-icon">📈</span><div><div class="bv-summary-text">Total BV Earned: ' + totalBV.toFixed(2) + '</div><div class="bv-summary-sub">BV is credited on each successful payment</div></div></div>';
@@ -819,6 +913,48 @@
 
         // Init
         renderSubs();
-    </script>
+    
+        function openPayModal() {
+            document.getElementById('payModal').classList.add('active');
+        }
+        function closePayModal() {
+            document.getElementById('payModal').classList.remove('active');
+        }
+        function selectPayMethod(method) {
+            closePayModal();
+            closeDetail();
+            if (method === 'credit_card') {
+                window.location.href = 'payment.html?method=card';
+            } else {
+                window.location.href = 'payment.html?method=tng';
+            }
+        }
+
+        </script>
+
+    <!-- Payment Method Modal -->
+    <div class="pay-modal-overlay" id="payModal">
+        <div class="pay-modal">
+            <div class="pay-modal-title">Select Payment Method</div>
+            <div class="pay-option" onclick="selectPayMethod('credit_card')">
+                <span class="pay-option-icon">💳</span>
+                <div class="pay-option-info">
+                    <div class="pay-option-name">Credit Card</div>
+                    <div class="pay-option-desc">Visa, Mastercard, AMEX</div>
+                </div>
+                <span class="pay-option-arrow">›</span>
+            </div>
+            <div class="pay-option" onclick="selectPayMethod('tng')">
+                <span class="pay-option-icon">📱</span>
+                <div class="pay-option-info">
+                    <div class="pay-option-name">Touch 'n Go eWallet</div>
+                    <div class="pay-option-desc">Pay with TNG eWallet balance</div>
+                </div>
+                <span class="pay-option-arrow">›</span>
+            </div>
+            <button class="pay-modal-cancel" onclick="closePayModal()">Cancel</button>
+        </div>
+    </div>
+
 </body>
 </html>

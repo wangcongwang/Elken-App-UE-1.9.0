@@ -698,6 +698,44 @@
 
         .gift-card.special .gift-card-item-icon {
             color: #f59e0b;
+        .gift-card.unpaid {
+            background: linear-gradient(145deg, #fef2f2, #fee2e2);
+            border-color: #fca5a5;
+        }
+        .gift-card.unpaid .gift-card-month {
+            color: #dc2626;
+        }
+        .gift-card.unpaid .gift-card-icon {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+        }
+        .gift-card.unpaid .gift-card-name {
+            color: #dc2626;
+        }
+        .gift-card-unpaid-status {
+            display: inline-block;
+            background: #dc2626;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-top: 4px;
+        }
+        .gift-card-pay-btn {
+            width: 100%;
+            padding: 6px 0;
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 4px;
+        }
+        .gift-card-pay-btn:active {
+            opacity: 0.8;
+        }
         }
 
         /* 订阅协议弹窗 */
@@ -1669,7 +1707,7 @@
                     <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Anti-scale Pad</div>
                 </div>
             </div>
-            <div class="gift-card">
+            <div class="gift-card unpaid">
                 <div class="gift-card-header">
                     <span class="gift-card-month">MONTH 12</span>
                     <div class="gift-card-icon">🔄</div>
@@ -1680,6 +1718,8 @@
                     <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Deep Clean Kit</div>
                     <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Service Voucher</div>
                 </div>
+                <div class="gift-card-unpaid-status">Unpaid</div>
+                <button class="gift-card-pay-btn" onclick="event.stopPropagation(); window.location.href='payment.html'">Pay Now</button>
             </div>
         </div>
     </div>
