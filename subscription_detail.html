@@ -1282,6 +1282,10 @@
             <span class="price-period" id="pricePeriod">/month</span>
         </div>
         <div class="price-note" id="priceNote">First month only MYR 98 · 12-month commitment, non-cancellable</div>
+        <div style="margin-top: 10px; display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #ecfdf5, #d1fae5); padding: 6px 14px; border-radius: 10px;">
+            <span style="font-size: 14px;">📈</span>
+            <span style="font-size: 14px; font-weight: 700; color: #065f46;" id="bvDisplay">BV 0.64 /month</span>
+        </div>
     </div>
 
     <!-- 订阅计划 -->
@@ -1699,14 +1703,16 @@
                 period: '/month',
                 note: 'Flexible plan · Cancel anytime',
                 subtitle: 'Premium Elken Spirulina nutrition bundle with monthly wellness gifts · Monthly Plan',
-                bottomNote: 'Cancel anytime · No lock-in contract'
+                bottomNote: 'Cancel anytime · No lock-in contract',
+                bv: 'BV 0.79'
             },
             annual: {
                 price: 'MYR 128',
                 period: '/month',
                 note: 'First month only MYR 98 · 12-month commitment, non-cancellable',
                 subtitle: 'Premium Elken Spirulina nutrition bundle with monthly wellness gifts · Annual Plan (12 Months)',
-                bottomNote: '12-month commitment · Non-cancellable'
+                bottomNote: '12-month commitment · Non-cancellable',
+                bv: 'BV 0.64'
             }
         };
 
@@ -1726,6 +1732,8 @@
             document.getElementById('priceNote').textContent = data.note;
             document.getElementById('planSubtitle').textContent = data.subtitle;
             document.getElementById('bottomNote').textContent = data.bottomNote;
+            document.getElementById('bvDisplay').textContent = data.bv + ' /month';
+            document.getElementById('specBV').textContent = data.bv;
         }
 
         // Agreement modal
