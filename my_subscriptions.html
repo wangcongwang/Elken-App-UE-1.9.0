@@ -504,6 +504,41 @@
         .history-gift-tag:has(+ .history-gift-tag) {
             /* spacing handled by gap */
         }
+
+        .history-bv-tag {
+            font-size: 11px;
+            color: #065f46;
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            padding: 2px 8px;
+            border-radius: 6px;
+            white-space: nowrap;
+            font-weight: 600;
+        }
+
+        .bv-summary {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            padding: 10px 14px;
+            border-radius: 12px;
+            margin-top: 10px;
+        }
+
+        .bv-summary-icon {
+            font-size: 20px;
+        }
+
+        .bv-summary-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: #065f46;
+        }
+
+        .bv-summary-sub {
+            font-size: 12px;
+            color: #6b7280;
+        }
     </style>
 </head>
 <body>
@@ -561,20 +596,21 @@
                         planKey: 'annual',
                         price: 98,
                         firstMonth: 68,
+                        bv: 0.50,
                         status: 'active',
                         startDate: '2026-06-01',
                         nextBilling: '2026-07-01',
                         installDate: '2026-06-08',
                         paymentMethod: 'Visa •••• 4242',
                         billingHistory: [
-                            { date: '2026-06-01', amount: 68, status: 'success', desc: 'First month (promo)', gift: ['Alkaline Filter Set', 'Cleaning Kit', 'User Guide'] },
-                            { date: '2026-07-01', amount: 98, status: 'success', desc: 'Monthly subscription', gift: ['Spare Nozzle', 'Descaling Solution'] },
-                            { date: '2026-08-01', amount: 98, status: 'success', desc: 'Monthly subscription + 1000 PRP Points', gift: ['1000 PRP Points', 'Premium Filter', 'Cleaning Cloth'] },
-                            { date: '2026-09-01', amount: 98, status: 'success', desc: 'Monthly subscription', gift: ['Replacement Filter', 'Sanitiser Drops'] },
-                            { date: '2026-10-01', amount: 98, status: 'failed', desc: 'Monthly subscription — Card declined', gift: [] },
-                            { date: '2026-10-05', amount: 98, status: 'success', desc: 'Monthly subscription — Retry', gift: ['Replacement Filter', 'Sanitiser Drops'] },
-                            { date: '2026-11-01', amount: 98, status: 'success', desc: 'Monthly subscription', gift: ['Replacement Filter', 'Sanitiser Drops'] },
-                            { date: '2026-12-01', amount: 98, status: 'success', desc: 'Monthly subscription', gift: ['Replacement Filter', 'Sanitiser Drops'] }
+                            { date: '2026-06-01', amount: 68, status: 'success', desc: 'First month (promo)', gift: ['Alkaline Filter Set', 'Cleaning Kit', 'User Guide'], bv: 0.50 },
+                            { date: '2026-07-01', amount: 98, status: 'success', desc: 'Monthly subscription', gift: ['Spare Nozzle', 'Descaling Solution'], bv: 0.50 },
+                            { date: '2026-08-01', amount: 98, status: 'success', desc: 'Monthly subscription + 1000 PRP Points', gift: ['1000 PRP Points', 'Premium Filter', 'Cleaning Cloth'], bv: 0.50 },
+                            { date: '2026-09-01', amount: 98, status: 'success', desc: 'Monthly subscription', gift: ['Replacement Filter', 'Sanitiser Drops'], bv: 0.50 },
+                            { date: '2026-10-01', amount: 98, status: 'failed', desc: 'Monthly subscription — Card declined', gift: [], bv: 0 },
+                            { date: '2026-10-05', amount: 98, status: 'success', desc: 'Monthly subscription — Retry', gift: ['Replacement Filter', 'Sanitiser Drops'], bv: 0.50 },
+                            { date: '2026-11-01', amount: 98, status: 'success', desc: 'Monthly subscription', gift: ['Replacement Filter', 'Sanitiser Drops'], bv: 0.50 },
+                            { date: '2026-12-01', amount: 98, status: 'success', desc: 'Monthly subscription', gift: ['Replacement Filter', 'Sanitiser Drops'], bv: 0.50 }
                         ]
                     },
                     {
@@ -585,23 +621,24 @@
                         planKey: 'monthly',
                         price: 128,
                         firstMonth: null,
+                        bv: 0.64,
                         status: 'active',
                         startDate: '2026-05-15',
                         nextBilling: '2026-06-15',
                         installDate: '2026-05-20',
                         paymentMethod: 'GrabPay',
                         billingHistory: [
-                            { date: '2026-05-15', amount: 128, status: 'success', desc: 'Monthly subscription', gift: ['Replacement Filter', 'Sanitiser Drops'] },
-                            { date: '2026-04-15', amount: 128, status: 'success', desc: 'Monthly subscription', gift: ['Replacement Filter', 'Sanitiser Drops'] },
-                            { date: '2026-03-15', amount: 128, status: 'success', desc: 'Monthly subscription + 1000 PRP Points', gift: ['1000 PRP Points', 'Premium Filter', 'Cleaning Cloth'] },
-                            { date: '2026-02-15', amount: 128, status: 'success', desc: 'Monthly subscription', gift: ['Spare Nozzle', 'Descaling Solution'] },
-                            { date: '2026-01-15', amount: 128, status: 'success', desc: 'Monthly subscription', gift: ['Alkaline Filter Set', 'Cleaning Kit', 'User Guide'] },
-                            { date: '2025-12-15', amount: 128, status: 'success', desc: 'Monthly subscription', gift: ['Replacement Filter', 'Sanitiser Drops'] },
-                            { date: '2025-11-15', amount: 128, status: 'success', desc: 'Monthly subscription', gift: ['Replacement Filter', 'Sanitiser Drops'] },
-                            { date: '2025-10-15', amount: 128, status: 'failed', desc: 'Monthly subscription — Payment timeout', gift: [] },
-                            { date: '2025-10-18', amount: 128, status: 'success', desc: 'Monthly subscription — Retry', gift: ['Replacement Filter', 'Sanitiser Drops'] },
-                            { date: '2025-09-15', amount: 128, status: 'success', desc: 'Monthly subscription', gift: ['Replacement Filter', 'Sanitiser Drops'] },
-                            { date: '2025-08-15', amount: 128, status: 'success', desc: 'Monthly subscription', gift: ['Alkaline Filter Set', 'Cleaning Kit', 'User Guide'] }
+                            { date: '2026-05-15', amount: 128, status: 'success', desc: 'Monthly subscription', gift: ['Replacement Filter', 'Sanitiser Drops'], bv: 0.64 },
+                            { date: '2026-04-15', amount: 128, status: 'success', desc: 'Monthly subscription', gift: ['Replacement Filter', 'Sanitiser Drops'], bv: 0.64 },
+                            { date: '2026-03-15', amount: 128, status: 'success', desc: 'Monthly subscription + 1000 PRP Points', gift: ['1000 PRP Points', 'Premium Filter', 'Cleaning Cloth'], bv: 0.64 },
+                            { date: '2026-02-15', amount: 128, status: 'success', desc: 'Monthly subscription', gift: ['Spare Nozzle', 'Descaling Solution'], bv: 0.64 },
+                            { date: '2026-01-15', amount: 128, status: 'success', desc: 'Monthly subscription', gift: ['Alkaline Filter Set', 'Cleaning Kit', 'User Guide'], bv: 0.64 },
+                            { date: '2025-12-15', amount: 128, status: 'success', desc: 'Monthly subscription', gift: ['Replacement Filter', 'Sanitiser Drops'], bv: 0.64 },
+                            { date: '2025-11-15', amount: 128, status: 'success', desc: 'Monthly subscription', gift: ['Replacement Filter', 'Sanitiser Drops'], bv: 0.64 },
+                            { date: '2025-10-15', amount: 128, status: 'failed', desc: 'Monthly subscription — Payment timeout', gift: [], bv: 0 },
+                            { date: '2025-10-18', amount: 128, status: 'success', desc: 'Monthly subscription — Retry', gift: ['Replacement Filter', 'Sanitiser Drops'], bv: 0.64 },
+                            { date: '2025-09-15', amount: 128, status: 'success', desc: 'Monthly subscription', gift: ['Replacement Filter', 'Sanitiser Drops'], bv: 0.64 },
+                            { date: '2025-08-15', amount: 128, status: 'success', desc: 'Monthly subscription', gift: ['Alkaline Filter Set', 'Cleaning Kit', 'User Guide'], bv: 0.64 }
                         ]
                     }
                 ];
@@ -709,6 +746,10 @@
                     </div>
                     ${sub.firstMonth ? `<div class="detail-row"><span class="detail-label">First Month</span><span class="detail-value">MYR ${sub.firstMonth}</span></div>` : ''}
                     <div class="detail-row">
+                        <span class="detail-label">Monthly BV</span>
+                        <span class="detail-value" style="color: #065f46; font-weight: 700;">BV ${sub.bv || 0}</span>
+                    </div>
+                    <div class="detail-row">
                         <span class="detail-label">Payment Method</span>
                         <span class="detail-value">${sub.paymentMethod}</span>
                     </div>
@@ -737,6 +778,7 @@
                                 <div class="history-title">${h.desc}</div>
                                 <div class="history-date">${formatDate(h.date)}</div>
                                 ${h.gift && h.gift.length > 0 ? '<div class="history-gift">' + h.gift.map(g => '<span class="history-gift-tag">' + (g.includes('PRP') ? '⭐ ' : '🎁 ') + g + '</span>').join('') + '</div>' : ''}
+                                ${h.bv ? '<div class="history-gift" style="margin-top: 2px;"><span class="history-bv-tag">📈 BV ' + h.bv.toFixed(2) + '</span></div>' : ''}
                             </div>
                             <div>
                                 <div class="history-amount">MYR ${h.amount}</div>
@@ -744,6 +786,10 @@
                             </div>
                         </div>
                     `).join('')}
+                    ${(() => {
+                        const totalBV = (sub.billingHistory || []).reduce((sum, h) => sum + (h.bv || 0), 0);
+                        return '<div class="bv-summary"><span class="bv-summary-icon">📈</span><div><div class="bv-summary-text">Total BV Earned: ' + totalBV.toFixed(2) + '</div><div class="bv-summary-sub">BV is credited on each successful payment</div></div></div>';
+                    })()}
                 </div>
                 <div class="detail-btn-row">
                     ${sub.status === 'active' ? '<button class="detail-btn cancel" onclick="cancelSub(' + idx + ')">Cancel Subscription</button>' : ''}

@@ -273,6 +273,145 @@
             border-radius: 10px;
         }
 
+
+        /* 购买数量 */
+        .qty-section {
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .qty-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .qty-label {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .qty-controls {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .qty-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: #f9fafb;
+            font-size: 20px;
+            font-weight: 600;
+            color: #374151;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+        }
+
+        .qty-btn:active {
+            background: #e5e7eb;
+        }
+
+        .qty-btn:disabled {
+            color: #d1d5db;
+            cursor: not-allowed;
+        }
+
+        .qty-input {
+            width: 48px;
+            height: 40px;
+            border: none;
+            border-left: 1px solid #e5e7eb;
+            border-right: 1px solid #e5e7eb;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: #1f2937;
+            background: white;
+            -moz-appearance: textfield;
+        }
+
+        .qty-input::-webkit-inner-spin-button,
+        .qty-input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+        }
+
+        .promo-banner {
+            margin-top: 12px;
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border: 1px solid #fbbf24;
+            border-radius: 12px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .promo-icon {
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .promo-text {
+            font-size: 13px;
+            color: #92400e;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .promo-text strong {
+            color: #b45309;
+            font-size: 14px;
+        }
+
+        .price-breakdown {
+            margin-top: 12px;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 12px 14px;
+        }
+
+        .price-row-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .price-row-item.discount {
+            color: #dc2626;
+        }
+
+        .price-row-item.total {
+            border-top: 1px dashed #e5e7eb;
+            margin-top: 6px;
+            padding-top: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .price-row-item .free-badge {
+            background: #dc2626;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 6px;
+        }
+
         /* 套餐包含 */
         .includes-section {
             background-color: white;
@@ -1282,6 +1421,10 @@
             <span class="price-period" id="pricePeriod">/month</span>
         </div>
         <div class="price-note" id="priceNote">First month only MYR 68 · 12-month commitment, non-cancellable</div>
+        <div style="margin-top: 10px; display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #eff6ff, #dbeafe); padding: 6px 14px; border-radius: 10px;">
+            <span style="font-size: 14px;">📈</span>
+            <span style="font-size: 14px; font-weight: 700; color: #1e3a8a;" id="bvDisplay">BV 0.50 /month</span>
+        </div>
     </div>
 
     <!-- 订阅计划 -->
@@ -1310,6 +1453,46 @@
                     <span class="plan-save">SAVE 23%</span>
                     <span class="plan-price">MYR 98/mo</span>
                     <div class="plan-check">✓</div>
+                </div>
+            </div>
+        </div>
+        <div class="qty-section">
+            <div class="qty-row">
+                <span class="qty-label">购买数量 (Months)</span>
+                <div class="qty-controls">
+                    <button class="qty-btn" id="qtyMinus" onclick="changeQty(-1)">−</button>
+                    <input type="number" class="qty-input" id="qtyInput" value="1" min="1" max="99" onchange="setQty(this.value)">
+                    <button class="qty-btn" id="qtyPlus" onclick="changeQty(1)">+</button>
+                </div>
+            </div>
+            <div class="promo-banner" id="promoBanner">
+                <span class="promo-icon">🎉</span>
+                <div class="promo-text"><strong>Buy 3 Get 1 Free!</strong><br>Every 3 months purchased = 1 extra month free</div>
+            </div>
+            <div class="price-breakdown" id="priceBreakdown">
+                <div class="price-row-item">
+                    <span>Unit Price</span>
+                    <span id="bdUnitPrice">MYR 98</span>
+                </div>
+                <div class="price-row-item">
+                    <span>Quantity</span>
+                    <span id="bdQty">× 1</span>
+                </div>
+                <div class="price-row-item" id="bdFreeRow" style="display: none;">
+                    <span>Free Months</span>
+                    <span style="color: #059669; font-weight: 600;" id="bdFree">+0</span>
+                </div>
+                <div class="price-row-item" id="bdOrigRow" style="display: none;">
+                    <span>Original Total</span>
+                    <span id="bdOrig">MYR 98</span>
+                </div>
+                <div class="price-row-item discount" id="bdDiscountRow" style="display: none;">
+                    <span>Discount</span>
+                    <span id="bdDiscount">- MYR 0</span>
+                </div>
+                <div class="price-row-item total">
+                    <span>Total to Pay</span>
+                    <span id="bdTotal">MYR 98</span>
                 </div>
             </div>
         </div>
@@ -1532,6 +1715,14 @@
                 <span class="spec-label">Warranty</span>
                 <span class="spec-value">Full coverage during subscription</span>
             </div>
+            <div class="spec-row">
+                <span class="spec-label">Monthly BV</span>
+                <span class="spec-value" id="specBV">BV 0.50</span>
+            </div>
+            <div class="spec-row">
+                <span class="spec-label">Annual BV (Total)</span>
+                <span class="spec-value">BV 6.00</span>
+            </div>
         </div>
     </div>
 
@@ -1699,14 +1890,16 @@
                 period: '/month',
                 note: 'Flexible plan · Cancel anytime',
                 subtitle: 'Hot & Cold Alkaline Water Dispenser with 4-Stage Filtration · Monthly Plan',
-                bottomNote: 'Cancel anytime · No lock-in contract'
+                bottomNote: 'Cancel anytime · No lock-in contract',
+                bv: 'BV 0.64'
             },
             annual: {
                 price: 'MYR 98',
                 period: '/month',
                 note: 'First month only MYR 68 · 12-month commitment, non-cancellable',
                 subtitle: 'Hot & Cold Alkaline Water Dispenser with 4-Stage Filtration · Annual Plan (12 Months)',
-                bottomNote: '12-month commitment · Non-cancellable'
+                bottomNote: '12-month commitment · Non-cancellable',
+                bv: 'BV 0.50'
             }
         };
 
@@ -1719,13 +1912,69 @@
             updateInfoDisplay();
         }
 
-        function updateInfoDisplay() {
+
+        // Quantity & promotion logic
+        let quantity = 1;
+
+        function changeQty(delta) {
+            const newVal = quantity + delta;
+            if (newVal >= 1 && newVal <= 99) {
+                quantity = newVal;
+                document.getElementById('qtyInput').value = quantity;
+                updatePriceBreakdown();
+            }
+        }
+
+        function setQty(val) {
+            const v = parseInt(val) || 1;
+            quantity = Math.max(1, Math.min(99, v));
+            document.getElementById('qtyInput').value = quantity;
+            updatePriceBreakdown();
+        }
+
+        function getUnitPrice() {
+            return selectedPlan === 'annual' ? 98 : 128;
+        }
+
+        function updatePriceBreakdown() {
+            const unitPrice = getUnitPrice();
+            const freeMonths = Math.floor(quantity / 3);
+            const origTotal = quantity * unitPrice;
+            const discount = freeMonths * unitPrice;
+            const finalTotal = origTotal - discount;
+            const totalMonths = quantity + freeMonths;
+
+            document.getElementById('bdUnitPrice').textContent = 'MYR ' + unitPrice;
+            document.getElementById('bdQty').textContent = '× ' + quantity;
+
+            if (freeMonths > 0) {
+                document.getElementById('bdFreeRow').style.display = 'flex';
+                document.getElementById('bdOrigRow').style.display = 'flex';
+                document.getElementById('bdDiscountRow').style.display = 'flex';
+                document.getElementById('bdFree').textContent = '+' + freeMonths + ' (Total ' + totalMonths + ' months)';
+                document.getElementById('bdOrig').textContent = 'MYR ' + origTotal;
+                document.getElementById('bdDiscount').textContent = '- MYR ' + discount;
+                document.getElementById('bdDiscount').innerHTML = '- MYR ' + discount + ' <span class="free-badge">SAVE MYR ' + discount + '</span>';
+            } else {
+                document.getElementById('bdFreeRow').style.display = 'none';
+                document.getElementById('bdOrigRow').style.display = 'none';
+                document.getElementById('bdDiscountRow').style.display = 'none';
+            }
+
+            document.getElementById('bdTotal').textContent = 'MYR ' + finalTotal;
+            document.getElementById('bottomNote').textContent = (selectedPlan === 'annual' ? '12-month commitment · ' : '') + 'Pay ' + quantity + ' month' + (quantity > 1 ? 's' : '') + ', get ' + totalMonths + ' month' + (totalMonths > 1 ? 's' : '') + ' total';
+        }
+
+                function updateInfoDisplay() {
             const data = planData[selectedPlan];
             document.getElementById('priceMain').textContent = data.price;
             document.getElementById('pricePeriod').textContent = data.period;
             document.getElementById('priceNote').textContent = data.note;
             document.getElementById('planSubtitle').textContent = data.subtitle;
             document.getElementById('bottomNote').textContent = data.bottomNote;
+            document.getElementById('bvDisplay').textContent = data.bv + ' /month';
+            document.getElementById('specBV').textContent = data.bv;
+            updatePriceBreakdown();
         }
 
         // Agreement modal
@@ -1845,14 +2094,12 @@
 
         // Card payment page
         function showCardPage() {
-            const data = planData[selectedPlan];
-            if (selectedPlan === 'annual') {
-                document.getElementById('cardAmount').textContent = 'MYR 68';
-                document.getElementById('cardAmountNote').textContent = 'First month promotional price';
-            } else {
-                document.getElementById('cardAmount').textContent = 'MYR 128';
-                document.getElementById('cardAmountNote').textContent = 'Monthly subscription';
-            }
+            const unitPrice = getUnitPrice();
+            const freeMonths = Math.floor(quantity / 3);
+            const finalTotal = (quantity * unitPrice) - (freeMonths * unitPrice);
+            const totalMonths = quantity + freeMonths;
+            document.getElementById('cardAmount').textContent = 'MYR ' + finalTotal;
+            document.getElementById('cardAmountNote').textContent = quantity + ' month' + (quantity > 1 ? 's' : '') + (freeMonths > 0 ? ' + ' + freeMonths + ' free' : '') + ' subscription';
             document.getElementById('cardOverlay').classList.add('active');
             setupCardInputs();
         }
