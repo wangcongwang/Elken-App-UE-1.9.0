@@ -13,7 +13,7 @@
 
         body {
             font-family: "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: #f5f7fa;
+            background-color: #f0f2f5;
             color: #111827;
             min-width: 100%;
             overflow-x: hidden;
@@ -21,37 +21,31 @@
         }
 
         .status-bar {
-            background-color: white;
-            padding: 8px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 14px;
-            font-weight: 500;
+            display: none;
         }
 
         .header {
-            background-color: white;
-            padding: 12px 16px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            padding: 14px 16px;
             display: flex;
             align-items: center;
             gap: 12px;
-            border-bottom: 1px solid #e5e7eb;
             position: sticky;
             top: 0;
             z-index: 99;
+            box-shadow: 0 2px 12px rgba(30, 58, 138, 0.3);
         }
 
         .back-arrow {
             font-size: 24px;
             cursor: pointer;
-            color: #333;
+            color: white;
         }
 
         .header-title {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 600;
-            color: #333;
+            color: white;
             flex: 1;
             text-align: center;
         }
@@ -61,20 +55,21 @@
         }
 
         .product-images {
-            background-color: white;
-            padding: 20px;
+            background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 40%, #f0f2f5 100%);
+            padding: 24px 20px 28px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 280px;
+            min-height: 300px;
         }
 
         .product-image-main {
             width: 100%;
-            max-width: 360px;
-            border-radius: 16px;
+            max-width: 340px;
+            border-radius: 20px;
             overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
 
         .product-image-main img {
@@ -108,10 +103,11 @@
         }
 
         .badge {
-            padding: 4px 12px;
+            padding: 5px 14px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: 600;
+            letter-spacing: 0.3px;
         }
 
         .badge.subscribe {
@@ -126,8 +122,12 @@
 
         .product-info-section {
             background-color: white;
-            padding: 16px;
-            margin-top: 8px;
+            padding: 20px 16px;
+            margin: -12px 12px 0;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            position: relative;
+            z-index: 2;
         }
 
         .product-title {
@@ -151,9 +151,10 @@
         }
 
         .price-main {
-            font-size: 28px;
-            font-weight: 700;
+            font-size: 32px;
+            font-weight: 800;
             color: #1e3a8a;
+            letter-spacing: -0.5px;
         }
 
         .price-period {
@@ -170,7 +171,9 @@
         .plan-section {
             background-color: white;
             padding: 16px;
-            margin-top: 8px;
+            margin: 12px 12px 0;
+            border-radius: 16px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
         }
 
         .section-title {
@@ -191,8 +194,8 @@
 
         .plan-option {
             border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 14px 16px;
+            border-radius: 14px;
+            padding: 16px;
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
@@ -202,7 +205,8 @@
 
         .plan-option.selected {
             border-color: #1e3a8a;
-            background-color: #eff6ff;
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            box-shadow: 0 2px 8px rgba(30, 58, 138, 0.1);
         }
 
         .plan-option:active {
@@ -272,32 +276,39 @@
         /* 套餐包含 */
         .includes-section {
             background-color: white;
-            padding: 16px;
-            margin-top: 8px;
+            padding: 20px 16px;
+            margin: 12px 12px 0;
+            border-radius: 16px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
         }
 
         .include-list {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
         }
 
         .include-item {
             display: flex;
+            flex-direction: column;
             align-items: flex-start;
-            gap: 12px;
+            background-color: #f8fafc;
+            padding: 14px;
+            border-radius: 14px;
+            gap: 0;
         }
 
         .include-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
             background: linear-gradient(135deg, #e0f2fe, #bae6fd);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 20px;
             flex-shrink: 0;
+            margin-bottom: 6px;
         }
 
         .include-text {
@@ -319,8 +330,10 @@
         /* 规格 */
         .specs-section {
             background-color: white;
-            padding: 16px;
-            margin-top: 8px;
+            padding: 20px 16px;
+            margin: 12px 12px 0;
+            border-radius: 16px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
         }
 
         .spec-table {
@@ -356,23 +369,26 @@
             left: 0;
             right: 0;
             background-color: white;
-            padding: 12px 16px;
-            padding-bottom: max(12px, env(safe-area-inset-bottom));
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            padding: 14px 20px;
+            padding-bottom: max(14px, env(safe-area-inset-bottom));
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
             z-index: 1000;
+            border-radius: 20px 20px 0 0;
         }
 
         .subscribe-btn {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            padding: 16px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
             color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
+            box-shadow: 0 4px 14px rgba(30, 58, 138, 0.35);
+            letter-spacing: 0.3px;
         }
 
         .subscribe-btn:active {
@@ -412,6 +428,137 @@
         @keyframes toast-in {
             0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
             100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* 每月礼包 */
+        .gift-section {
+            background-color: white;
+            padding: 20px 0;
+            margin: 12px 12px 0;
+            border-radius: 16px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+        }
+
+        .gift-section .section-title {
+            padding: 0 16px;
+        }
+
+        .gift-scroll {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 14px 16px 16px;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .gift-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .gift-card {
+            flex-shrink: 0;
+            width: 140px;
+            border-radius: 16px;
+            padding: 16px 14px 14px;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+            background: linear-gradient(145deg, #f8fafc, #f1f5f9);
+            border: 1px solid #e2e8f0;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .gift-card:active {
+            transform: scale(0.97);
+        }
+
+        .gift-card.special {
+            background: linear-gradient(145deg, #fffbeb, #fef3c7);
+            border-color: #fbbf24;
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.2);
+        }
+
+        .gift-card-badge {
+            position: absolute;
+            top: -1px;
+            right: 12px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 0 0 10px 10px;
+            letter-spacing: 0.3px;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+        }
+
+        .gift-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .gift-card-month {
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .gift-card.special .gift-card-month {
+            color: #b45309;
+        }
+
+        .gift-card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .gift-card.special .gift-card-icon {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+        }
+
+        .gift-card-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1.2;
+        }
+
+        .gift-card-items {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .gift-card-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .gift-card-item-icon {
+            font-size: 10px;
+            color: #22c55e;
+        }
+
+        .gift-card.special .gift-card-item-icon {
+            color: #f59e0b;
         }
 
         /* 订阅协议弹窗 */
@@ -1201,6 +1348,154 @@
                 <div class="include-text">
                     <div class="include-title">Free Upgrade</div>
                     <div class="include-desc">Upgrade to newer model after 24 months</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 每月礼包 -->
+    <div class="gift-section">
+        <div class="section-title">
+            <span>🎁</span>
+            Monthly Gift Package
+        </div>
+        <div class="gift-scroll">
+            <div class="gift-card">
+                <div class="gift-card-header">
+                    <span class="gift-card-month">MONTH 1</span>
+                    <div class="gift-card-icon">💧</div>
+                </div>
+                <div class="gift-card-name">Welcome Pack</div>
+                <div class="gift-card-items">
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Alkaline Filter Set</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Cleaning Kit</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> User Guide</div>
+                </div>
+            </div>
+            <div class="gift-card">
+                <div class="gift-card-header">
+                    <span class="gift-card-month">MONTH 2</span>
+                    <div class="gift-card-icon">🔧</div>
+                </div>
+                <div class="gift-card-name">Maintenance Pack</div>
+                <div class="gift-card-items">
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Spare Nozzle</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Descaling Solution</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Microfibre Cloth</div>
+                </div>
+            </div>
+            <div class="gift-card special">
+                <div class="gift-card-badge">+1000 PRP</div>
+                <div class="gift-card-header">
+                    <span class="gift-card-month">MONTH 3</span>
+                    <div class="gift-card-icon">⭐</div>
+                </div>
+                <div class="gift-card-name">Reward Pack</div>
+                <div class="gift-card-items">
+                    <div class="gift-card-item"><span class="gift-card-item-icon">⭐</span> 1000 PRP Points</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Premium Filter</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Cleaning Cloth</div>
+                </div>
+            </div>
+            <div class="gift-card">
+                <div class="gift-card-header">
+                    <span class="gift-card-month">MONTH 4</span>
+                    <div class="gift-card-icon">💧</div>
+                </div>
+                <div class="gift-card-name">Care Pack</div>
+                <div class="gift-card-items">
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Replacement Filter</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Sanitiser Drops</div>
+                </div>
+            </div>
+            <div class="gift-card">
+                <div class="gift-card-header">
+                    <span class="gift-card-month">MONTH 5</span>
+                    <div class="gift-card-icon">🔧</div>
+                </div>
+                <div class="gift-card-name">Service Pack</div>
+                <div class="gift-card-items">
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Nozzle Brush Set</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Anti-bacterial Spray</div>
+                </div>
+            </div>
+            <div class="gift-card">
+                <div class="gift-card-header">
+                    <span class="gift-card-month">MONTH 6</span>
+                    <div class="gift-card-icon">🔄</div>
+                </div>
+                <div class="gift-card-name">Filter Refresh</div>
+                <div class="gift-card-items">
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Full Filter Set</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Descaling Solution</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Cleaning Wipes</div>
+                </div>
+            </div>
+            <div class="gift-card">
+                <div class="gift-card-header">
+                    <span class="gift-card-month">MONTH 7</span>
+                    <div class="gift-card-icon">💧</div>
+                </div>
+                <div class="gift-card-name">Essential Pack</div>
+                <div class="gift-card-items">
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Carbon Filter</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Sanitiser Drops</div>
+                </div>
+            </div>
+            <div class="gift-card">
+                <div class="gift-card-header">
+                    <span class="gift-card-month">MONTH 8</span>
+                    <div class="gift-card-icon">🎁</div>
+                </div>
+                <div class="gift-card-name">Bonus Pack</div>
+                <div class="gift-card-items">
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Premium Filter</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Water Test Kit</div>
+                </div>
+            </div>
+            <div class="gift-card">
+                <div class="gift-card-header">
+                    <span class="gift-card-month">MONTH 9</span>
+                    <div class="gift-card-icon">🔧</div>
+                </div>
+                <div class="gift-card-name">Maintenance Pack</div>
+                <div class="gift-card-items">
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Replacement Nozzle</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> O-ring Set</div>
+                </div>
+            </div>
+            <div class="gift-card">
+                <div class="gift-card-header">
+                    <span class="gift-card-month">MONTH 10</span>
+                    <div class="gift-card-icon">💧</div>
+                </div>
+                <div class="gift-card-name">Care Pack</div>
+                <div class="gift-card-items">
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Replacement Filter</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Cleaning Solution</div>
+                </div>
+            </div>
+            <div class="gift-card">
+                <div class="gift-card-header">
+                    <span class="gift-card-month">MONTH 11</span>
+                    <div class="gift-card-icon">🎁</div>
+                </div>
+                <div class="gift-card-name">Special Pack</div>
+                <div class="gift-card-items">
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> UV Steriliser Bulb</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Anti-scale Pad</div>
+                </div>
+            </div>
+            <div class="gift-card">
+                <div class="gift-card-header">
+                    <span class="gift-card-month">MONTH 12</span>
+                    <div class="gift-card-icon">🔄</div>
+                </div>
+                <div class="gift-card-name">Annual Refresh</div>
+                <div class="gift-card-items">
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Full Filter Set</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Deep Clean Kit</div>
+                    <div class="gift-card-item"><span class="gift-card-item-icon">✅</span> Service Voucher</div>
                 </div>
             </div>
         </div>
