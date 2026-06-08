@@ -60,6 +60,9 @@
         .stats-period { display: flex; gap: 8px; }
         .period-btn { padding: 6px 12px; background: #f8f9fa; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; }
         .period-btn.active { background: #43e97b; color: white; }
+        .channel-tabs { display: flex; gap: 8px; margin-bottom: 15px; padding: 0 0 10px; border-bottom: 1px solid #e0e0e0; overflow-x: auto; }
+        .channel-tab { padding: 8px 16px; background: #f8f9fa; border: none; border-radius: 20px; font-size: 13px; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+        .channel-tab.active { background: linear-gradient(135deg, #43e97b, #38f9d7); color: white; font-weight: 600; }
         .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
         .stat-card { background: #f8f9fa; border-radius: 12px; padding: 15px; text-align: center; }
         .stat-number { font-size: 24px; font-weight: 700; color: #43e97b; margin-bottom: 4px; }
@@ -281,11 +284,19 @@
                 <button class="period-btn" onclick="setPeriod(this)">本月</button>
             </div>
         </div>
-        <div class="stats-grid">
-            <div class="stat-card"><div class="stat-number">156</div><div class="stat-label">访问人数</div><div class="stat-change up">↑ 23%</div></div>
-            <div class="stat-card"><div class="stat-number">89</div><div class="stat-label">独立访客</div><div class="stat-change up">↑ 15%</div></div>
-            <div class="stat-card"><div class="stat-number">2.3</div><div class="stat-label">平均停留(分钟)</div><div class="stat-change down">↓ 5%</div></div>
-            <div class="stat-card"><div class="stat-number">12</div><div class="stat-label">咨询次数</div><div class="stat-change up">↑ 50%</div></div>
+        <div class="channel-tabs">
+            <button class="channel-tab active" onclick="setChannel(this, 'all')">全部渠道</button>
+            <button class="channel-tab" onclick="setChannel(this, 'whatsapp')">WhatsApp</button>
+            <button class="channel-tab" onclick="setChannel(this, 'facebook')">Facebook</button>
+            <button class="channel-tab" onclick="setChannel(this, 'instagram')">Instagram</button>
+            <button class="channel-tab" onclick="setChannel(this, 'rednote')">小红书</button>
+            <button class="channel-tab" onclick="setChannel(this, 'copy')">复制链接</button>
+        </div>
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card"><div class="stat-number" id="statVisits">156</div><div class="stat-label">访问人数</div><div class="stat-change up" id="statVisitsChange">↑ 23%</div></div>
+            <div class="stat-card"><div class="stat-number" id="statUnique">89</div><div class="stat-label">独立访客</div><div class="stat-change up" id="statUniqueChange">↑ 15%</div></div>
+            <div class="stat-card"><div class="stat-number" id="statDuration">2.3</div><div class="stat-label">平均停留(分钟)</div><div class="stat-change down" id="statDurationChange">↓ 5%</div></div>
+            <div class="stat-card"><div class="stat-number" id="statInquiries">12</div><div class="stat-label">咨询次数</div><div class="stat-change up" id="statInquiriesChange">↑ 50%</div></div>
         </div>
     </div>
 
@@ -300,12 +311,7 @@
             <button class="modal-close" onclick="closePreview()">&times;</button>
         </div>
         <div class="modal-body">
-            <div class="preview-content">
-                <div class="preview-avatar">👤</div>
-                <div class="preview-name" id="pvName">-</div>
-                <div class="preview-title" id="pvRole">-</div>
-                <div class="preview-contact" id="pvContact">-</div>
-            </div>
+            <div id="previewContainer" style="margin-bottom:15px;"></div>
             <button class="preview-btn" onclick="openShareSheet()" style="margin-top:15px;">生成后分享</button>
         </div>
     </div>
@@ -693,10 +699,24 @@ function renderFields(fields, defaults) {
 /* ── 预览 & 分享 ── */
 function previewPage() {
     if (!selectedTemplate) { alert('请先选择模板'); return; }
-    document.getElementById('pvName').textContent = fieldValues.name || '-';
-    document.getElementById('pvRole').textContent = fieldValues.role || '-';
-    document.getElementById('pvContact').innerHTML =
-        '📱 ' + (fieldValues.phone || '-') + '<br>✉️ ' + (fieldValues.email || '-') + '<br>💬 WhatsApp: ' + (fieldValues.whatsapp || '-');
+    
+    // 创建用户编辑后的模板副本
+    var userTemplate = JSON.parse(JSON.stringify(selectedTemplate));
+    
+    // 更新模板内容为用户编辑的信息
+    if (fieldValues.name) userTemplate.footerName = fieldValues.name + ' · ' + (fieldValues.role || userTemplate.defaults.role);
+    if (fieldValues.headline) userTemplate.headline = fieldValues.headline;
+    if (fieldValues.sub) userTemplate.sub = fieldValues.sub;
+    if (fieldValues.cta) {
+        userTemplate.cta = fieldValues.cta;
+        userTemplate.ctaColor = selectedTemplate.ctaColor;
+    }
+    
+    // 使用编辑后的模板渲染预览
+    var previewContainer = document.getElementById('previewContainer');
+    previewContainer.innerHTML = renderPoster(userTemplate);
+    previewContainer.querySelector('.tpl-poster').style.borderRadius = '12px';
+    
     document.getElementById('previewModal').classList.add('active');
 }
 function closePreview() { document.getElementById('previewModal').classList.remove('active'); }
@@ -704,6 +724,31 @@ function generatePage() { alert('Landing Page 已生成！\n\n链接: https://yo
 function shareTo(p) { alert('即将跳转到 ' + p + ' 分享页面'); }
 function copyLink() { navigator.clipboard.writeText('https://yourname.elken.com').then(function() { alert('链接已复制！'); }); }
 function setPeriod(btn) { btn.parentElement.querySelectorAll('.period-btn').forEach(function(b) { b.classList.remove('active'); }); btn.classList.add('active'); }
+
+// 渠道统计数据
+var channelStats = {
+    all: { visits: 156, unique: 89, duration: 2.3, inquiries: 12, visitsChange: '↑ 23%', uniqueChange: '↑ 15%', durationChange: '↓ 5%', inquiriesChange: '↑ 50%' },
+    whatsapp: { visits: 68, unique: 45, duration: 3.1, inquiries: 8, visitsChange: '↑ 35%', uniqueChange: '↑ 28%', durationChange: '↑ 12%', inquiriesChange: '↑ 75%' },
+    facebook: { visits: 42, unique: 28, duration: 1.8, inquiries: 3, visitsChange: '↑ 18%', uniqueChange: '↑ 10%', durationChange: '↓ 8%', inquiriesChange: '↑ 33%' },
+    instagram: { visits: 31, unique: 12, duration: 1.2, inquiries: 1, visitsChange: '↑ 12%', uniqueChange: '↑ 5%', durationChange: '↓ 15%', inquiriesChange: '→ 0%' },
+    rednote: { visits: 15, unique: 4, duration: 0.8, inquiries: 0, visitsChange: '↑ 8%', uniqueChange: '↑ 3%', durationChange: '↓ 20%', inquiriesChange: '→ 0%' },
+    copy: { visits: 0, unique: 0, duration: 0, inquiries: 0, visitsChange: '→ 0%', uniqueChange: '→ 0%', durationChange: '→ 0%', inquiriesChange: '→ 0%' }
+};
+
+function setChannel(btn, channel) {
+    btn.parentElement.querySelectorAll('.channel-tab').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    
+    var stats = channelStats[channel];
+    document.getElementById('statVisits').textContent = stats.visits;
+    document.getElementById('statVisitsChange').textContent = stats.visitsChange;
+    document.getElementById('statUnique').textContent = stats.unique;
+    document.getElementById('statUniqueChange').textContent = stats.uniqueChange;
+    document.getElementById('statDuration').textContent = stats.duration;
+    document.getElementById('statDurationChange').textContent = stats.durationChange;
+    document.getElementById('statInquiries').textContent = stats.inquiries;
+    document.getElementById('statInquiriesChange').textContent = stats.inquiriesChange;
+}
 
 function openShareSheet() {
     closePreview();
