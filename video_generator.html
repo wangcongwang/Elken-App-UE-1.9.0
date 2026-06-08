@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频生成 - Elken App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            padding-bottom: 70px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 20px;
+            color: white;
+        }
+        
+        .header-top {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .back-btn {
+            font-size: 24px;
+            margin-right: 15px;
+            cursor: pointer;
+        }
+        
+        .header-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .input-section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-label {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .keyword-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .keyword-input:focus {
+            outline: none;
+            border-color: #f5576c;
+        }
+        
+        .keyword-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .keyword-tag {
+            background: #fff0f3;
+            color: #f5576c;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .keyword-tag .remove {
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .generate-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .generate-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .generate-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .script-section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            display: none;
+        }
+        
+        .script-section.active {
+            display: block;
+        }
+        
+        .script-content {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            white-space: pre-wrap;
+        }
+        
+        .video-section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            display: none;
+        }
+        
+        .video-section.active {
+            display: block;
+        }
+        
+        .video-preview {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            background: #000;
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .video-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .video-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        
+        .video-btn.download {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        
+        .tips-section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .tips-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #f5576c;
+        }
+        
+        .tips-list {
+            list-style: none;
+        }
+        
+        .tips-list li {
+            padding: 8px 0;
+            font-size: 13px;
+            color: #666;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        
+        .tips-list li::before {
+            content: "💡";
+            font-size: 12px;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #fff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-top">
+            <div class="back-btn" onclick="window.location.href='marketing_assistant.html'">←</div>
+            <div class="header-title">视频生成</div>
+        </div>
+    </div>
+    
+    <div class="content">
+        <!-- 关键词输入 -->
+        <div class="input-section">
+            <div class="section-title">
+                <span>🎬</span>
+                <span>关键词生成视频</span>
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">输入关键词（按换行添加）</label>
+                <input type="text" class="keyword-input" id="keywordInput" placeholder="例如：健康、营养、活力、天然">
+                <div class="keyword-tags" id="keywordTags"></div>
+            </div>
+            
+            <button class="generate-btn" id="generateScriptBtn" onclick="generateScript()">
+                生成脚本
+            </button>
+        </div>
+        
+        <!-- 脚本预览 -->
+        <div class="script-section" id="scriptSection">
+            <div class="section-title">
+                <span>📝</span>
+                <span>生成的脚本</span>
+            </div>
+            <div class="script-content" id="scriptContent"></div>
+            <button class="generate-btn" onclick="generateVideo()">
+                生成视频
+            </button>
+        </div>
+        
+        <!-- 视频预览 -->
+        <div class="video-section" id="videoSection">
+            <div class="section-title">
+                <span>🎥</span>
+                <span>生成的视频</span>
+            </div>
+            <div class="video-preview">
+                <div style="text-align: center;">
+                    <div style="font-size: 40px; margin-bottom: 10px;">▶️</div>
+                    <div>视频预览</div>
+                </div>
+            </div>
+            <div class="video-actions">
+                <button class="video-btn download" onclick="downloadVideo()">
+                    <span>⬇️</span>
+                    <span>下载视频</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 使用提示 -->
+        <div class="tips-section">
+            <div class="tips-title">使用提示</div>
+            <ul class="tips-list">
+                <li>输入与产品相关的关键词，AI会自动生成营销脚本</li>
+                <li>脚本生成后可预览并调整，确认后生成视频</li>
+                <li>视频生成时间约1-3分钟，请耐心等待</li>
+                <li>生成的视频支持下载和分享到社交媒体</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        let keywords = [];
+        
+        // 关键词输入处理
+        document.getElementById('keywordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && this.value.trim()) {
+                e.preventDefault();
+                const keyword = this.value.trim();
+                if (!keywords.includes(keyword)) {
+                    keywords.push(keyword);
+                    renderKeywords();
+                }
+                this.value = '';
+            }
+        });
+        
+        // 渲染关键词标签
+        function renderKeywords() {
+            const container = document.getElementById('keywordTags');
+            container.innerHTML = keywords.map((keyword, index) => `
+                <div class="keyword-tag">
+                    <span>${keyword}</span>
+                    <span class="remove" onclick="removeKeyword(${index})">×</span>
+                </div>
+            `).join('');
+        }
+        
+        // 移除关键词
+        function removeKeyword(index) {
+            keywords.splice(index, 1);
+            renderKeywords();
+        }
+        
+        // 生成脚本
+        function generateScript() {
+            if (keywords.length === 0) {
+                alert('请先输入关键词');
+                return;
+            }
+            
+            const btn = document.getElementById('generateScriptBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> 生成中...';
+            
+            // 模拟生成脚本
+            setTimeout(() => {
+                const script = `【开场】
+镜头缓缓推进，展示健康生活的美好画面。
+
+【产品展示】
+${keywords.join('、')} - 这些关键词诠释了我们对健康的承诺。
+
+【核心内容】
+天然成分，科学配方
+为您的健康保驾护航
+让每一天都充满活力与能量
+
+【结尾】
+选择健康，选择品质生活。
+立即行动，开启您的健康之旅！`;
+                
+                document.getElementById('scriptContent').textContent = script;
+                document.getElementById('scriptSection').classList.add('active');
+                
+                btn.disabled = false;
+                btn.innerHTML = '生成脚本';
+            }, 1500);
+        }
+        
+        // 生成视频
+        function generateVideo() {
+            alert('视频生成中，请稍候...\n\n预计需要1-3分钟');
+            
+            // 模拟视频生成
+            setTimeout(() => {
+                document.getElementById('videoSection').classList.add('active');
+                alert('视频生成完成！');
+            }, 2000);
+        }
+        
+        // 下载视频
+        function downloadVideo() {
+            alert('视频下载中...\n\n文件将保存到您的设备');
+        }
+    </script>
+</body>
+</html>

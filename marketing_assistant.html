@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>营销助手 - Elken App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            padding-bottom: 70px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: white;
+        }
+        
+        .header-top {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .back-btn {
+            font-size: 24px;
+            margin-right: 15px;
+            cursor: pointer;
+        }
+        
+        .header-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .quota-card {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .quota-title {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        
+        .quota-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .quota-number {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .quota-label {
+            font-size: 11px;
+            opacity: 0.8;
+        }
+        
+        .quota-progress {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .quota-progress-bar {
+            height: 100%;
+            background: white;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        }
+        
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+        
+        .feature-icon.ai {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .feature-icon.video {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .feature-icon.reply {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .feature-icon.landing {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        
+        .feature-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #333;
+        }
+        
+        .feature-desc {
+            font-size: 12px;
+            color: #999;
+            line-height: 1.4;
+        }
+        
+        .feature-badge {
+            display: inline-block;
+            background: #ff6b6b;
+            color: white;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-top: 8px;
+        }
+        
+        .tips-section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .tips-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #667eea;
+        }
+        
+        .tips-list {
+            list-style: none;
+        }
+        
+        .tips-list li {
+            padding: 8px 0;
+            font-size: 13px;
+            color: #666;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        
+        .tips-list li::before {
+            content: "✓";
+            color: #10b981;
+            font-weight: 600;
+        }
+        
+        .faq-section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .faq-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+        
+        .faq-item {
+            margin-bottom: 15px;
+        }
+        
+        .faq-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .faq-question {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .faq-answer {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+            padding-left: 10px;
+            border-left: 3px solid #667eea;
+        }
+        
+        .upgrade-banner {
+            margin-top: 12px;
+            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+            border-radius: 10px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upgrade-banner:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+        }
+        
+        .upgrade-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .upgrade-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .upgrade-text {
+            color: white;
+        }
+        
+        .upgrade-title {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        
+        .upgrade-desc {
+            font-size: 11px;
+            opacity: 0.95;
+        }
+        
+        .upgrade-arrow {
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        
+        /* 升级模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: calc(100% - 40px);
+            max-width: 480px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 25px 20px;
+            text-align: center;
+            color: white;
+        }
+        
+        .modal-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .modal-subtitle {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .plan-comparison {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            white-space: nowrap;
+        }
+        
+        .plan-card {
+            flex-shrink: 0;
+            width: 160px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 15px 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: normal;
+            text-align: center;
+            position: relative;
+        }
+        
+        .plan-card.pro {
+            border-color: #764ba2;
+            background: linear-gradient(135deg, #f8f5ff 0%, #fff 100%);
+        }
+        
+        .plan-card.active {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+        
+        .plan-badge {
+            position: absolute;
+            top: -10px;
+            right: 10px;
+            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+            color: white;
+            font-size: 10px;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            z-index: 10;
+        }
+        
+        .plan-name {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .plan-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+        
+        .plan-price span {
+            font-size: 11px;
+            color: #999;
+            font-weight: 400;
+        }
+        
+        .plan-features {
+            text-align: left;
+            font-size: 11px;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .plan-features div {
+            padding: 2px 0;
+        }
+        
+        .plan-features .check {
+            color: #10b981;
+            margin-right: 4px;
+        }
+        
+        .modal-footer {
+            padding: 15px 20px 20px;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .modal-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .modal-btn.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-bottom: 10px;
+        }
+        
+        .modal-btn.primary:hover {
+            opacity: 0.9;
+        }
+        
+        .modal-btn.secondary {
+            background: #f5f5f5;
+            color: #666;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            color: white;
+            cursor: pointer;
+            opacity: 0.9;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-top">
+            <div class="back-btn" onclick="window.location.href='business_center.html'">←</div>
+            <div class="header-title">营销助手</div>
+        </div>
+        <div class="quota-card">
+            <div class="quota-title">今日可用额度</div>
+            <div class="quota-info">
+                <div>
+                    <div class="quota-number">15 <span style="font-size: 14px; font-weight: 400;">/ 20</span></div>
+                    <div class="quota-label">剩余发送次数</div>
+                </div>
+                <div style="text-align: right;">
+                    <div class="quota-number" style="font-size: 18px;">8 <span style="font-size: 12px; font-weight: 400;">/ 10</span></div>
+                    <div class="quota-label">图生文次数</div>
+                </div>
+            </div>
+            <div class="quota-progress">
+                <div class="quota-progress-bar" style="width: 75%;"></div>
+            </div>
+            <div class="upgrade-banner" onclick="showUpgradeModal()">
+                <div class="upgrade-left">
+                    <div class="upgrade-icon">👑</div>
+                    <div class="upgrade-text">
+                        <div class="upgrade-title">升级到 EPlus</div>
+                        <div class="upgrade-desc">获得更多额度，解锁全部功能</div>
+                    </div>
+                </div>
+                <div class="upgrade-arrow">→</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="content">
+        <div class="section-title">AI 营销工具</div>
+        <div class="feature-grid">
+            <div class="feature-card" onclick="window.location.href='ai_content_generator.html'">
+                <div class="feature-icon ai">🎨</div>
+                <div class="feature-title">AI 图文生成</div>
+                <div class="feature-desc">智能生成营销图文，支持多语言</div>
+                <div class="feature-badge">热门</div>
+            </div>
+            
+            <div class="feature-card" onclick="window.location.href='video_generator.html'">
+                <div class="feature-icon video">🎬</div>
+                <div class="feature-title">视频生成</div>
+                <div class="feature-desc">关键词生成脚本与视频</div>
+            </div>
+            
+            <div class="feature-card" onclick="window.location.href='auto_reply.html'">
+                <div class="feature-icon reply">💬</div>
+                <div class="feature-title">自动回复</div>
+                <div class="feature-desc">WhatsApp 智能客服</div>
+            </div>
+            
+            <div class="feature-card" onclick="window.location.href='landing_page_builder.html'">
+                <div class="feature-icon landing">🌐</div>
+                <div class="feature-title">Landing Page</div>
+                <div class="feature-desc">快速生成营销落地页</div>
+            </div>
+        </div>
+        
+        <!-- 使用提示 -->
+        <div class="tips-section">
+            <div class="tips-title">💡 使用提示</div>
+            <ul class="tips-list">
+                <li>AI图文生成支持多种节日主题，自动生成精美营销图文</li>
+                <li>视频生成功能可根据关键词自动生成营销脚本和视频</li>
+                <li>自动回复功能帮助您24小时在线响应客户咨询</li>
+                <li>Landing Page功能可快速创建个人营销网站</li>
+            </ul>
+        </div>
+        
+        <!-- 常见问题 -->
+        <div class="faq-section">
+            <div class="faq-title">❓ 常见问题</div>
+            <div class="faq-item">
+                <div class="faq-question">每日额度何时重置？</div>
+                <div class="faq-answer">每日额度在马来西亚时间凌晨0点自动重置。</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">如何升级到EPlus？</div>
+                <div class="faq-answer">点击页面顶部的"升级到EPlus"横幅，选择套餐并完成支付即可。</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">生成的内容可以编辑吗？</div>
+                <div class="faq-answer">是的，所有生成的图文内容都支持编辑后再分享。</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 升级模态框 -->
+    <div class="modal" id="upgradeModal">
+        <div class="modal-content">
+            <div class="modal-close" onclick="closeUpgradeModal()">×</div>
+            <div class="modal-header">
+                <div class="modal-icon">👑</div>
+                <div class="modal-title">升级到 EPlus</div>
+                <div class="modal-subtitle">解锁更多营销功能，提升您的业务效率</div>
+            </div>
+            <div class="modal-body">
+                <div class="plan-comparison">
+                    <div class="plan-card" onclick="selectPlan('free', this)">
+                        <div class="plan-name">免费版</div>
+                        <div class="plan-price">RM 0<span>/月</span></div>
+                        <div class="plan-features">
+                            <div><span class="check">✓</span>每日 20 次发送</div>
+                            <div><span class="check">✓</span>每日 10 次图生文</div>
+                            <div><span class="check">✓</span>基础图文生成</div>
+                            <div style="color: #ccc;"><span>○</span>高级视频生成</div>
+                            <div style="color: #ccc;"><span>○</span>自动回复功能</div>
+                            <div style="color: #ccc;"><span>○</span>Landing Page</div>
+                        </div>
+                    </div>
+                    <div class="plan-card pro active" onclick="selectPlan('plus', this)">
+                        <div class="plan-badge">推荐</div>
+                        <div class="plan-name">EPlus</div>
+                        <div class="plan-price">RM 39<span>/月</span></div>
+                        <div class="plan-features">
+                            <div><span class="check">✓</span>每日 200 次发送</div>
+                            <div><span class="check">✓</span>每日 100 次图生文</div>
+                            <div><span class="check">✓</span>高级图文生成</div>
+                            <div><span class="check">✓</span>高级视频生成</div>
+                            <div style="color: #ccc;"><span>○</span>自动回复功能</div>
+                            <div style="color: #ccc;"><span>○</span>Landing Page 生成</div>
+                        </div>
+                    </div>
+                    <div class="plan-card pro" onclick="selectPlan('epro', this)">
+                        <div class="plan-badge">旗舰</div>
+                        <div class="plan-name">EPro</div>
+                        <div class="plan-price">RM 59<span>/月</span></div>
+                        <div class="plan-features">
+                            <div><span class="check">✓</span>每日 500 次发送</div>
+                            <div><span class="check">✓</span>每日 300 次图生文</div>
+                            <div><span class="check">✓</span>高级图文生成</div>
+                            <div><span class="check">✓</span>高级视频生成</div>
+                            <div><span class="check">✓</span>自动回复功能</div>
+                            <div><span class="check">✓</span>Landing Page 生成</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" onclick="confirmUpgrade()">立即升级</button>
+                <button class="modal-btn secondary" onclick="closeUpgradeModal()">稍后再说</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let selectedPlan = 'pro';
+        
+        function showUpgradeModal() {
+            document.getElementById('upgradeModal').classList.add('active');
+        }
+        
+        function closeUpgradeModal() {
+            document.getElementById('upgradeModal').classList.remove('active');
+        }
+        
+        function selectPlan(plan, element) {
+            selectedPlan = plan;
+            const cards = document.querySelectorAll('.plan-card');
+            cards.forEach(card => card.classList.remove('active'));
+            element.classList.add('active');
+        }
+        
+        function confirmUpgrade() {
+            if (selectedPlan === 'plus') {
+                alert('即将跳转到支付页面...\n\n感谢您选择 EPlus！');
+            } else if (selectedPlan === 'epro') {
+                alert('即将跳转到支付页面...\n\n感谢您选择 EPro！');
+            } else {
+                alert('您当前已在使用免费版');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自动回复 - Elken App</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f5f5;color:#333;padding-bottom:70px}
+        .header{background:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%);padding:20px;color:#fff}
+        .header-top{display:flex;align-items:center;margin-bottom:15px}
+        .back-btn{font-size:24px;margin-right:15px;cursor:pointer}
+        .header-title{font-size:20px;font-weight:600}
+        .content{padding:20px}
+
+        /* 状态卡片 */
+        .status-card{background:#fff;border-radius:16px;padding:20px;margin-bottom:20px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+        .status-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+        .status-title{font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px}
+        .status-badge{padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600}
+        .status-badge.connected{background:#d4edda;color:#155724}
+        .wa-account{display:flex;align-items:center;gap:12px;padding:15px;background:#f8f9fa;border-radius:8px}
+        .wa-icon{width:40px;height:40px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px}
+        .wa-info{flex:1}
+        .wa-phone{font-size:14px;font-weight:600}
+        .wa-status{font-size:12px;color:#666}
+        .connect-btn{padding:8px 16px;background:#25D366;color:#fff;border:none;border-radius:8px;font-size:12px;cursor:pointer}
+        .disconnect-link{font-size:12px;color:#dc3545;cursor:pointer;margin-top:10px;text-align:right}
+
+        /* 未绑定 */
+        .not-bound-card{background:#fff;border-radius:16px;padding:30px 20px;margin-bottom:20px;box-shadow:0 2px 12px rgba(0,0,0,.08);text-align:center;display:none}
+        .not-bound-icon{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#e8f5e9,#f1f8e9);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:32px}
+        .not-bound-title{font-size:17px;font-weight:600;margin-bottom:8px}
+        .not-bound-desc{font-size:13px;color:#888;line-height:1.5;margin-bottom:20px}
+        .bind-trigger-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer}
+
+        /* 规则 */
+        .rules-section{background:#fff;border-radius:16px;padding:20px;margin-bottom:20px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+        .section-title{font-size:16px;font-weight:600;margin-bottom:15px;display:flex;align-items:center;gap:8px}
+        .section-title-link{margin-left:auto;font-size:13px;color:#4facfe;cursor:pointer;display:flex;align-items:center;gap:4px}
+        .rule-item{padding:15px;background:#f8f9fa;border-radius:8px;margin-bottom:10px}
+        .rule-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+        .rule-name{font-size:14px;font-weight:600}
+        .rule-toggle{width:44px;height:24px;background:#ccc;border-radius:12px;position:relative;cursor:pointer;transition:background .3s}
+        .rule-toggle.active{background:#4facfe}
+        .rule-toggle::after{content:'';position:absolute;width:20px;height:20px;background:#fff;border-radius:50%;top:2px;left:2px;transition:transform .3s}
+        .rule-toggle.active::after{transform:translateX(20px)}
+        .rule-content{font-size:13px;color:#666;line-height:1.5}
+
+        /* 知识库 */
+        .kb-docs-summary{display:flex;align-items:center;gap:8px;margin-top:10px;padding:10px 12px;background:#eef6ff;border-radius:8px;font-size:12px;color:#4facfe;cursor:pointer}
+        .kb-docs-summary .kb-count{background:#4facfe;color:#fff;font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px}
+        .kb-docs-summary .kb-arrow{margin-left:auto;font-size:14px;color:#999}
+        .kb-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:1100;align-items:center;justify-content:center;padding:20px}
+        .kb-overlay.active{display:flex}
+        .kb-panel{background:#fff;border-radius:20px;width:calc(100% - 40px);max-width:420px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden}
+        .kb-panel-header{padding:20px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+        .kb-panel-title{font-size:17px;font-weight:700}
+        .kb-panel-close{width:32px;height:32px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer}
+        .kb-panel-body{padding:20px;overflow-y:auto;flex:1}
+        .kb-upload-zone{border:2px dashed #d0d0d0;border-radius:14px;padding:28px 16px;text-align:center;cursor:pointer;margin-bottom:18px}
+        .kb-upload-zone:hover{border-color:#4facfe;background:#f8fbff}
+        .kb-upload-icon{font-size:36px;margin-bottom:8px}
+        .kb-upload-text{font-size:14px;font-weight:600;color:#555;margin-bottom:4px}
+        .kb-upload-hint{font-size:12px;color:#999}
+        .kb-file-list-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+        .kb-file-list-title{font-size:14px;font-weight:600}
+        .kb-file-count{font-size:12px;color:#999}
+        .kb-file-list{list-style:none}
+        .kb-file-item{display:flex;align-items:center;gap:10px;padding:12px;background:#f8f9fa;border-radius:10px;margin-bottom:8px}
+        .kb-file-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+        .kb-file-icon.pdf{background:#ffeaea}.kb-file-icon.doc{background:#eaf0ff}.kb-file-icon.txt{background:#f0f0f0}
+        .kb-file-info{flex:1;min-width:0}
+        .kb-file-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .kb-file-meta{font-size:11px;color:#999}
+        .kb-file-status{font-size:11px;padding:3px 8px;border-radius:6px;font-weight:500;flex-shrink:0}
+        .kb-file-status.ready{background:#d4edda;color:#155724}
+        .kb-file-remove{width:28px;height:28px;border-radius:50%;background:none;border:none;color:#ccc;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+        .kb-file-remove:hover{color:#dc3545;background:#fff0f0}
+        .kb-empty{text-align:center;padding:30px 0;color:#bbb}
+        .kb-empty-icon{font-size:40px;margin-bottom:8px}
+        .kb-empty-text{font-size:13px}
+        .kb-panel-footer{padding:16px 20px;border-top:1px solid #f0f0f0;flex-shrink:0}
+
+        /* 消息 */
+        .messages-section{background:#fff;border-radius:16px;padding:20px;margin-bottom:20px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+        .message-tabs{display:flex;gap:10px;margin-bottom:15px}
+        .message-tab{flex:1;padding:10px;background:#f8f9fa;border:none;border-radius:8px;font-size:13px;cursor:pointer}
+        .message-tab.active{background:#4facfe;color:#fff}
+        .message-list{max-height:300px;overflow-y:auto}
+        .message-item{padding:12px;border-bottom:1px solid #f0f0f0;cursor:pointer}
+        .message-item:hover{background:#f8f9fa}
+        .message-item:last-child{border-bottom:none}
+        .message-header{display:flex;justify-content:space-between;margin-bottom:6px}
+        .message-sender{font-size:13px;font-weight:600}
+        .message-time{font-size:11px;color:#999}
+        .message-text{font-size:13px;color:#666;line-height:1.4}
+        .message-reply{margin-top:8px;padding:8px;background:#e8f5e9;border-radius:6px;font-size:12px;color:#155724}
+        .unread-dot{width:8px;height:8px;border-radius:50%;background:#4facfe;flex-shrink:0;margin-left:8px}
+
+        /* 模板 */
+        .templates-section{background:#fff;border-radius:16px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+        .template-item{padding:12px;background:#f8f9fa;border-radius:8px;margin-bottom:10px;cursor:pointer}
+        .template-item:hover{background:#e8f4f8}
+        .template-title{font-size:13px;font-weight:600;margin-bottom:4px}
+        .template-text{font-size:12px;color:#666}
+
+        /* 锁定 */
+        .locked-overlay{position:relative}
+        .locked-overlay::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.65);backdrop-filter:blur(2px);border-radius:16px;z-index:2}
+        .lock-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:3;text-align:center;display:none}
+        .lock-hint-icon{font-size:28px;margin-bottom:6px}
+        .lock-hint-text{font-size:13px;color:#666;font-weight:500}
+
+        /* 绑定流程 */
+        .bind-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center;padding:20px}
+        .bind-overlay.active{display:flex}
+        .bind-panel{background:#fff;border-radius:20px;width:calc(100% - 40px);max-width:420px;max-height:90vh;overflow-y:auto}
+        .bind-panel-header{background:linear-gradient(135deg,#25D366,#128C7E);padding:25px 20px 20px;border-radius:20px 20px 0 0;text-align:center;color:#fff;position:relative}
+        .bind-panel-close{position:absolute;top:15px;right:15px;font-size:22px;cursor:pointer;opacity:.9;background:rgba(255,255,255,.2);width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+        .bind-panel-icon{font-size:44px;margin-bottom:10px}
+        .bind-panel-title{font-size:20px;font-weight:700;margin-bottom:4px}
+        .bind-panel-subtitle{font-size:13px;opacity:.9}
+        .bind-panel-body{padding:24px 20px}
+        .steps-indicator{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:24px}
+        .step-dot{width:10px;height:10px;border-radius:50%;background:#e0e0e0;transition:all .3s}
+        .step-dot.active{background:#25D366;width:28px;border-radius:5px}
+        .step-dot.done{background:#25D366}
+        .step-line{width:24px;height:2px;background:#e0e0e0}
+        .bind-method-card{border:2px solid #e8e8e8;border-radius:14px;padding:18px;margin-bottom:14px;cursor:pointer;display:flex;align-items:center;gap:14px}
+        .bind-method-card:hover{border-color:#25D366;background:#f0faf4}
+        .bind-method-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+        .bind-method-icon.qr{background:linear-gradient(135deg,#e0e0e0,#f5f5f5)}
+        .bind-method-icon.phone{background:linear-gradient(135deg,#4facfe,#00f2fe)}
+        .bind-method-info{flex:1}
+        .bind-method-name{font-size:15px;font-weight:600;margin-bottom:3px}
+        .bind-method-desc{font-size:12px;color:#888;line-height:1.4}
+        .bind-method-arrow{font-size:18px;color:#ccc}
+        .qr-container{text-align:center}
+        .qr-frame{width:220px;height:220px;margin:0 auto 20px;background:#fff;border:3px solid #25D366;border-radius:16px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+        .qr-placeholder{width:180px;height:180px;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);gap:2px;padding:8px}
+        .qr-cell{border-radius:2px}.qr-cell.dark{background:#333}.qr-cell.light{background:#fff}
+        .qr-scan-line{position:absolute;left:10%;right:10%;height:3px;background:linear-gradient(90deg,transparent,#25D366,transparent);animation:scanLine 2s ease-in-out infinite;border-radius:2px}
+        @keyframes scanLine{0%,100%{top:15%}50%{top:85%}}
+        .qr-instructions{font-size:14px;color:#555;margin-bottom:8px;font-weight:500}
+        .qr-steps{text-align:left;background:#f8f9fa;border-radius:10px;padding:14px 16px;margin-top:16px}
+        .qr-steps-title{font-size:13px;font-weight:600;margin-bottom:10px}
+        .qr-step-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;font-size:12px;color:#666;line-height:1.5}
+        .qr-step-item:last-child{margin-bottom:0}
+        .qr-step-num{width:20px;height:20px;border-radius:50%;background:#25D366;color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+        .qr-timer{margin-top:14px;font-size:12px;color:#999}
+        .qr-timer span{color:#25D366;font-weight:600}
+        .phone-form{text-align:left}
+        .form-label{font-size:13px;font-weight:600;color:#555;margin-bottom:8px;display:block}
+        .phone-input-group{display:flex;gap:10px;margin-bottom:16px}
+        .country-select{width:90px;padding:12px 8px;border:2px solid #e8e8e8;border-radius:10px;font-size:14px;background:#f8f9fa;appearance:none;cursor:pointer}
+        .phone-input{flex:1;padding:12px 14px;border:2px solid #e8e8e8;border-radius:10px;font-size:14px;outline:none}
+        .phone-input:focus{border-color:#25D366}
+        .verify-note{font-size:12px;color:#888;line-height:1.5;margin-bottom:18px;display:flex;align-items:flex-start;gap:6px}
+        .verify-note-icon{color:#4facfe;flex-shrink:0}
+        .otp-phone-display{font-size:16px;font-weight:600;margin-bottom:6px}
+        .otp-hint{font-size:12px;color:#888;margin-bottom:20px}
+        .otp-inputs{display:flex;gap:10px;justify-content:center;margin-bottom:20px}
+        .otp-input{width:46px;height:52px;border:2px solid #e0e0e0;border-radius:10px;text-align:center;font-size:20px;font-weight:600;outline:none}
+        .otp-input:focus{border-color:#25D366}
+        .otp-resend{font-size:13px;color:#888;margin-bottom:10px}
+        .otp-resend a{color:#25D366;text-decoration:none;font-weight:600;cursor:pointer}
+        .otp-resend a.disabled{color:#ccc;pointer-events:none}
+        .success-container{text-align:center;padding:10px 0}
+        .success-icon{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#25D366,#128C7E);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px;animation:successPop .5s ease}
+        @keyframes successPop{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+        .success-title{font-size:20px;font-weight:700;margin-bottom:8px}
+        .success-desc{font-size:13px;color:#888;margin-bottom:24px;line-height:1.5}
+        .success-info{background:#f0faf4;border-radius:12px;padding:16px;margin-bottom:24px;text-align:left}
+        .success-info-row{display:flex;justify-content:space-between;padding:6px 0;font-size:13px}
+        .success-info-label{color:#888}.success-info-value{font-weight:600}
+        .btn-primary{width:100%;padding:14px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer}
+        .btn-primary:hover{opacity:.9}
+        .btn-outline{width:100%;padding:14px;background:#f5f5f5;color:#666;border:none;border-radius:12px;font-size:14px;font-weight:500;cursor:pointer;margin-top:10px}
+        .btn-back{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:#888;cursor:pointer;background:none;border:none;margin-bottom:16px}
+        .btn-back:hover{color:#333}
+
+        /* ===== 消息列表页 ===== */
+        .page-view{display:none}
+        .page-view.active{display:block}
+        .msg-page{position:fixed;top:0;left:0;right:0;bottom:0;background:#f5f5f5;z-index:900;overflow-y:auto}
+        .msg-page-header{background:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%);padding:16px 20px;color:#fff;position:sticky;top:0;z-index:10}
+        .msg-page-header .header-top{margin-bottom:0}
+        .msg-page-filter{display:flex;gap:8px;padding:12px 20px;background:#fff}
+        .msg-page-filter button{padding:6px 14px;border:1px solid #e0e0e0;border-radius:16px;background:#fff;font-size:12px;cursor:pointer}
+        .msg-page-filter button.active{background:#4facfe;color:#fff;border-color:#4facfe}
+        .msg-list-item{display:flex;align-items:center;gap:12px;padding:14px 20px;background:#fff;border-bottom:1px solid #f0f0f0;cursor:pointer}
+        .msg-list-item:hover{background:#f8f9fa}
+        .msg-avatar{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700;flex-shrink:0}
+        .msg-body{flex:1;min-width:0}
+        .msg-top-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+        .msg-name{font-size:14px;font-weight:600}
+        .msg-time{font-size:11px;color:#999;flex-shrink:0}
+        .msg-preview{font-size:12px;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .msg-unread-badge{width:20px;height:20px;border-radius:50%;background:#4facfe;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+        /* ===== 聊天详情页 ===== */
+        .chat-page{position:fixed;top:0;left:0;right:0;bottom:0;background:#e5ddd5;z-index:950;display:flex;flex-direction:column}
+        .chat-header{background:#075e54;padding:12px 16px;color:#fff;display:flex;align-items:center;gap:12px;flex-shrink:0}
+        .chat-back{font-size:22px;cursor:pointer}
+        .chat-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700}
+        .chat-user-info{flex:1}
+        .chat-user-name{font-size:15px;font-weight:600}
+        .chat-user-status{font-size:11px;opacity:.8}
+        .chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px}
+        .chat-bubble{max-width:80%;padding:10px 14px;border-radius:10px;font-size:13px;line-height:1.5;position:relative;word-break:break-word}
+        .chat-bubble.incoming{background:#fff;align-self:flex-start;border-top-left-radius:2px}
+        .chat-bubble.outgoing{background:#dcf8c6;align-self:flex-end;border-top-right-radius:2px}
+        .chat-bubble-time{font-size:10px;color:#999;margin-top:4px;text-align:right}
+        .chat-auto-tag{font-size:10px;color:#4facfe;background:#e8f4ff;padding:2px 6px;border-radius:4px;margin-bottom:4px;display:inline-block}
+        .chat-input-bar{background:#f0f0f0;padding:10px 12px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+        .chat-input{flex:1;padding:10px 14px;border:1px solid #ddd;border-radius:20px;font-size:13px;outline:none;background:#fff}
+        .chat-input:focus{border-color:#25D366}
+        .chat-send-btn{width:42px;height:42px;border-radius:50%;background:#25D366;border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+        .chat-send-btn:hover{background:#1ebe5d}
+
+        /* 关键词回复设置页 */
+        .kw-page{position:fixed;top:0;left:0;right:0;bottom:0;background:#f0f2f5;z-index:960;overflow-y:auto;display:none}
+        .kw-page-header{background:linear-gradient(135deg,#4facfe 0%,#00c6fb 50%,#00f2fe 100%);padding:0;color:#fff;position:sticky;top:0;z-index:10;box-shadow:0 2px 16px rgba(79,172,254,.3)}
+        .kw-page-header .header-top{margin-bottom:0;padding:16px 20px}
+        .kw-plan-bar{padding:0 20px 16px;display:flex;align-items:center;gap:12px}
+        .kw-plan-badge{padding:3px 10px;background:rgba(255,255,255,.25);border-radius:12px;font-size:11px;font-weight:600;backdrop-filter:blur(4px)}
+        .kw-plan-usage{flex:1;text-align:right;font-size:12px;opacity:.9}
+        .kw-plan-usage strong{font-size:16px;font-weight:700}
+        .kw-page-content{padding:16px 16px 30px}
+        .kw-card{background:#fff;border-radius:14px;margin-bottom:14px;box-shadow:0 1px 8px rgba(0,0,0,.06);overflow:hidden}
+        .kw-card-header{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f5f5f5}
+        .kw-card-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600}
+        .kw-card-count{font-size:11px;background:#e8f4ff;color:#4facfe;padding:2px 8px;border-radius:10px;font-weight:600}
+        .kw-card-body{padding:16px}
+
+        /* 规则卡片 */
+        .kw-rule-card{background:#fff;border:1px solid #eee;border-radius:12px;padding:14px 16px;margin-bottom:10px;transition:box-shadow .2s}
+        .kw-rule-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.06)}
+        .kw-rule-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+        .kw-rule-num{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#4facfe,#00f2fe);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .kw-rule-mid{flex:1;margin-left:10px}
+        .kw-rule-label{font-size:13px;font-weight:600;color:#333}
+        .kw-rule-actions{display:flex;gap:6px}
+        .kw-act-btn{width:30px;height:30px;border-radius:8px;border:none;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;transition:all .15s}
+        .kw-act-btn.edit{background:#e8f4ff;color:#4facfe}
+        .kw-act-btn.edit:hover{background:#4facfe;color:#fff}
+        .kw-act-btn.del{background:#fff0f0;color:#dc3545}
+        .kw-act-btn.del:hover{background:#dc3545;color:#fff}
+        .kw-keywords{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+        .kw-tag{display:inline-flex;align-items:center;padding:3px 10px;background:linear-gradient(135deg,#e8f4ff,#f0f8ff);color:#4facfe;border-radius:10px;font-size:11px;font-weight:600;border:1px solid rgba(79,172,254,.15)}
+        .kw-tag-remove{cursor:pointer;font-size:14px;color:#999;margin-left:2px}
+        .kw-tag-remove:hover{color:#dc3545}
+        .kw-reply-bubble{font-size:12px;color:#555;line-height:1.6;padding:10px 12px;background:#f8fafb;border-radius:10px;border-left:3px solid #4facfe;position:relative}
+        .kw-reply-label{font-size:10px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+
+        /* 添加按钮 */
+        .kw-add-btn{width:100%;padding:14px;border:2px dashed #d0d8e8;border-radius:12px;background:#fafbfc;color:#4facfe;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s}
+        .kw-add-btn:hover{border-color:#4facfe;background:#f0f8ff}
+
+        /* 提示卡 */
+        .kw-tip-card{background:linear-gradient(135deg,#fff8e1,#fffdf5);border:1px solid #ffe082;border-radius:12px;padding:14px 16px;margin-bottom:14px}
+        .kw-tip-title{font-size:13px;font-weight:700;color:#856404;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+        .kw-plans{display:flex;gap:8px}
+        .kw-plan-item{flex:1;text-align:center;padding:10px 6px;background:#fff;border-radius:10px;border:1px solid #f0e0c0}
+        .kw-plan-item.current{border-color:#ff8f00;box-shadow:0 2px 8px rgba(255,143,0,.15)}
+        .kw-plan-item-name{font-size:11px;color:#856404;font-weight:600;margin-bottom:2px}
+        .kw-plan-item-num{font-size:18px;font-weight:800;color:#ff8f00}
+        .kw-plan-item-unit{font-size:10px;color:#b08830}
+
+        /* 编辑弹窗 */
+        .kw-edit-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:1200;align-items:flex-end;justify-content:center}
+        .kw-edit-overlay.active{display:flex}
+        .kw-edit-panel{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;animation:slideUp .3s ease}
+        @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+        .kw-edit-handle{width:36px;height:4px;background:#ddd;border-radius:2px;margin:10px auto 0}
+        .kw-edit-header{padding:16px 20px 12px;display:flex;align-items:center;justify-content:space-between}
+        .kw-edit-title{font-size:17px;font-weight:700}
+        .kw-edit-close{width:32px;height:32px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:background .15s}
+        .kw-edit-close:hover{background:#e0e0e0}
+        .kw-edit-body{padding:0 20px 20px}
+        .kw-field{margin-bottom:20px}
+        .kw-label{font-size:13px;font-weight:600;color:#333;margin-bottom:8px;display:flex;align-items:center;gap:4px}
+        .kw-label-hint{font-size:11px;color:#aaa;font-weight:400}
+        .kw-hint{font-size:11px;color:#999;margin-top:6px}
+        .kw-tags-input-wrap{display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;background:#f8f9fa;border:2px solid #eee;border-radius:12px;min-height:48px;cursor:text;transition:border-color .2s}
+        .kw-tags-input-wrap:focus-within{border-color:#4facfe}
+        .kw-tags-input-wrap .kw-tag{background:linear-gradient(135deg,#4facfe,#00f2fe);color:#fff;border:none}
+        .kw-tags-input-wrap .kw-tag .kw-tag-remove{color:rgba(255,255,255,.7)}
+        .kw-tags-input-wrap .kw-tag .kw-tag-remove:hover{color:#fff}
+        .kw-tag-input{border:none;outline:none;font-size:13px;background:transparent;min-width:80px;flex:1}
+        .kw-textarea{width:100%;padding:12px;border:2px solid #eee;border-radius:12px;font-size:13px;outline:none;resize:vertical;min-height:100px;font-family:inherit;transition:border-color .2s;line-height:1.6}
+        .kw-textarea:focus{border-color:#4facfe}
+        .kw-char-count{text-align:right;font-size:11px;color:#bbb;margin-top:4px}
+        .kw-edit-footer{padding:12px 20px 24px;border-top:1px solid #f0f0f0;display:flex;gap:10px}
+        .kw-edit-footer .btn-primary{flex:1}
+        .kw-edit-footer .btn-outline{flex:1;margin-top:0}
+
+    </style>
+</head>
+<body>
+    <!-- ===== 主页 ===== -->
+    <div id="mainPage">
+        <div class="header">
+            <div class="header-top">
+                <div class="back-btn" onclick="window.location.href='marketing_assistant.html'">←</div>
+                <div class="header-title">WhatsApp 自动回复</div>
+            </div>
+        </div>
+        <div class="content">
+            <div class="status-card" id="boundCard">
+                <div class="status-header">
+                    <div class="status-title"><span>📱</span><span>WhatsApp 账户</span></div>
+                    <div class="status-badge connected">已连接</div>
+                </div>
+                <div class="wa-account">
+                    <div class="wa-icon">💬</div>
+                    <div class="wa-info"><div class="wa-phone" id="boundPhone">+60 12-345-6789</div><div class="wa-status">最后同步: 2分钟前</div></div>
+                    <button class="connect-btn" onclick="reconnectWA()">重新连接</button>
+                </div>
+                <div class="disconnect-link" onclick="disconnectWA()">解除绑定</div>
+            </div>
+            <div class="not-bound-card" id="notBoundCard">
+                <div class="not-bound-icon">🔗</div>
+                <div class="not-bound-title">尚未绑定 WhatsApp</div>
+                <div class="not-bound-desc">绑定您的 WhatsApp 账号后，即可开启自动回复、智能客服等功能。</div>
+                <button class="bind-trigger-btn" onclick="openBindFlow()"><span>💬</span><span>立即绑定 WhatsApp</span></button>
+            </div>
+            <div class="rules-section" id="rulesSection">
+                <div class="section-title"><span>⚙️</span><span>自动回复规则</span></div>
+                <div class="rule-item"><div class="rule-header"><div class="rule-name">欢迎消息</div><div class="rule-toggle active" onclick="toggleRule(this)"></div></div><div class="rule-content">当客户首次发消息时，自动发送欢迎语</div></div>
+                <div class="rule-item"><div class="rule-header"><div class="rule-name">关键词回复</div><div style="display:flex;align-items:center;gap:8px"><button onclick="event.stopPropagation();openKWPage()" style="padding:4px 12px;background:#e8f4ff;color:#4facfe;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-weight:500">设置</button><div class="rule-toggle active" onclick="toggleRule(this)"></div></div></div><div class="rule-content">当消息包含"价格"、"产品"等关键词时，自动回复产品信息</div></div>
+                <div class="rule-item"><div class="rule-header"><div class="rule-name">📚 知识库回复</div><div class="rule-toggle" onclick="toggleRule(this)"></div></div><div class="rule-content">基于上传的文档知识库，智能匹配并回复客户问题</div><div class="kb-docs-summary" onclick="openKBModal()"><span>📄</span><span>已上传 <span class="kb-count" id="kbCountBadge">3</span> 份文档</span><span class="kb-arrow">›</span></div></div>
+            </div>
+            <div class="messages-section" id="messagesSection">
+                <div class="section-title"><span>💬</span><span>消息记录</span><span class="section-title-link" onclick="openMsgList()">查看全部 ›</span></div>
+                <div class="message-tabs">
+                    <button class="message-tab active" onclick="switchTab(this,'all')">全部</button>
+                    <button class="message-tab" onclick="switchTab(this,'unread')">未读 (3)</button>
+                    <button class="message-tab" onclick="switchTab(this,'auto')">自动回复</button>
+                </div>
+                <div class="message-list">
+                    <div class="message-item" onclick="openChat(0)">
+                        <div class="message-header"><div class="message-sender">John Doe</div><div class="message-time">10:30</div></div>
+                        <div class="message-text">你好，我想了解产品价格</div>
+                        <div class="message-reply">🤖 自动回复: 感谢您的咨询！我们的产品价格从RM99起。</div>
+                    </div>
+                    <div class="message-item" onclick="openChat(1)">
+                        <div class="message-header"><div class="message-sender">Jane Smith</div><div class="message-time">09:15</div></div>
+                        <div class="message-text">请问有现货吗？</div>
+                        <div class="message-reply">🤖 自动回复: 您好！大部分产品都有现货，下单后1-2天内发货。</div>
+                    </div>
+                    <div class="message-item" onclick="openChat(2)">
+                        <div class="message-header"><div class="message-sender">Mike Johnson</div><div class="message-time">昨天</div></div>
+                        <div class="message-text">如何下单？</div>
+                    </div>
+                </div>
+            </div>
+            <div class="templates-section" id="templatesSection">
+                <div class="section-title"><span>📝</span><span>快捷回复模板</span></div>
+                <div class="template-item" onclick="useTemplate(0)"><div class="template-title">产品介绍</div><div class="template-text">感谢您的咨询！我们提供高品质的健康产品...</div></div>
+                <div class="template-item" onclick="useTemplate(1)"><div class="template-title">价格说明</div><div class="template-text">我们的产品价格从RM99起，根据规格不同...</div></div>
+                <div class="template-item" onclick="useTemplate(2)"><div class="template-title">发货信息</div><div class="template-text">下单后1-2个工作日内发货，支持全国配送...</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 消息列表页 ===== -->
+    <div class="msg-page" id="msgListPage" style="display:none">
+        <div class="msg-page-header">
+            <div class="header-top">
+                <div class="back-btn" onclick="closeMsgList()">←</div>
+                <div class="header-title">消息列表</div>
+            </div>
+        </div>
+        <div class="msg-page-filter">
+            <button class="active" onclick="filterMsgList(this,'all')">全部</button>
+            <button onclick="filterMsgList(this,'unread')">未读</button>
+            <button onclick="filterMsgList(this,'auto')">自动回复</button>
+        </div>
+        <div id="msgListContainer"></div>
+    </div>
+
+    <!-- ===== 聊天详情页 ===== -->
+    <div class="chat-page" id="chatPage" style="display:none">
+        <div class="chat-header">
+            <div class="chat-back" onclick="closeChat()">←</div>
+            <div class="chat-avatar" id="chatAvatar">J</div>
+            <div class="chat-user-info"><div class="chat-user-name" id="chatName">John Doe</div><div class="chat-user-status" id="chatStatus">在线</div></div>
+        </div>
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input-bar">
+            <input class="chat-input" id="chatInput" placeholder="输入消息..." onkeydown="if(event.key==='Enter')sendReply()">
+            <button class="chat-send-btn" onclick="sendReply()">➤</button>
+        </div>
+    </div>
+
+    <!-- 知识库弹窗 -->
+    <div class="kb-overlay" id="kbOverlay">
+        <div class="kb-panel">
+            <div class="kb-panel-header"><div class="kb-panel-title">📚 知识库文档</div><div class="kb-panel-close" onclick="closeKBModal()">×</div></div>
+            <div class="kb-panel-body">
+                <div class="kb-upload-zone" onclick="document.getElementById('kbFileInput').click()"><div class="kb-upload-icon">📤</div><div class="kb-upload-text">点击上传文档</div><div class="kb-upload-hint">支持 PDF、Word、TXT，单个文件不超过 10MB</div></div>
+                <input type="file" id="kbFileInput" multiple accept=".pdf,.doc,.docx,.txt" style="display:none" onchange="handleKBFiles(this.files)">
+                <div id="kbFileListArea"></div>
+            </div>
+            <div class="kb-panel-footer"><button class="btn-primary" onclick="closeKBModal()">完成</button></div>
+        </div>
+    </div>
+
+    <!-- 关键词回复设置页 -->
+    <div class="kw-page" id="kwPage">
+        <div class="kw-page-header">
+            <div class="header-top"><div class="back-btn" onclick="closeKWPage()">←</div><div class="header-title">关键词回复设置</div></div>
+            <div class="kw-plan-bar">
+                <span class="kw-plan-badge" id="kwPlanBadge">免费版</span>
+                <div class="kw-plan-usage">已用 <strong id="kwUsedCount">4</strong> / <span id="kwMaxCount">10</span> 组</div>
+            </div>
+        </div>
+        <div class="kw-page-content">
+            <div class="kw-tip-card">
+                <div class="kw-tip-title"><span>📊</span><span>套餐配额</span></div>
+                <div class="kw-plans">
+                    <div class="kw-plan-item current" id="kwPlanFree"><div class="kw-plan-item-name">免费版</div><div class="kw-plan-item-num">10</div><div class="kw-plan-item-unit">组</div></div>
+                    <div class="kw-plan-item" id="kwPlanPlus"><div class="kw-plan-item-name">EPlus</div><div class="kw-plan-item-num">100</div><div class="kw-plan-item-unit">组</div></div>
+                    <div class="kw-plan-item" id="kwPlanPro"><div class="kw-plan-item-name">EPro</div><div class="kw-plan-item-num">1000</div><div class="kw-plan-item-unit">组</div></div>
+                </div>
+            </div>
+            <div class="kw-card">
+                <div class="kw-card-header">
+                    <div class="kw-card-title"><span>📋</span><span>关键词规则</span></div>
+                    <div class="kw-card-count" id="kwRuleCount">4 条</div>
+                </div>
+                <div class="kw-card-body">
+                    <div id="kwRulesList"></div>
+                    <button class="kw-add-btn" id="kwAddBtn" onclick="openKWEdit(-1)"><span>＋</span><span>添加规则</span></button>
+                </div>
+            </div>
+            <div class="kw-card">
+                <div class="kw-card-header"><div class="kw-card-title"><span>💡</span><span>使用说明</span></div></div>
+                <div class="kw-card-body" style="font-size:12px;color:#888;line-height:2">
+                    <div>• 每条规则可设置多个关键词，任意一个匹配即触发</div>
+                    <div>• 关键词匹配支持模糊匹配，不区分大小写</div>
+                    <div>• 优先匹配靠前的规则，建议将精确规则放在前面</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 关键词编辑弹窗 -->
+    <div class="kw-edit-overlay" id="kwEditOverlay">
+        <div class="kw-edit-panel">
+            <div class="kw-edit-handle"></div>
+            <div class="kw-edit-header"><div class="kw-edit-title" id="kwEditTitle">添加关键词规则</div><div class="kw-edit-close" onclick="closeKWEdit()">×</div></div>
+            <div class="kw-edit-body">
+                <div class="kw-field">
+                    <label class="kw-label">触发关键词 <span class="kw-label-hint">按回车添加</span></label>
+                    <div class="kw-tags-input-wrap" id="kwTagsWrap">
+                        <input class="kw-tag-input" id="kwTagInput" placeholder="输入关键词..." onkeydown="if(event.key==='Enter'){event.preventDefault();addKWTag(this.value);this.value='';}">
+                    </div>
+                    <div class="kw-hint">例如：价格、多少钱、产品介绍、发货</div>
+                </div>
+                <div class="kw-field">
+                    <label class="kw-label">自动回复内容</label>
+                    <textarea class="kw-textarea" id="kwReplyInput" placeholder="输入匹配到关键词后自动回复的内容..." oninput="updateCharCount()"></textarea>
+                    <div class="kw-char-count" id="kwCharCount">0 / 500</div>
+                </div>
+            </div>
+            <div class="kw-edit-footer">
+                <button class="btn-outline" onclick="closeKWEdit()">取消</button>
+                <button class="btn-primary" onclick="saveKWRule()">保存规则</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 绑定弹窗 -->
+    <div class="bind-overlay" id="bindOverlay">
+        <div class="bind-panel">
+            <div class="bind-panel-header"><div class="bind-panel-close" onclick="closeBindFlow()">×</div><div class="bind-panel-icon">💬</div><div class="bind-panel-title">绑定 WhatsApp</div><div class="bind-panel-subtitle">连接您的 WhatsApp 开启自动回复</div></div>
+            <div class="bind-panel-body">
+                <div class="steps-indicator" id="stepsIndicator"><div class="step-dot active" id="dot1"></div><div class="step-line"></div><div class="step-dot" id="dot2"></div><div class="step-line"></div><div class="step-dot" id="dot3"></div></div>
+                <div id="bindStep1">
+                    <div class="bind-method-card" onclick="selectMethod('qr')"><div class="bind-method-icon qr">📷</div><div class="bind-method-info"><div class="bind-method-name">扫码绑定</div><div class="bind-method-desc">使用 WhatsApp 扫描二维码，快速完成绑定</div></div><div class="bind-method-arrow">›</div></div>
+                    <div class="bind-method-card" onclick="selectMethod('phone')"><div class="bind-method-icon phone">📞</div><div class="bind-method-info"><div class="bind-method-name">手机号绑定</div><div class="bind-method-desc">输入手机号，通过短信验证码完成绑定</div></div><div class="bind-method-arrow">›</div></div>
+                </div>
+                <div id="bindStepQR" style="display:none"><button class="btn-back" onclick="goBackToStep1()">‹ 返回选择方式</button><div class="qr-container"><div class="qr-instructions">请使用 WhatsApp 扫描下方二维码</div><div class="qr-frame" id="qrFrame"><div class="qr-placeholder" id="qrPattern"></div><div class="qr-scan-line"></div></div><div class="qr-steps"><div class="qr-steps-title">📱 操作步骤</div><div class="qr-step-item"><div class="qr-step-num">1</div><div>打开手机上的 WhatsApp 应用</div></div><div class="qr-step-item"><div class="qr-step-num">2</div><div>进入 <strong>设置 → 已关联的设备</strong></div></div><div class="qr-step-item"><div class="qr-step-num">3</div><div>点击 <strong>关联设备</strong>，扫描此二维码</div></div></div><div class="qr-timer">二维码有效期: <span id="qrTimer">04:59</span></div></div><button class="btn-outline" onclick="refreshQR()" style="margin-top:16px">🔄 刷新二维码</button></div>
+                <div id="bindStepPhone" style="display:none"><button class="btn-back" onclick="goBackToStep1()">‹ 返回选择方式</button><div class="phone-form"><label class="form-label">输入您的 WhatsApp 手机号</label><div class="phone-input-group"><select class="country-select" id="countryCode"><option value="+60">🇲🇾 +60</option><option value="+86">🇨🇳 +86</option><option value="+65">🇸🇬 +65</option><option value="+62">🇮🇩 +62</option><option value="+63">🇵🇭 +63</option><option value="+66">🇹🇭 +66</option><option value="+84">🇻🇳 +84</option></select><input type="tel" class="phone-input" id="phoneInput" placeholder="12-345-6789" maxlength="15"></div><div class="verify-note"><span class="verify-note-icon">ℹ️</span><span>我们将向该手机号发送一条短信验证码。</span></div><button class="btn-primary" onclick="sendVerifyCode()">发送验证码</button></div></div>
+                <div id="bindStepOTP" style="display:none"><button class="btn-back" onclick="backToPhoneInput()">‹ 返回修改号码</button><div><div class="otp-phone-display" id="otpPhoneDisplay">+60 12-345-6789</div><div class="otp-hint">请输入发送到该号码的6位验证码</div><div class="otp-inputs"><input type="tel" class="otp-input" maxlength="1" oninput="otpMove(this,0)" onkeydown="otpKeyDown(event,0)"><input type="tel" class="otp-input" maxlength="1" oninput="otpMove(this,1)" onkeydown="otpKeyDown(event,1)"><input type="tel" class="otp-input" maxlength="1" oninput="otpMove(this,2)" onkeydown="otpKeyDown(event,2)"><input type="tel" class="otp-input" maxlength="1" oninput="otpMove(this,3)" onkeydown="otpKeyDown(event,3)"><input type="tel" class="otp-input" maxlength="1" oninput="otpMove(this,4)" onkeydown="otpKeyDown(event,4)"><input type="tel" class="otp-input" maxlength="1" oninput="otpMove(this,5)" onkeydown="otpKeyDown(event,5)"></div><div class="otp-resend">没收到验证码？<a id="resendLink" class="disabled" onclick="resendOTP()">重新发送 (<span id="resendTimer">59</span>s)</a></div><button class="btn-primary" onclick="verifyOTP()">验证并绑定</button></div></div>
+                <div id="bindStepSuccess" style="display:none"><div class="success-container"><div class="success-icon">✓</div><div class="success-title">绑定成功！</div><div class="success-desc">您的 WhatsApp 账号已成功绑定。</div><div class="success-info"><div class="success-info-row"><span class="success-info-label">绑定手机号</span><span class="success-info-value" id="successPhone">+60 12-345-6789</span></div><div class="success-info-row"><span class="success-info-label">绑定时间</span><span class="success-info-value" id="successTime">刚刚</span></div><div class="success-info-row"><span class="success-info-label">连接状态</span><span class="success-info-value" style="color:#25D366">在线</span></div></div><button class="btn-primary" onclick="finishBind()">开始使用</button></div></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let waBound=true, boundPhone='+60 12-345-6789', qrCountdown=null, resendCountdown=null;
+        let currentChatIdx=-1;
+
+        let contacts=[
+            {name:'John Doe',phone:'+60 12-345-0001',unread:2,
+             messages:[
+                {from:'them',text:'你好，我想了解产品价格',time:'10:28'},
+                {from:'me',text:'感谢您的咨询！我们的产品价格从RM99起，详细价格表已发送至您的邮箱。',time:'10:28',auto:true},
+                {from:'them',text:'好的，能发一下螺旋藻的详细价格吗？',time:'10:30'}
+            ]},
+            {name:'Jane Smith',phone:'+60 12-345-0002',unread:1,
+             messages:[
+                {from:'them',text:'请问有现货吗？',time:'09:15'},
+                {from:'me',text:'您好！大部分产品都有现货，下单后1-2天内发货。',time:'09:15',auto:true}
+            ]},
+            {name:'Mike Johnson',phone:'+60 12-345-0003',unread:0,
+             messages:[
+                {from:'them',text:'如何下单？',time:'昨天 18:30'}
+            ]},
+            {name:'Sarah Lee',phone:'+60 12-345-0004',unread:0,
+             messages:[
+                {from:'them',text:'你们的产品有认证吗？',time:'昨天 14:20'},
+                {from:'me',text:'有的，我们所有产品都有GMP和ISO认证。',time:'昨天 14:22',auto:true}
+            ]},
+            {name:'David Wong',phone:'+60 12-345-0005',unread:0,
+             messages:[
+                {from:'them',text:'可以批发吗？',time:'前天'},
+                {from:'me',text:'可以的！批发10件以上享受8折优惠，详情请咨询。',time:'前天',auto:true}
+            ]}
+        ];
+
+        let kbFiles=[
+            {name:'Elken产品手册2024.pdf',size:'2.3 MB',type:'pdf',status:'ready'},
+            {name:'螺旋藻功效说明.docx',size:'856 KB',type:'doc',status:'ready'},
+            {name:'常见问题FAQ.txt',size:'124 KB',type:'txt',status:'ready'}
+        ];
+
+        function updateUI(){
+            const bc=document.getElementById('boundCard'),nb=document.getElementById('notBoundCard');
+            const secs=['rulesSection','messagesSection','templatesSection'].map(id=>document.getElementById(id));
+            if(waBound){bc.style.display='';nb.style.display='none';secs.forEach(s=>{s.classList.remove('locked-overlay');const h=s.querySelector('.lock-hint');if(h)h.remove();});}
+            else{bc.style.display='none';nb.style.display='';secs.forEach(s=>{if(!s.classList.contains('locked-overlay')){s.classList.add('locked-overlay');const h=document.createElement('div');h.className='lock-hint';h.style.display='block';h.innerHTML='<div class="lock-hint-icon">🔒</div><div class="lock-hint-text">请先绑定 WhatsApp</div>';s.style.position='relative';s.appendChild(h);}});}
+            renderKBList();
+        }
+
+        /* === 绑定 === */
+        function openBindFlow(){document.getElementById('bindOverlay').classList.add('active');resetBindFlow();}
+        function closeBindFlow(){document.getElementById('bindOverlay').classList.remove('active');clearTimers();}
+        function resetBindFlow(){showStep('bindStep1');updateDots(1);document.getElementById('phoneInput').value='';document.querySelectorAll('.otp-input').forEach(i=>i.value='');clearTimers();}
+        function showStep(id){['bindStep1','bindStepQR','bindStepPhone','bindStepOTP','bindStepSuccess'].forEach(s=>{document.getElementById(s).style.display=s.id===id?'':'none';});document.getElementById('stepsIndicator').style.display=id==='bindStepSuccess'?'none':'';}
+        function updateDots(step){for(let i=1;i<=3;i++){const d=document.getElementById('dot'+i);d.className='step-dot';if(i<step)d.classList.add('done');if(i===step)d.classList.add('active');}}
+        function selectMethod(m){if(m==='qr'){showStep('bindStepQR');updateDots(2);generateQR();startQRTimer();}else{showStep('bindStepPhone');updateDots(2);}}
+        function goBackToStep1(){clearTimers();showStep('bindStep1');updateDots(1);}
+        function generateQR(){const c=document.getElementById('qrPattern');c.innerHTML='';const p=[1,1,1,1,1,1,1,0,1,0,0,0,0,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,0,0,0,0,0,1,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0];for(let i=0;i<64;i++){const d=document.createElement('div');d.className='qr-cell '+(p[i]||Math.random()>.45?'dark':'light');c.appendChild(d);}}
+        function startQRTimer(){clearTimers();let s=299;const d=document.getElementById('qrTimer');d.textContent=fmtT(s);qrCountdown=setInterval(()=>{s--;d.textContent=fmtT(s);if(s<=0){clearInterval(qrCountdown);d.textContent='已过期';}},1000);}
+        function refreshQR(){generateQR();startQRTimer();}
+        function fmtT(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+        function backToPhoneInput(){showStep('bindStepPhone');updateDots(2);clearTimers();document.querySelectorAll('.otp-input').forEach(i=>i.value='');}
+        function sendVerifyCode(){const p=document.getElementById('phoneInput').value.trim();if(!p){alert('请输入手机号码');return;}boundPhone=document.getElementById('countryCode').value+' '+p;document.getElementById('otpPhoneDisplay').textContent=boundPhone;showStep('bindStepOTP');updateDots(3);startResendTimer();setTimeout(()=>document.querySelectorAll('.otp-input')[0].focus(),100);}
+        function startResendTimer(){clearTimers();let s=59;const d=document.getElementById('resendTimer'),l=document.getElementById('resendLink');l.classList.add('disabled');d.textContent=s;resendCountdown=setInterval(()=>{s--;d.textContent=s;if(s<=0){clearInterval(resendCountdown);l.classList.remove('disabled');l.innerHTML='重新发送';}},1000);}
+        function resendOTP(){startResendTimer();alert('验证码已重新发送');}
+        function otpMove(inp,idx){const inputs=document.querySelectorAll('.otp-input');if(inp.value.length===1&&idx<5)inputs[idx+1].focus();if(Array.from(inputs).map(i=>i.value).join('').length===6)setTimeout(verifyOTP,300);}
+        function otpKeyDown(e,idx){if(e.key==='Backspace'&&!document.querySelectorAll('.otp-input')[idx].value&&idx>0)document.querySelectorAll('.otp-input')[idx-1].focus();}
+        function verifyOTP(){const code=Array.from(document.querySelectorAll('.otp-input')).map(i=>i.value).join('');if(code.length<6){alert('请输入完整的6位验证码');return;}completeBind(boundPhone);}
+        document.addEventListener('DOMContentLoaded',()=>{const f=document.getElementById('qrFrame');if(f)f.addEventListener('click',()=>{if(document.getElementById('bindStepQR').style.display!=='none')completeBind('+60 12-345-6789');});});
+        function completeBind(phone){clearTimers();waBound=true;boundPhone=phone;document.getElementById('boundPhone').textContent=phone;document.getElementById('successPhone').textContent=phone;const n=new Date();document.getElementById('successTime').textContent=n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');showStep('bindStepSuccess');}
+        function finishBind(){closeBindFlow();updateUI();}
+        function reconnectWA(){alert('正在重新连接 WhatsApp...');}
+        function disconnectWA(){if(confirm('确定要解除 WhatsApp 绑定吗？')){waBound=false;boundPhone='';updateUI();}}
+
+        /* === 知识库 === */
+        function openKBModal(){document.getElementById('kbOverlay').classList.add('active');renderKBList();}
+        function closeKBModal(){document.getElementById('kbOverlay').classList.remove('active');document.getElementById('kbCountBadge').textContent=kbFiles.length;}
+        function handleKBFiles(files){for(const f of files){const ext=f.name.split('.').pop().toLowerCase();const type=ext==='pdf'?'pdf':ext==='doc'||ext==='docx'?'doc':'txt';const size=f.size>1048576?(f.size/1048576).toFixed(1)+' MB':(f.size/1024).toFixed(0)+' KB';kbFiles.push({name:f.name,size,type,status:'ready'});}renderKBList();document.getElementById('kbFileInput').value='';}
+        function removeKBFile(idx){kbFiles.splice(idx,1);renderKBList();}
+        function renderKBList(){const a=document.getElementById('kbFileListArea');if(!a)return;if(!kbFiles.length){a.innerHTML='<div class="kb-empty"><div class="kb-empty-icon">📭</div><div class="kb-empty-text">暂无文档，上传后可智能匹配回复</div></div>';return;}let h='<div class="kb-file-list-header"><div class="kb-file-list-title">已上传文档</div><div class="kb-file-count">'+kbFiles.length+' 份</div></div><ul class="kb-file-list">';kbFiles.forEach((f,i)=>{const icon=f.type==='pdf'?'📕':f.type==='doc'?'📘':'📄';h+='<li class="kb-file-item"><div class="kb-file-icon '+f.type+'">'+icon+'</div><div class="kb-file-info"><div class="kb-file-name">'+f.name+'</div><div class="kb-file-meta">'+f.size+'</div></div><div class="kb-file-status '+f.status+'">'+(f.status==='ready'?'已就绪':'处理中')+'</div><button class="kb-file-remove" onclick="removeKBFile('+i+')">×</button></li>';});h+='</ul>';a.innerHTML=h;}
+
+        /* === 消息列表页 === */
+        function openMsgList(){
+            document.getElementById('mainPage').style.display='none';
+            document.getElementById('msgListPage').style.display='';
+            renderMsgList('all');
+        }
+        function closeMsgList(){
+            document.getElementById('msgListPage').style.display='none';
+            document.getElementById('mainPage').style.display='';
+        }
+        function filterMsgList(btn,type){
+            document.querySelectorAll('.msg-page-filter button').forEach(b=>b.classList.remove('active'));
+            btn.classList.add('active');
+            renderMsgList(type);
+        }
+        function renderMsgList(type){
+            const c=document.getElementById('msgListContainer');
+            let html='';
+            contacts.forEach((ct,i)=>{
+                const last=ct.messages[ct.messages.length-1];
+                const isUnread=ct.unread>0;
+                const isAuto=last&&last.auto;
+                if(type==='unread'&&!isUnread)return;
+                if(type==='auto'&&!isAuto)return;
+                const initial=ct.name.charAt(0);
+                const colors=['#667eea','#764ba2','#f093fb','#4facfe','#43e97b','#ff6b6b'];
+                const color=colors[i%colors.length];
+                html+='<div class="msg-list-item" onclick="openChat('+i+')">';
+                html+='<div class="msg-avatar" style="background:linear-gradient(135deg,'+color+','+color+'cc)">'+initial+'</div>';
+                html+='<div class="msg-body"><div class="msg-top-row"><div class="msg-name">'+ct.name+'</div><div class="msg-time">'+last.time+'</div></div>';
+                html+='<div class="msg-preview">'+(last.auto?'🤖 ':'')+(last.text.length>30?last.text.substring(0,30)+'...':last.text)+'</div></div>';
+                if(isUnread)html+='<div class="msg-unread-badge">'+ct.unread+'</div>';
+                html+='</div>';
+            });
+            if(!html)html='<div style="text-align:center;padding:60px 20px;color:#999">暂无消息</div>';
+            c.innerHTML=html;
+        }
+
+        /* === 聊天详情页 === */
+        function openChat(idx){
+            currentChatIdx=idx;
+            const ct=contacts[idx];
+            document.getElementById('msgListPage').style.display='none';
+            document.getElementById('mainPage').style.display='none';
+            document.getElementById('chatPage').style.display='';
+            document.getElementById('chatName').textContent=ct.name;
+            document.getElementById('chatStatus').textContent='在线';
+            document.getElementById('chatAvatar').textContent=ct.name.charAt(0);
+            ct.unread=0;
+            renderChat(idx);
+            setTimeout(()=>{const m=document.getElementById('chatMessages');m.scrollTop=m.scrollHeight;},50);
+            setTimeout(()=>document.getElementById('chatInput').focus(),100);
+        }
+        function closeChat(){
+            document.getElementById('chatPage').style.display='none';
+            document.getElementById('msgListPage').style.display=''; renderMsgList('all');
+            currentChatIdx=-1;
+        }
+        function renderChat(idx){
+            const ct=contacts[idx];
+            const mc=document.getElementById('chatMessages');
+            let html='';
+            ct.messages.forEach(msg=>{
+                const cls=msg.from==='me'?'outgoing':'incoming';
+                html+='<div class="chat-bubble '+cls+'">';
+                if(msg.auto)html+='<div class="chat-auto-tag">🤖 自动回复</div>';
+                html+=msg.text;
+                html+='<div class="chat-bubble-time">'+msg.time+'</div>';
+                html+='</div>';
+            });
+            mc.innerHTML=html;
+            mc.scrollTop=mc.scrollHeight;
+        }
+        function sendReply(){
+            const inp=document.getElementById('chatInput');
+            const text=inp.value.trim();
+            if(!text||currentChatIdx<0)return;
+            const now=new Date();
+            const time=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+            contacts[currentChatIdx].messages.push({from:'me',text,time,auto:false});
+            inp.value='';
+            renderChat(currentChatIdx);
+        }
+
+        /* === 通用 === */
+        function toggleRule(el){if(!waBound){alert('请先绑定 WhatsApp 账号');return;}el.classList.toggle('active');}
+        function switchTab(btn,type){document.querySelectorAll('.message-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');}
+        function useTemplate(idx){if(!waBound){alert('请先绑定 WhatsApp 账号');return;}const t=['感谢您的咨询！我们提供高品质的健康产品，采用天然成分，科学配方。如有任何问题，随时联系我！','我们的产品价格从RM99起，根据规格不同价格有所差异。现在还有优惠活动，购买两件以上享9折优惠！','下单后1-2个工作日内发货，支持全国配送。满RM200免运费，货到付款和在线支付均可。'];alert('模板内容:\n\n'+t[idx]+'\n\n已复制到剪贴板');}
+        /* === 关键词回复 === */
+        let kwRules=[
+            {id:1,keywords:["价格","多少钱","费用"],reply:"感谢您的咨询！我们的产品价格从RM99起，根据规格不同价格有所差异。现在还有优惠活动，购买两件以上享9折优惠！"},
+            {id:2,keywords:["产品","介绍","详情"],reply:"感谢您的咨询！我们提供高品质的健康产品，包括螺旋藻、保健食品等，采用天然成分，科学配方。"},
+            {id:3,keywords:["发货","配送","快递"],reply:"下单后1-2个工作日内发货，支持全国配送。满RM200免运费，货到付款和在线支付均可。"},
+            {id:4,keywords:["下单","购买","怎么买"],reply:"您可以通过我们的小程序直接下单，或联系我帮您下单。现在首单还有95折优惠哦！"}
+        ];
+        let kwEditIdx=-1, kwEditTags=[];
+        function openKWPage(){
+            document.getElementById("mainPage").style.display="none";
+            document.getElementById("kwPage").style.display="";
+            renderKWRules();
+            updateKWPlan();
+        }
+        function updateKWPlan(){
+            const max=parseInt(document.getElementById("kwMaxCount").textContent);
+            const used=kwRules.length;
+            const pct=Math.min(100,Math.round(used/max*100));
+            if(used>=max){document.getElementById("kwAddBtn").disabled=true;document.getElementById("kwAddBtn").style.opacity=".5";document.getElementById("kwAddBtn").style.cursor="not-allowed";}
+            else{document.getElementById("kwAddBtn").disabled=false;document.getElementById("kwAddBtn").style.opacity="1";document.getElementById("kwAddBtn").style.cursor="pointer";}
+        }
+        function closeKWPage(){
+            document.getElementById("kwPage").style.display="none";
+            document.getElementById("mainPage").style.display="";
+        }
+        function renderKWRules(){
+            const c=document.getElementById("kwRulesList");
+            let h="";
+            kwRules.forEach((r,i)=>{
+                h+="<div class='kw-rule-card'>";
+                h+="<div class='kw-rule-top'><div style='display:flex;align-items:center;gap:10px'><div class='kw-rule-num'>"+(i+1)+"</div><div class='kw-rule-mid'><div class='kw-rule-label'>规则 "+(i+1)+"</div></div></div>";
+                h+="<div class='kw-rule-actions'><button class='kw-act-btn edit' onclick='openKWEdit("+i+")'>✎</button><button class='kw-act-btn del' onclick='removeKWRule("+i+")'>✕</button></div></div>";
+                h+="<div class='kw-keywords'>";
+                r.keywords.forEach(k=>{h+="<span class='kw-tag'>"+k+"</span>";});
+                h+="</div>";
+                h+="<div class='kw-reply-bubble'><div class='kw-reply-label'>自动回复</div>"+r.reply+"</div>";
+                h+="</div>";
+            });
+            c.innerHTML=h;
+            document.getElementById("kwRuleCount").textContent=kwRules.length+" 条";
+            document.getElementById("kwUsedCount").textContent=kwRules.length;
+        }
+        function openKWEdit(idx){
+            kwEditIdx=idx;
+            const overlay=document.getElementById("kwEditOverlay");
+            overlay.classList.add("active");
+            if(idx>=0){
+                const r=kwRules[idx];
+                document.getElementById("kwEditTitle").textContent="编辑关键词规则";
+                document.getElementById("kwReplyInput").value=r.reply;
+                kwEditTags=[...r.keywords];
+            }else{
+                document.getElementById("kwEditTitle").textContent="添加关键词规则";
+                document.getElementById("kwReplyInput").value="";
+                kwEditTags=[];
+            }
+            renderKWEditTags();
+            document.getElementById("kwTagInput").focus();
+        }
+        function closeKWEdit(){
+            document.getElementById("kwEditOverlay").classList.remove("active");
+            kwEditIdx=-1;
+        }
+        function addKWTag(val){
+            val=val.trim();
+            if(!val||kwEditTags.includes(val))return;
+            kwEditTags.push(val);
+            renderKWEditTags();
+        }
+        function removeKWTag(idx){
+            kwEditTags.splice(idx,1);
+            renderKWEditTags();
+        }
+        function renderKWEditTags(){
+            const wrap=document.getElementById("kwTagsWrap");
+            const input=document.getElementById("kwTagInput");
+            wrap.querySelectorAll(".kw-tag").forEach(t=>t.remove());
+            kwEditTags.forEach((t,i)=>{
+                const tag=document.createElement("span");
+                tag.className="kw-tag";
+                tag.innerHTML=t+"<span class='kw-tag-remove' onclick='event.stopPropagation();removeKWTag("+i+")'>×</span>";
+                wrap.insertBefore(tag,input);
+            });
+        }
+        function saveKWRule(){
+            const reply=document.getElementById("kwReplyInput").value.trim();
+            if(!kwEditTags.length){alert("请至少添加一个关键词");return;}
+            if(!reply){alert("请输入回复内容");return;}
+            if(kwEditIdx>=0){
+                kwRules[kwEditIdx]={...kwRules[kwEditIdx],keywords:[...kwEditTags],reply};
+            }else{
+                kwRules.push({id:Date.now(),keywords:[...kwEditTags],reply});
+            }
+            closeKWEdit();
+            renderKWRules();
+        }
+        function removeKWRule(idx){
+            if(confirm("确定删除这条关键词规则吗？")){kwRules.splice(idx,1);renderKWRules();updateKWPlan();}
+        }
+        function updateCharCount(){
+            const ta=document.getElementById("kwReplyInput");
+            document.getElementById("kwCharCount").textContent=ta.value.length+" / 500";
+        }
+
+        function clearTimers(){if(qrCountdown){clearInterval(qrCountdown);qrCountdown=null;}if(resendCountdown){clearInterval(resendCountdown);resendCountdown=null;}}
+
+        updateUI();
+    </script>
+</body>
+</html>

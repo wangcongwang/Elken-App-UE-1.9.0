@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landing Page 生成 - Elken App</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5; color: #333; padding-bottom: 70px;
+        }
+
+        /* ── 顶部 ── */
+        .header { background: linear-gradient(135deg, #43e97b, #38f9d7); padding: 20px; color: white; }
+        .header-top { display: flex; align-items: center; }
+        .back-btn { font-size: 24px; margin-right: 15px; cursor: pointer; }
+        .header-title { font-size: 20px; font-weight: 600; }
+        .content { padding: 20px; }
+        .section-title { font-size: 16px; font-weight: 600; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+
+        /* ── 通用卡片 ── */
+        .card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+
+        /* ── 模板选择入口 ── */
+        .empty-template { border: 2px dashed #d1d5db; border-radius: 14px; padding: 36px 20px; text-align: center; color: #9ca3af; margin-bottom: 14px; }
+        .empty-template .e-icon { font-size: 40px; margin-bottom: 10px; }
+        .selected-tpl { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; padding: 14px; border: 1px solid #e8fbe9; border-radius: 14px; background: #f8fff9; }
+        .selected-tpl .poster-thumb { width: 72px; height: 96px; border-radius: 10px; overflow: hidden; flex-shrink: 0; }
+        .selected-tpl .poster-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .selected-tpl .tpl-meta .tpl-name { font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
+        .selected-tpl .tpl-meta .tpl-hint { font-size: 12px; color: #6b7280; }
+        .open-library-btn {
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+            width: 100%; padding: 14px 16px; border: none; border-radius: 12px;
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+            color: white; font-size: 14px; font-weight: 600; cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .open-library-btn .sub { font-size: 12px; font-weight: 400; opacity: 0.9; }
+        .open-library-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(67,233,123,0.25); }
+
+        /* ── 个人信息编辑 ── */
+        .info-empty { border: 2px dashed #e5e7eb; border-radius: 12px; padding: 30px 16px; text-align: center; color: #9ca3af; font-size: 13px; }
+        .info-fields { display: flex; flex-direction: column; gap: 15px; }
+        .input-group {}
+        .input-label { font-size: 13px; color: #666; margin-bottom: 6px; display: block; }
+        .input-field { width: 100%; padding: 10px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; }
+        .input-field:focus { outline: none; border-color: #43e97b; }
+        textarea.input-field { resize: vertical; min-height: 70px; }
+        .preview-btn {
+            width: 100%; padding: 12px; margin-top: 15px;
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+            color: white; border: none; border-radius: 8px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+        }
+
+        /* ── 统计 & 分享 ── */
+        .stats-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .stats-period { display: flex; gap: 8px; }
+        .period-btn { padding: 6px 12px; background: #f8f9fa; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; }
+        .period-btn.active { background: #43e97b; color: white; }
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .stat-card { background: #f8f9fa; border-radius: 12px; padding: 15px; text-align: center; }
+        .stat-number { font-size: 24px; font-weight: 700; color: #43e97b; margin-bottom: 4px; }
+        .stat-label { font-size: 12px; color: #666; }
+        .stat-change { font-size: 11px; margin-top: 6px; }
+        .stat-change.up { color: #10b981; }
+        .stat-change.down { color: #ef4444; }
+        .share-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .share-btn { padding: 12px; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; color: white; }
+        .share-btn.whatsapp { background: #25D366; }
+        .share-btn.facebook { background: #1877F2; }
+        .share-btn.instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc274d, #cc2366, #bc1888); }
+        .share-btn.copy { background: #6b7280; }
+
+        /* ── 预览弹窗 ── */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; border-radius: 16px; width: 100%; max-width: 400px; max-height: 80vh; overflow-y: auto; }
+        .modal-header { padding: 15px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-size: 16px; font-weight: 600; }
+        .modal-close { font-size: 24px; cursor: pointer; color: #999; background: none; border: none; }
+        .modal-body { padding: 20px; }
+        .preview-content { background: #f8f9fa; border-radius: 8px; padding: 20px; text-align: center; }
+        .preview-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #43e97b, #38f9d7); margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 32px; }
+        .preview-name { font-size: 18px; font-weight: 600; margin-bottom: 5px; }
+        .preview-title { font-size: 13px; color: #666; margin-bottom: 15px; }
+        .preview-contact { font-size: 12px; color: #999; line-height: 1.6; }
+
+        /* ══════════════════════════════════════
+           模板库全屏弹层
+           ══════════════════════════════════════ */
+        .library-overlay {
+            display: none; position: fixed; inset: 0; z-index: 2000;
+            background: #f8fafc; overflow: hidden;
+            flex-direction: column;
+        }
+        .library-overlay.active { display: flex; }
+
+        .lib-topbar {
+            background: white; border-bottom: 1px solid #e2e8f0;
+            padding: 14px 24px; display: flex; align-items: center; justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .lib-topbar-left { display: flex; align-items: center; gap: 14px; }
+        .lib-close { width: 36px; height: 36px; border: 1px solid #e2e8f0; border-radius: 10px; background: white; font-size: 18px; cursor: pointer; }
+        .lib-title { font-size: 18px; font-weight: 700; }
+        .lib-sub { font-size: 12px; color: #64748b; display: block; }
+
+        .lib-body { flex: 1; overflow: hidden; display: grid; grid-template-columns: 200px 1fr; }
+        .lib-sidebar { background: white; border-right: 1px solid #e2e8f0; overflow-y: auto; }
+        .lib-cat-header { padding: 16px 18px 10px; font-weight: 700; font-size: 13px; color: #64748b; }
+        .lib-cat-btn { display: block; width: 100%; border: none; background: none; padding: 12px 18px; text-align: left; font-size: 13px; color: #475569; cursor: pointer; transition: background 0.15s; }
+        .lib-cat-btn:hover { background: #f1f5f9; }
+        .lib-cat-btn.active { background: #f0fdf4; color: #15803d; font-weight: 600; }
+
+        .lib-main { overflow-y: auto; padding: 24px; }
+        .lib-grid-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+        .lib-grid-sub { font-size: 12px; color: #64748b; margin-bottom: 20px; }
+        .lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+
+        .lib-card {
+            background: white; border: 1px solid #e2e8f0; border-radius: 14px;
+            overflow: hidden; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+        }
+        .lib-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(15,23,42,0.08); border-color: #bbf7d0; }
+        .lib-card-poster {
+            width: 100%; aspect-ratio: 3/4; position: relative; overflow: hidden;
+        }
+        .lib-card-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .lib-card-body { padding: 14px 16px; }
+        .lib-card-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+        .lib-card-desc { font-size: 12px; color: #64748b; line-height: 1.5; }
+
+        /* 全屏海报预览 */
+        .poster-fs {
+            display: none; position: fixed; inset: 0; z-index: 3000;
+            background: rgba(15,23,42,0.85); align-items: center; justify-content: center; padding: 24px;
+        }
+        .poster-fs.active { display: flex; }
+        .poster-fs-inner {
+            position: relative; max-width: 420px; width: 100%; max-height: 90vh;
+            border-radius: 16px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+        }
+        .poster-fs-inner img { width: 100%; display: block; }
+        .poster-fs-close {
+            position: absolute; top: 16px; right: 16px; width: 40px; height: 40px;
+            border-radius: 50%; border: none; background: rgba(0,0,0,0.5); color: white;
+            font-size: 20px; cursor: pointer; z-index: 10;
+        }
+        .poster-fs-actions {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: 20px; background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            display: flex; gap: 10px;
+        }
+        .poster-fs-actions .btn-fs {
+            flex: 1; padding: 14px; border-radius: 10px; border: none;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+        }
+        .btn-fs-cancel { background: rgba(255,255,255,0.2); color: white; backdrop-filter: blur(8px); }
+        .btn-fs-select { background: linear-gradient(135deg, #43e97b, #38f9d7); color: white; }
+
+        /* ── 海报模板样式 (CSS 渲染为"设计好的图片") ── */
+        .tpl-poster {
+            width: 100%; height: 100%; display: flex; flex-direction: column;
+            padding: 28px 24px; position: relative; color: white; overflow: hidden;
+        }
+        .tpl-poster .p-badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 700; background: rgba(255,255,255,0.2); backdrop-filter: blur(6px); margin-bottom: 20px; align-self: flex-start; }
+        .tpl-poster .p-headline { font-size: 26px; font-weight: 800; line-height: 1.25; margin-bottom: 12px; }
+        .tpl-poster .p-sub { font-size: 13px; line-height: 1.6; opacity: 0.9; margin-bottom: 20px; }
+        .tpl-poster .p-features { margin-bottom: auto; }
+        .tpl-poster .p-feature { display: flex; align-items: center; gap: 10px; font-size: 12px; margin-bottom: 10px; opacity: 0.9; }
+        .tpl-poster .p-feature .dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.7); flex-shrink: 0; }
+        .tpl-poster .p-cta { display: inline-block; padding: 14px 28px; border-radius: 12px; font-size: 14px; font-weight: 700; background: white; align-self: flex-start; margin-top: 24px; }
+        .tpl-poster .p-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.2); font-size: 11px; opacity: 0.8; }
+        .tpl-poster .p-avatar { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+
+        /* 主题色变体 */
+        .theme-green { background: linear-gradient(160deg, #059669, #34d399, #a7f3d0); }
+        .theme-green .p-cta { color: #059669; }
+        .theme-teal { background: linear-gradient(160deg, #0d9488, #2dd4bf, #99f6e4); }
+        .theme-teal .p-cta { color: #0d9488; }
+        .theme-blue { background: linear-gradient(160deg, #1d4ed8, #60a5fa, #bfdbfe); }
+        .theme-blue .p-cta { color: #1d4ed8; }
+        .theme-indigo { background: linear-gradient(160deg, #4338ca, #818cf8, #c7d2fe); }
+        .theme-indigo .p-cta { color: #4338ca; }
+        .theme-purple { background: linear-gradient(160deg, #7c3aed, #a78bfa, #ddd6fe); }
+        .theme-purple .p-cta { color: #7c3aed; }
+        .theme-rose { background: linear-gradient(160deg, #be123c, #fb7185, #fecdd3); }
+        .theme-rose .p-cta { color: #be123c; }
+        .theme-amber { background: linear-gradient(160deg, #b45309, #fbbf24, #fef3c7); }
+        .theme-amber .p-cta { color: #b45309; }
+        .theme-slate { background: linear-gradient(160deg, #1e293b, #475569, #94a3b8); }
+        .theme-slate .p-cta { color: #1e293b; }
+
+        @media (max-width: 768px) {
+            .lib-body { grid-template-columns: 1fr; }
+            .lib-sidebar { display: none; }
+            .lib-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .lib-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ── 底部分享面板 ── */
+        .share-sheet-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+            z-index: 1100; align-items: flex-end; justify-content: center;
+        }
+        .share-sheet-overlay.active { display: flex; }
+        .share-sheet {
+            background: #fff; border-radius: 16px 16px 0 0; width: 100%; max-width: 480px;
+            padding: 8px 0 24px; animation: sheetUp 0.25s ease;
+        }
+        @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .share-sheet-handle { width: 36px; height: 4px; background: #ddd; border-radius: 2px; margin: 8px auto 14px; }
+        .share-sheet-title { font-size: 15px; font-weight: 600; text-align: center; margin-bottom: 16px; color: #333; }
+        .share-sheet-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 0 20px 16px; }
+        .share-sheet-item { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; border: none; background: none; padding: 8px 0; }
+        .share-sheet-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .share-sheet-icon.wa { background: #e8f9ef; }
+        .share-sheet-icon.fb { background: #e8f0ff; }
+        .share-sheet-icon.ig { background: #ffeee8; }
+        .share-sheet-icon.link { background: #f3f4f6; }
+        .share-sheet-label { font-size: 12px; color: #555; }
+        .share-sheet-cancel {
+            display: block; width: calc(100% - 40px); margin: 4px 20px 0; padding: 14px;
+            border: none; border-radius: 12px; background: #f5f5f5;
+            font-size: 15px; font-weight: 500; color: #333; cursor: pointer; text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ════ 主页面 ════ -->
+<div class="header">
+    <div class="header-top">
+        <div class="back-btn" onclick="window.location.href='marketing_assistant.html'">&larr;</div>
+        <div class="header-title">Landing Page 生成</div>
+    </div>
+</div>
+
+<div class="content">
+    <!-- 模板选择 -->
+    <div class="card">
+        <div class="section-title"><span>🎨</span><span>选择模板</span></div>
+        <div id="emptyTpl" class="empty-template">
+            <div class="e-icon">🖼️</div>
+            <div>请先选择一个模板</div>
+        </div>
+        <div id="selectedTpl" class="selected-tpl" style="display:none;">
+            <div class="poster-thumb" id="tplThumb"></div>
+            <div class="tpl-meta">
+                <div class="tpl-name" id="tplName"></div>
+                <div class="tpl-hint">点击下方按钮可更换模板</div>
+            </div>
+        </div>
+        <button class="open-library-btn" onclick="openLibrary()">
+            <span>打开模板库</span>
+            <span class="sub">浏览 & 预览模板</span>
+        </button>
+    </div>
+
+    <!-- 个人信息编辑 -->
+    <div class="card">
+        <div class="section-title"><span>✏️</span><span>编辑个人信息</span></div>
+        <div id="infoEmpty" class="info-empty">请先选择模板后编辑个人信息</div>
+        <div id="infoFields" class="info-fields" style="display:none;"></div>
+        <button id="previewBtn" class="preview-btn" style="display:none;" onclick="previewPage()">预览 Landing Page</button>
+    </div>
+
+    <!-- 访问统计 -->
+    <div class="card">
+        <div class="stats-header">
+            <div class="section-title" style="margin-bottom:0;"><span>📊</span><span>访问统计</span></div>
+            <div class="stats-period">
+                <button class="period-btn" onclick="setPeriod(this)">昨天</button>
+                <button class="period-btn active" onclick="setPeriod(this)">今天</button>
+                <button class="period-btn" onclick="setPeriod(this)">本周</button>
+                <button class="period-btn" onclick="setPeriod(this)">本月</button>
+            </div>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-number">156</div><div class="stat-label">访问人数</div><div class="stat-change up">↑ 23%</div></div>
+            <div class="stat-card"><div class="stat-number">89</div><div class="stat-label">独立访客</div><div class="stat-change up">↑ 15%</div></div>
+            <div class="stat-card"><div class="stat-number">2.3</div><div class="stat-label">平均停留(分钟)</div><div class="stat-change down">↓ 5%</div></div>
+            <div class="stat-card"><div class="stat-number">12</div><div class="stat-label">咨询次数</div><div class="stat-change up">↑ 50%</div></div>
+        </div>
+    </div>
+
+
+</div>
+
+<!-- 预览弹窗 -->
+<div class="modal" id="previewModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title">Landing Page 预览</div>
+            <button class="modal-close" onclick="closePreview()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="preview-content">
+                <div class="preview-avatar">👤</div>
+                <div class="preview-name" id="pvName">-</div>
+                <div class="preview-title" id="pvRole">-</div>
+                <div class="preview-contact" id="pvContact">-</div>
+            </div>
+            <button class="preview-btn" onclick="openShareSheet()" style="margin-top:15px;">生成后分享</button>
+        </div>
+    </div>
+</div>
+
+<!-- ════ 模板库全屏弹层 ════ -->
+<div class="library-overlay" id="libraryOverlay">
+    <div class="lib-topbar">
+        <div class="lib-topbar-left">
+            <button class="lib-close" onclick="closeLibrary()">&larr;</button>
+            <div>
+                <div class="lib-title">模板库</div>
+                <span class="lib-sub">选择一个模板，点击海报可全屏预览</span>
+            </div>
+        </div>
+    </div>
+    <div class="lib-body">
+        <div class="lib-sidebar">
+            <div class="lib-cat-header">分类</div>
+            <div id="libCats"></div>
+        </div>
+        <div class="lib-main">
+            <div class="lib-grid-title" id="libGridTitle">全部模板</div>
+            <div class="lib-grid-sub" id="libGridSub">点击海报卡片可全屏预览</div>
+            <div class="lib-grid" id="libGrid"></div>
+        </div>
+    </div>
+</div>
+
+<!-- 全屏海报预览 -->
+<div class="poster-fs" id="posterFs">
+    <div class="poster-fs-inner" id="posterFsInner"></div>
+</div>
+
+
+<script>
+/* ═══════════════════════════════════════
+   模板数据
+   ═══════════════════════════════════════ */
+var TEMPLATES = [
+    {
+        id: 'product-new', category: 'product', name: '产品模板', poster: '新品推荐',
+        desc: '主推单款产品，突出卖点和行动按钮', badge: '产品推广', theme: 'theme-green',
+        ctaColor: '#059669',
+        headline: '新品推荐\n让好产品自己开口', sub: '主打一到两个核心卖点，适合新品首发、爆款补货或会员专属推荐。',
+        features: ['产品主图展示', '核心卖点提炼', '一键私聊咨询'],
+        cta: '立即咨询', footerName: '张三 · 健康顾问',
+        fields: [
+            { key: 'name', label: '姓名/昵称' },
+            { key: 'role', label: '身份标签' },
+            { key: 'headline', label: '页面标题', full: true },
+            { key: 'sub', label: '副标题', full: true },
+            { key: 'body', label: '正文介绍', full: true, type: 'textarea' },
+            { key: 'cta', label: '按钮文案' },
+            { key: 'phone', label: '手机号码' },
+            { key: 'email', label: '邮箱地址' },
+            { key: 'whatsapp', label: 'WhatsApp' },
+        ],
+        defaults: { name: '张三', role: '健康顾问', headline: '新品推荐：让好产品自己开口', sub: '主打一到两个核心卖点，适合新品首发或会员专属推荐。', body: '页面适合展示产品主图、核心利益点和信任背书，配合 WhatsApp 引导用户快速行动。', cta: '立即咨询', phone: '+60 12-345-6789', email: 'example@email.com', whatsapp: '+60 12-345-6789' },
+    },
+    {
+        id: 'product-combo', category: 'product', name: '产品模板', poster: '爆品组合',
+        desc: '套装促销、满减活动或组合推荐', badge: '组合促销', theme: 'theme-amber',
+        ctaColor: '#b45309',
+        headline: '爆品组合\n限时优惠进行中', sub: '突出套装价值、限时价格与赠品福利，提升客单价。',
+        features: ['套装组合展示', '限时价格标签', '赠品福利说明'],
+        cta: '查看优惠', footerName: '张三 · 健康顾问',
+        fields: [
+            { key: 'name', label: '姓名/昵称' },
+            { key: 'role', label: '身份标签' },
+            { key: 'headline', label: '页面标题', full: true },
+            { key: 'sub', label: '副标题', full: true },
+            { key: 'body', label: '正文介绍', full: true, type: 'textarea' },
+            { key: 'cta', label: '按钮文案' },
+            { key: 'phone', label: '手机号码' },
+            { key: 'email', label: '邮箱地址' },
+            { key: 'whatsapp', label: 'WhatsApp' },
+        ],
+        defaults: { name: '张三', role: '健康顾问', headline: '爆品组合优惠上线', sub: '突出套装价值与限时价格，提升客单价。', body: '页面适合承载主推组合、搭配建议和常见问题。', cta: '查看组合优惠', phone: '+60 12-345-6789', email: 'example@email.com', whatsapp: '+60 12-345-6789' },
+    },
+    {
+        id: 'advisor-intro', category: 'advisor', name: '健康顾问', poster: '个人介绍页',
+        desc: '建立信任，展示服务范围，引导添加联系方式', badge: '个人品牌', theme: 'theme-teal',
+        ctaColor: '#0d9488',
+        headline: '专业健康顾问\n陪你科学管理健康', sub: '展示服务项目、客户见证和联系入口，打造个人品牌。',
+        features: ['营养咨询服务', '体重管理方案', '亚健康调理指导'],
+        cta: '预约咨询', footerName: '张三 · 健康顾问',
+        fields: [
+            { key: 'name', label: '姓名/昵称' },
+            { key: 'role', label: '身份标签' },
+            { key: 'headline', label: '页面标题', full: true },
+            { key: 'sub', label: '副标题', full: true },
+            { key: 'services', label: '服务范围', full: true, type: 'textarea' },
+            { key: 'body', label: '正文介绍', full: true, type: 'textarea' },
+            { key: 'cta', label: '按钮文案' },
+            { key: 'phone', label: '手机号码' },
+            { key: 'email', label: '邮箱地址' },
+            { key: 'whatsapp', label: 'WhatsApp' },
+        ],
+        defaults: { name: '张三', role: '健康顾问', headline: '专业健康顾问，陪你科学管理健康', sub: '展示服务项目、客户见证和联系入口。', services: '营养咨询、体重管理、亚健康调理', body: '一对一健康咨询，快速找到适合方案。', cta: '预约咨询', phone: '+60 12-345-6789', email: 'example@email.com', whatsapp: '+60 12-345-6789' },
+    },
+    {
+        id: 'advisor-service', category: 'advisor', name: '健康顾问', poster: '咨询服务页',
+        desc: '引导新客户了解咨询流程并完成首次咨询', badge: '咨询转化', theme: 'theme-blue',
+        ctaColor: '#1d4ed8',
+        headline: '一对一健康咨询\n快速找到适合方案', sub: '清晰说明服务流程和适配人群，降低决策门槛。',
+        features: ['在线咨询流程', '常见问题解答', '预约专属顾问'],
+        cta: '立即私聊', footerName: '张三 · 健康顾问',
+        fields: [
+            { key: 'name', label: '姓名/昵称' },
+            { key: 'role', label: '身份标签' },
+            { key: 'headline', label: '页面标题', full: true },
+            { key: 'sub', label: '副标题', full: true },
+            { key: 'faq', label: '常见问题', full: true, type: 'textarea' },
+            { key: 'cta', label: '按钮文案' },
+            { key: 'phone', label: '手机号码' },
+            { key: 'email', label: '邮箱地址' },
+            { key: 'whatsapp', label: 'WhatsApp' },
+        ],
+        defaults: { name: '张三', role: '健康顾问', headline: '一对一健康咨询', sub: '清晰说明服务流程和适配人群。', faq: 'Q: 如何预约？\nA: 点击下方按钮直接私聊。', cta: '立即私聊', phone: '+60 12-345-6789', email: 'example@email.com', whatsapp: '+60 12-345-6789' },
+    },
+    {
+        id: 'expert-landing', category: 'expert', name: '专家网站', poster: '专家形象页',
+        desc: '打造专业个人官网，展示经验与合作案例', badge: '专家背书', theme: 'theme-slate',
+        ctaColor: '#1e293b',
+        headline: '专家形象官网\n专业值得被看见', sub: '用于展示资质、媒体背书、合作案例和商务联系入口。',
+        features: ['个人资质认证', '媒体合作案例', '商务联系方式'],
+        cta: '联系合作', footerName: '张三 · 健康专家',
+        fields: [
+            { key: 'name', label: '姓名/昵称' },
+            { key: 'role', label: '身份标签' },
+            { key: 'headline', label: '页面标题', full: true },
+            { key: 'sub', label: '副标题', full: true },
+            { key: 'credentials', label: '资质/荣誉', full: true, type: 'textarea' },
+            { key: 'body', label: '正文介绍', full: true, type: 'textarea' },
+            { key: 'cta', label: '按钮文案' },
+            { key: 'phone', label: '手机号码' },
+            { key: 'email', label: '邮箱地址' },
+            { key: 'whatsapp', label: 'WhatsApp' },
+        ],
+        defaults: { name: '张三', role: '健康专家', headline: '专家形象官网', sub: '展示资质、媒体背书和商务联系入口。', credentials: '10年健康行业经验\n国际认证营养师', body: '专注于科学健康管理方案。', cta: '联系合作', phone: '+60 12-345-6789', email: 'example@email.com', whatsapp: '+60 12-345-6789' },
+    },
+    {
+        id: 'expert-content', category: 'expert', name: '专家网站', poster: '知识内容页',
+        desc: '集中展示科普内容、视频或资料', badge: '内容运营', theme: 'theme-indigo',
+        ctaColor: '#4338ca',
+        headline: '健康知识精选\n科学养生从这里开始', sub: '聚焦科普内容、常见误区、解决方案和互动入口。',
+        features: ['每周健康科普', '免费营养手册', '专家视频讲解'],
+        cta: '获取资料', footerName: '张三 · 健康专家',
+        fields: [
+            { key: 'name', label: '姓名/昵称' },
+            { key: 'role', label: '身份标签' },
+            { key: 'headline', label: '页面标题', full: true },
+            { key: 'sub', label: '副标题', full: true },
+            { key: 'highlights', label: '内容亮点', full: true, type: 'textarea' },
+            { key: 'cta', label: '按钮文案' },
+            { key: 'phone', label: '手机号码' },
+            { key: 'email', label: '邮箱地址' },
+            { key: 'whatsapp', label: 'WhatsApp' },
+        ],
+        defaults: { name: '张三', role: '健康专家', headline: '健康知识精选', sub: '聚焦科普内容和常见误区。', highlights: '每周更新健康科普视频\n免费领取营养手册', cta: '获取更多资料', phone: '+60 12-345-6789', email: 'example@email.com', whatsapp: '+60 12-345-6789' },
+    },
+    {
+        id: 'expert-health-specialist', category: 'expert', name: '专家网站', poster: '健康专家页',
+        desc: '整体健康专家个人网站，展示专业服务与产品', badge: '健康专家', theme: 'theme-green',
+        ctaColor: '#059669',
+        headline: '解锁您最具活力的健康\n用个性化的、整体的教练服务', sub: '开启您的健康生活，专注于长期的健康、营养和活力。',
+        features: ['有机膳食补充剂', '植物蛋白粉', '放松精油'],
+        cta: '预订您的免费咨询', footerName: '詹金斯博士 · 整体健康专家',
+        fields: [
+            { key: 'name', label: '姓名/昵称' },
+            { key: 'role', label: '身份标签' },
+            { key: 'headline', label: '页面标题', full: true },
+            { key: 'sub', label: '副标题', full: true },
+            { key: 'body', label: '正文介绍', full: true, type: 'textarea' },
+            { key: 'cta', label: '按钮文案' },
+            { key: 'phone', label: '手机号码' },
+            { key: 'email', label: '邮箱地址' },
+            { key: 'whatsapp', label: 'WhatsApp' },
+        ],
+        defaults: { name: '詹金斯博士', role: '整体健康专家', headline: '解锁您最具活力的健康', sub: '用个性化的、整体的教练服务，开启您的健康生活，专注于长期的健康、营养和活力。', body: '通过WhatsApp与我们联系，即刻联系我们的团队。', cta: '预订您的免费咨询', phone: '+86 138 1234 5678', email: 'dr.jenkins@elken.com', whatsapp: '+86 138 1234 5678' },
+    },
+    {
+        id: 'activity-webinar', category: 'activity', name: '活动邀约', poster: '线上讲座',
+        desc: '活动报名、直播邀约或课程招募', badge: '活动报名', theme: 'theme-purple',
+        ctaColor: '#7c3aed',
+        headline: '线上健康讲座\n邀你参加', sub: '适合线上课程、直播分享、说明会等报名场景。',
+        features: ['嘉宾主题分享', '实时互动答疑', '专属参会福利'],
+        cta: '立即报名', footerName: '张三 · 活动负责人',
+        fields: [
+            { key: 'name', label: '姓名/昵称' },
+            { key: 'role', label: '身份标签' },
+            { key: 'headline', label: '活动标题', full: true },
+            { key: 'sub', label: '活动简介', full: true },
+            { key: 'eventTime', label: '活动时间' },
+            { key: 'eventLocation', label: '活动地点/链接' },
+            { key: 'cta', label: '按钮文案' },
+            { key: 'phone', label: '手机号码' },
+            { key: 'whatsapp', label: 'WhatsApp' },
+        ],
+        defaults: { name: '张三', role: '活动负责人', headline: '线上健康讲座邀你参加', sub: '适合线上课程、直播分享等报名场景。', eventTime: '本周六 20:00', eventLocation: 'Zoom 线上会议室', cta: '立即报名', phone: '+60 12-345-6789', whatsapp: '+60 12-345-6789' },
+    },
+    {
+        id: 'activity-offline', category: 'activity', name: '活动邀约', poster: '线下体验',
+        desc: '门店体验、沙龙邀约或线下活动宣传', badge: '线下体验', theme: 'theme-rose',
+        ctaColor: '#be123c',
+        headline: '线下健康体验\n活动报名中', sub: '适合沙龙、门店体验、小型路演等线下聚会。',
+        features: ['现场产品体验', '专家面对面', '到场专属礼品'],
+        cta: '预约参加', footerName: '张三 · 活动负责人',
+        fields: [
+            { key: 'name', label: '姓名/昵称' },
+            { key: 'role', label: '身份标签' },
+            { key: 'headline', label: '活动标题', full: true },
+            { key: 'sub', label: '活动简介', full: true },
+            { key: 'eventTime', label: '活动时间' },
+            { key: 'eventLocation', label: '活动地点' },
+            { key: 'cta', label: '按钮文案' },
+            { key: 'phone', label: '手机号码' },
+            { key: 'whatsapp', label: 'WhatsApp' },
+        ],
+        defaults: { name: '张三', role: '活动负责人', headline: '线下健康体验活动报名中', sub: '适合沙龙、门店体验等线下聚会。', eventTime: '下周日 14:00', eventLocation: '吉隆坡旗舰店', cta: '预约参加', phone: '+60 12-345-6789', whatsapp: '+60 12-345-6789' },
+    },
+];
+
+var CATEGORIES = [
+    { id: 'all', name: '全部模板' },
+    { id: 'product', name: '产品推广' },
+    { id: 'advisor', name: '健康顾问' },
+    { id: 'expert', name: '专家网站' },
+    { id: 'activity', name: '活动邀约' },
+];
+
+var selectedTemplate = null;
+var fieldValues = {};
+var libCat = 'all';
+var viewingPoster = null;
+
+/* ── 渲染海报 HTML ── */
+function renderPoster(tpl, size) {
+    var featuresHtml = '';
+    if (tpl.features) {
+        tpl.features.forEach(function(f) {
+            featuresHtml += '<div class="p-feature"><div class="dot"></div><span>' + f + '</span></div>';
+        });
+    }
+    return '<div class="tpl-poster ' + tpl.theme + '">' +
+        '<div class="p-badge">' + tpl.badge + '</div>' +
+        '<div class="p-headline" style="white-space:pre-line">' + tpl.headline + '</div>' +
+        '<div class="p-sub">' + tpl.sub + '</div>' +
+        '<div class="p-features">' + featuresHtml + '</div>' +
+        '<div class="p-cta" style="color:' + tpl.ctaColor + '">' + tpl.cta + '</div>' +
+        '<div class="p-footer"><span>' + tpl.footerName + '</span><div class="p-avatar">👤</div></div>' +
+    '</div>';
+}
+
+/* ── 模板库 ── */
+function openLibrary() {
+    libCat = 'all';
+    renderLibCats();
+    renderLibGrid();
+    document.getElementById('libraryOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLibrary() {
+    document.getElementById('libraryOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function renderLibCats() {
+    var el = document.getElementById('libCats');
+    el.innerHTML = '';
+    CATEGORIES.forEach(function(c) {
+        var btn = document.createElement('button');
+        btn.className = 'lib-cat-btn' + (libCat === c.id ? ' active' : '');
+        btn.textContent = c.name;
+        btn.onclick = function() { libCat = c.id; renderLibCats(); renderLibGrid(); };
+        el.appendChild(btn);
+    });
+}
+
+function renderLibGrid() {
+    var list = libCat === 'all' ? TEMPLATES : TEMPLATES.filter(function(t) { return t.category === libCat; });
+    var cat = CATEGORIES.filter(function(c) { return c.id === libCat; })[0];
+    document.getElementById('libGridTitle').textContent = libCat === 'all' ? '全部模板' : cat.name;
+    document.getElementById('libGridSub').textContent = list.length + ' 个模板可选，点击海报全屏预览';
+
+    var grid = document.getElementById('libGrid');
+    grid.innerHTML = '';
+
+    list.forEach(function(tpl) {
+        var card = document.createElement('div');
+        card.className = 'lib-card';
+        card.innerHTML =
+            '<div class="lib-card-poster">' + renderPoster(tpl) + '</div>' +
+            '<div class="lib-card-body">' +
+                '<div class="lib-card-name">' + tpl.name + ' · ' + tpl.poster + '</div>' +
+                '<div class="lib-card-desc">' + tpl.desc + '</div>' +
+            '</div>';
+        card.onclick = function() { openPosterPreview(tpl); };
+        grid.appendChild(card);
+    });
+}
+
+/* ── 全屏海报预览 ── */
+function openPosterPreview(tpl) {
+    viewingPoster = tpl;
+    var inner = document.getElementById('posterFsInner');
+    inner.innerHTML =
+        renderPoster(tpl) +
+        '<button class="poster-fs-close" onclick="closePosterPreview()">&times;</button>' +
+        '<div class="poster-fs-actions">' +
+            '<button class="btn-fs btn-fs-cancel" onclick="closePosterPreview()">返回</button>' +
+            '<button class="btn-fs btn-fs-select" onclick="selectFromPreview()">使用此模板</button>' +
+        '</div>';
+    document.getElementById('posterFs').classList.add('active');
+}
+
+function closePosterPreview() {
+    document.getElementById('posterFs').classList.remove('active');
+    viewingPoster = null;
+}
+
+function selectFromPreview() {
+    if (!viewingPoster) return;
+    selectTemplate(viewingPoster);
+    closePosterPreview();
+    closeLibrary();
+}
+
+/* ── 选中模板 ── */
+function selectTemplate(tpl) {
+    selectedTemplate = tpl;
+
+    // 显示已选卡片
+    document.getElementById('emptyTpl').style.display = 'none';
+    var st = document.getElementById('selectedTpl');
+    st.style.display = 'flex';
+    document.getElementById('tplThumb').innerHTML = '<div style="width:100%;height:100%;transform:scale(0.33);transform-origin:top left;width:216px;height:288px;">' + renderPoster(tpl) + '</div>';
+    document.getElementById('tplName').textContent = tpl.name + ' · ' + tpl.poster;
+
+    // 动态表单
+    renderFields(tpl.fields, tpl.defaults);
+}
+
+/* ── 动态表单 ── */
+function renderFields(fields, defaults) {
+    var container = document.getElementById('infoFields');
+    container.innerHTML = '';
+    fieldValues = {};
+
+    fields.forEach(function(f) {
+        fieldValues[f.key] = defaults[f.key] || '';
+        var group = document.createElement('div');
+        group.className = 'input-group';
+
+        var label = document.createElement('label');
+        label.className = 'input-label';
+        label.textContent = f.label;
+        group.appendChild(label);
+
+        var input;
+        if (f.type === 'textarea') {
+            input = document.createElement('textarea');
+            input.className = 'input-field';
+            input.rows = 3;
+        } else {
+            input = document.createElement('input');
+            input.className = 'input-field';
+            input.type = 'text';
+        }
+        input.value = fieldValues[f.key];
+        input.placeholder = '请输入' + f.label;
+        input.dataset.key = f.key;
+        input.addEventListener('input', function() { fieldValues[this.dataset.key] = this.value; });
+        group.appendChild(input);
+        container.appendChild(group);
+    });
+
+    document.getElementById('infoEmpty').style.display = 'none';
+    container.style.display = 'flex';
+    document.getElementById('previewBtn').style.display = 'block';
+}
+
+/* ── 预览 & 分享 ── */
+function previewPage() {
+    if (!selectedTemplate) { alert('请先选择模板'); return; }
+    document.getElementById('pvName').textContent = fieldValues.name || '-';
+    document.getElementById('pvRole').textContent = fieldValues.role || '-';
+    document.getElementById('pvContact').innerHTML =
+        '📱 ' + (fieldValues.phone || '-') + '<br>✉️ ' + (fieldValues.email || '-') + '<br>💬 WhatsApp: ' + (fieldValues.whatsapp || '-');
+    document.getElementById('previewModal').classList.add('active');
+}
+function closePreview() { document.getElementById('previewModal').classList.remove('active'); }
+function generatePage() { alert('Landing Page 已生成！\n\n链接: https://yourname.elken.com'); closePreview(); }
+function shareTo(p) { alert('即将跳转到 ' + p + ' 分享页面'); }
+function copyLink() { navigator.clipboard.writeText('https://yourname.elken.com').then(function() { alert('链接已复制！'); }); }
+function setPeriod(btn) { btn.parentElement.querySelectorAll('.period-btn').forEach(function(b) { b.classList.remove('active'); }); btn.classList.add('active'); }
+
+function openShareSheet() {
+    closePreview();
+    alert('Landing Page 已生成！\n\n链接: https://yourname.elken.com');
+    document.getElementById('shareSheetOverlay').classList.add('active');
+}
+function closeShareSheet() {
+    document.getElementById('shareSheetOverlay').classList.remove('active');
+}
+</script>
+
+<!-- 底部分享面板 -->
+<div class="share-sheet-overlay" id="shareSheetOverlay" onclick="if(event.target===this)closeShareSheet()">
+    <div class="share-sheet">
+        <div class="share-sheet-handle"></div>
+        <div class="share-sheet-title">分享到</div>
+        <div class="share-sheet-grid">
+            <button class="share-sheet-item" onclick="shareTo('WhatsApp')">
+                <div class="share-sheet-icon wa">💬</div>
+                <span class="share-sheet-label">WhatsApp</span>
+            </button>
+            <button class="share-sheet-item" onclick="shareTo('Facebook')">
+                <div class="share-sheet-icon fb">📘</div>
+                <span class="share-sheet-label">Facebook</span>
+            </button>
+            <button class="share-sheet-item" onclick="shareTo('Instagram')">
+                <div class="share-sheet-icon ig">📷</div>
+                <span class="share-sheet-label">Instagram</span>
+            </button>
+            <button class="share-sheet-item" onclick="copyLink()">
+                <div class="share-sheet-icon link">🔗</div>
+                <span class="share-sheet-label">复制链接</span>
+            </button>
+        </div>
+        <button class="share-sheet-cancel" onclick="closeShareSheet()">取消</button>
+    </div>
+</div>
+</body>
+</html>
