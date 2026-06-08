@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Landing Page 生成 - Elken App</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -131,10 +132,24 @@
         .lib-card-poster {
             width: 100%; aspect-ratio: 3/4; position: relative; overflow: hidden;
         }
+        .lib-card-poster.v2-poster {
+            aspect-ratio: 9/16;
+        }
+        .lib-card-poster.image-poster {
+            aspect-ratio: 9/16;
+        }
         .lib-card-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .lib-card-body { padding: 14px 16px; }
+        .lib-card-body { padding: 14px 16px; display: flex; flex-direction: column; }
         .lib-card-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
-        .lib-card-desc { font-size: 12px; color: #64748b; line-height: 1.5; }
+        .lib-card-desc { font-size: 12px; color: #64748b; line-height: 1.5; margin-bottom: 10px; }
+        .lib-card-btn {
+            width: 100%; padding: 10px; margin-top: auto;
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white; border: none; border-radius: 8px;
+            font-size: 13px; font-weight: 600; cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .lib-card-btn:hover { opacity: 0.9; }
 
         /* 全屏海报预览 */
         .poster-fs {
@@ -145,6 +160,10 @@
         .poster-fs-inner {
             position: relative; max-width: 420px; width: 100%; max-height: 90vh;
             border-radius: 16px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+            display: flex; flex-direction: column;
+        }
+        .poster-fs-content {
+            flex: 1; overflow-y: auto;
         }
         .poster-fs-inner img { width: 100%; display: block; }
         .poster-fs-close {
@@ -153,8 +172,8 @@
             font-size: 20px; cursor: pointer; z-index: 10;
         }
         .poster-fs-actions {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            padding: 20px; background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            position: relative;
+            padding: 16px 20px 20px; background: rgba(0,0,0,0.8);
             display: flex; gap: 10px;
         }
         .poster-fs-actions .btn-fs {
@@ -178,6 +197,113 @@
         .tpl-poster .p-cta { display: inline-block; padding: 14px 28px; border-radius: 12px; font-size: 14px; font-weight: 700; background: white; align-self: flex-start; margin-top: 24px; }
         .tpl-poster .p-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.2); font-size: 11px; opacity: 0.8; }
         .tpl-poster .p-avatar { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+
+        /* ── 海报模板样式 v2 (健康专家页) ── */
+        .tpl-poster-v2 {
+            width: 100%; min-height: 100%; display: flex; flex-direction: column;
+            position: relative; color: #1a1a1a; overflow: hidden;
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 40%, #f0fdf4 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .tpl-poster-v2 .v2-bg {
+            position: absolute; inset: 0;
+            background-size: cover; background-position: center;
+            opacity: 0.3; z-index: 0;
+        }
+        .tpl-poster-v2 .v2-content {
+            position: relative; z-index: 1;
+            display: flex; flex-direction: column;
+            width: 100%; min-height: 100%;
+        }
+        /* 顶部导航栏 */
+        .tpl-poster-v2 .v2-header {
+            padding: 16px 16px 8px; text-align: center;
+            background: rgba(255,255,255,0.8); backdrop-filter: blur(8px);
+        }
+        .tpl-poster-v2 .v2-brand {
+            font-size: 16px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px;
+            letter-spacing: 0.5px;
+        }
+        .tpl-poster-v2 .v2-brand span { color: #9ca3af; font-weight: 400; margin: 0 6px; }
+        .tpl-poster-v2 .v2-nav {
+            display: flex; justify-content: center; gap: 0;
+            font-size: 11px; color: #6b7280; margin-top: 4px;
+        }
+        .tpl-poster-v2 .v2-nav span { cursor: default; padding: 0 8px; }
+        .tpl-poster-v2 .v2-nav span:not(:last-child) { border-right: 1px solid #e5e7eb; }
+        /* 标题区 */
+        .tpl-poster-v2 .v2-hero {
+            padding: 16px 20px 18px; text-align: center;
+        }
+        .tpl-poster-v2 .v2-headline {
+            font-size: 24px; font-weight: 800; color: #1a1a1a;
+            line-height: 1.25; margin-bottom: 10px;
+        }
+        .tpl-poster-v2 .v2-sub {
+            font-size: 13px; color: #4b5563; line-height: 1.6;
+            max-width: 300px; margin: 0 auto 14px;
+        }
+        .tpl-poster-v2 .v2-cta {
+            display: inline-block; padding: 12px 28px; border-radius: 10px;
+            font-size: 14px; font-weight: 700; color: #fff;
+            background: linear-gradient(135deg, #059669, #10b981);
+            border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(5,150,105,0.3);
+        }
+        /* 产品展示区 */
+        .tpl-poster-v2 .v2-products {
+            display: flex; justify-content: center; gap: 10px;
+            padding: 0 16px 18px;
+        }
+        .tpl-poster-v2 .v2-product {
+            flex: 1; max-width: 110px; text-align: center;
+            background: #fff; border-radius: 12px; padding: 12px 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #f0f0f0;
+        }
+        .tpl-poster-v2 .v2-product-icon {
+            width: 48px; height: 48px; border-radius: 12px;
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; margin: 0 auto 8px;
+        }
+        .tpl-poster-v2 .v2-product-name {
+            font-size: 11px; color: #374151; font-weight: 600; line-height: 1.3;
+        }
+        /* WhatsApp 联系区 */
+        .tpl-poster-v2 .v2-wa {
+            background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 100%);
+            border-top: 1px solid #d1fae5; padding: 18px 16px 20px;
+            text-align: center; margin-top: auto;
+        }
+        .tpl-poster-v2 .v2-wa-icon {
+            width: 44px; height: 44px; border-radius: 50%;
+            background: linear-gradient(135deg, #25D366, #128c7e);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; margin: 0 auto 10px; color: #fff;
+            box-shadow: 0 4px 12px rgba(37,211,102,0.3);
+        }
+        .tpl-poster-v2 .v2-wa-text {
+            font-size: 15px; font-weight: 700; color: #1a1a1a; margin-bottom: 3px;
+        }
+        .tpl-poster-v2 .v2-wa-sub {
+            font-size: 12px; color: #6b7280; margin-bottom: 12px;
+        }
+        .tpl-poster-v2 .v2-wa-bar {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            background: #f3f4f6; border-radius: 24px; padding: 8px 14px;
+            max-width: 280px; margin: 0 auto;
+        }
+        .tpl-poster-v2 .v2-wa-bar .wa-phone {
+            display: flex; align-items: center; gap: 4px;
+            font-size: 13px; color: #374151; font-weight: 500;
+        }
+        .tpl-poster-v2 .v2-wa-bar .wa-btn {
+            background: linear-gradient(135deg, #059669, #10b981); color: #fff; font-size: 12px;
+            padding: 6px 14px; border-radius: 14px; font-weight: 600; border: none;
+        }
+        .tpl-poster-v2 .v2-footer-icons {
+            display: flex; justify-content: center; gap: 20px;
+            margin-top: 12px; font-size: 16px; color: #9ca3af;
+        }
 
         /* 主题色变体 */
         .theme-green { background: linear-gradient(160deg, #059669, #34d399, #a7f3d0); }
@@ -278,10 +404,10 @@
         <div class="stats-header">
             <div class="section-title" style="margin-bottom:0;"><span>📊</span><span>访问统计</span></div>
             <div class="stats-period">
-                <button class="period-btn" onclick="setPeriod(this)">昨天</button>
-                <button class="period-btn active" onclick="setPeriod(this)">今天</button>
-                <button class="period-btn" onclick="setPeriod(this)">本周</button>
-                <button class="period-btn" onclick="setPeriod(this)">本月</button>
+                <button class="period-btn" onclick="setPeriod(this, 'yesterday')">昨天</button>
+                <button class="period-btn active" onclick="setPeriod(this, 'today')">今天</button>
+                <button class="period-btn" onclick="setPeriod(this, 'week')">本周</button>
+                <button class="period-btn" onclick="setPeriod(this, 'month')">本月</button>
             </div>
         </div>
         <div class="channel-tabs">
@@ -312,7 +438,7 @@
         </div>
         <div class="modal-body">
             <div id="previewContainer" style="margin-bottom:15px;"></div>
-            <button class="preview-btn" onclick="openShareSheet()" style="margin-top:15px;">生成后分享</button>
+            <button class="preview-btn" onclick="openShareSheet()" style="margin-top:0;">📤 生成分享</button>
         </div>
     </div>
 </div>
@@ -352,6 +478,32 @@
    模板数据
    ═══════════════════════════════════════ */
 var TEMPLATES = [
+    {
+        id: 'expert-health-specialist', category: 'expert', name: '专家网站', poster: '健康专家页',
+        desc: '整体健康专家个人网站，展示专业服务与产品', badge: '健康专家', theme: 'theme-green',
+        ctaColor: '#059669', layout: 'v2',
+        headline: '解锁您最具活力的健康', sub: '用个性化的、整体的教练服务，开启您的健康生活，专注于长期的健康、营养和活力。',
+        cta: '预订您的免费咨询', footerName: '詹金斯博士 · 整体健康专家',
+        navItems: ['首页', '关于', '服务', '博客', '联系方式'],
+        products: [
+            { name: '有机膳食补充剂', icon: '💊' },
+            { name: '植物蛋白粉', icon: '🌿' },
+            { name: '放松精油', icon: '🧴' },
+        ],
+        waText: '通过WhatsApp与我们联系', waSub: '即刻联系我们的团队',
+        bgImage: 'https://neeko-copilot.bytedance.net/api/text_to_image?prompt=organic%20health%20supplements%20botanical%20products%20herbal%20medicine%20natural%20wellness%20background%20soft%20green%20gradient%20minimalist%20healthcare%20aesthetic%20premium%20supplement%20bottles%20plants%20leaves%20professional%20clean%20design&image_size=landscape_16_9',
+        fields: [
+            { key: 'name', label: '姓名/昵称' },
+            { key: 'role', label: '身份标签' },
+            { key: 'headline', label: '页面标题', full: true },
+            { key: 'sub', label: '副标题', full: true },
+            { key: 'cta', label: '按钮文案' },
+            { key: 'phone', label: '手机号码' },
+            { key: 'email', label: '邮箱地址' },
+            { key: 'whatsapp', label: 'WhatsApp' },
+        ],
+        defaults: { name: '詹金斯博士', role: '整体健康专家', headline: '解锁您最具活力的健康', sub: '用个性化的、整体的教练服务，开启您的健康生活，专注于长期的健康、营养和活力。', cta: '预订您的免费咨询', phone: '+86 138 1234 5678', email: 'dr.jenkins@elken.com', whatsapp: '+86 138 1234 5678' },
+    },
     {
         id: 'product-new', category: 'product', name: '产品模板', poster: '新品推荐',
         desc: '主推单款产品，突出卖点和行动按钮', badge: '产品推广', theme: 'theme-green',
@@ -475,26 +627,6 @@ var TEMPLATES = [
         defaults: { name: '张三', role: '健康专家', headline: '健康知识精选', sub: '聚焦科普内容和常见误区。', highlights: '每周更新健康科普视频\n免费领取营养手册', cta: '获取更多资料', phone: '+60 12-345-6789', email: 'example@email.com', whatsapp: '+60 12-345-6789' },
     },
     {
-        id: 'expert-health-specialist', category: 'expert', name: '专家网站', poster: '健康专家页',
-        desc: '整体健康专家个人网站，展示专业服务与产品', badge: '健康专家', theme: 'theme-green',
-        ctaColor: '#059669',
-        headline: '解锁您最具活力的健康\n用个性化的、整体的教练服务', sub: '开启您的健康生活，专注于长期的健康、营养和活力。',
-        features: ['有机膳食补充剂', '植物蛋白粉', '放松精油'],
-        cta: '预订您的免费咨询', footerName: '詹金斯博士 · 整体健康专家',
-        fields: [
-            { key: 'name', label: '姓名/昵称' },
-            { key: 'role', label: '身份标签' },
-            { key: 'headline', label: '页面标题', full: true },
-            { key: 'sub', label: '副标题', full: true },
-            { key: 'body', label: '正文介绍', full: true, type: 'textarea' },
-            { key: 'cta', label: '按钮文案' },
-            { key: 'phone', label: '手机号码' },
-            { key: 'email', label: '邮箱地址' },
-            { key: 'whatsapp', label: 'WhatsApp' },
-        ],
-        defaults: { name: '詹金斯博士', role: '整体健康专家', headline: '解锁您最具活力的健康', sub: '用个性化的、整体的教练服务，开启您的健康生活，专注于长期的健康、营养和活力。', body: '通过WhatsApp与我们联系，即刻联系我们的团队。', cta: '预订您的免费咨询', phone: '+86 138 1234 5678', email: 'dr.jenkins@elken.com', whatsapp: '+86 138 1234 5678' },
-    },
-    {
         id: 'activity-webinar', category: 'activity', name: '活动邀约', poster: '线上讲座',
         desc: '活动报名、直播邀约或课程招募', badge: '活动报名', theme: 'theme-purple',
         ctaColor: '#7c3aed',
@@ -551,6 +683,12 @@ var viewingPoster = null;
 
 /* ── 渲染海报 HTML ── */
 function renderPoster(tpl, size) {
+    if (tpl.layout === 'image' && tpl.imageUrl) {
+        return renderPosterImage(tpl);
+    }
+    if (tpl.layout === 'v2') {
+        return renderPosterV2(tpl);
+    }
     var featuresHtml = '';
     if (tpl.features) {
         tpl.features.forEach(function(f) {
@@ -564,6 +702,58 @@ function renderPoster(tpl, size) {
         '<div class="p-features">' + featuresHtml + '</div>' +
         '<div class="p-cta" style="color:' + tpl.ctaColor + '">' + tpl.cta + '</div>' +
         '<div class="p-footer"><span>' + tpl.footerName + '</span><div class="p-avatar">👤</div></div>' +
+    '</div>';
+}
+
+/* ── 渲染图片布局海报 ── */
+function renderPosterImage(tpl) {
+    return '<div class="tpl-poster-image">' +
+        '<img src="' + tpl.imageUrl + '" alt="' + tpl.poster + '" style="width:100%;height:100%;object-fit:cover;">' +
+    '</div>';
+}
+
+/* ── 渲染 v2 布局 (健康专家页) ── */
+function renderPosterV2(tpl) {
+    var navHtml = '';
+    if (tpl.navItems) {
+        tpl.navItems.forEach(function(item) {
+            navHtml += '<span>' + item + '</span>';
+        });
+    }
+    var productsHtml = '';
+    if (tpl.products) {
+        tpl.products.forEach(function(p) {
+            productsHtml += '<div class="v2-product"><div class="v2-product-icon">' + p.icon + '</div><div class="v2-product-name">' + p.name + '</div></div>';
+        });
+    }
+    var nameParts = tpl.footerName.split(' · ');
+    var brandName = nameParts[0] || tpl.defaults.name;
+    var brandRole = nameParts[1] || tpl.defaults.role;
+    var phone = tpl.defaults.whatsapp || tpl.defaults.phone || '';
+    var bgHtml = tpl.bgImage ? '<div class="v2-bg" style="background-image:url(' + tpl.bgImage + ')"></div>' : '';
+    return '<div class="tpl-poster-v2">' +
+        bgHtml +
+        '<div class="v2-content">' +
+            '<div class="v2-header">' +
+                '<div class="v2-brand">' + brandName + '<span>|</span>' + brandRole + '</div>' +
+                '<div class="v2-nav">' + navHtml + '</div>' +
+            '</div>' +
+            '<div class="v2-hero">' +
+                '<div class="v2-headline">' + tpl.headline + '</div>' +
+                '<div class="v2-sub">' + tpl.sub + '</div>' +
+                '<div class="v2-cta">' + tpl.cta + '</div>' +
+            '</div>' +
+            '<div class="v2-products">' + productsHtml + '</div>' +
+            '<div class="v2-wa">' +
+                '<div class="v2-wa-icon">📞</div>' +
+                '<div class="v2-wa-text">' + (tpl.waText || '通过WhatsApp与我们联系') + '</div>' +
+                '<div class="v2-wa-sub">' + (tpl.waSub || '即刻联系我们的团队') + '</div>' +
+                '<div class="v2-wa-bar">' +
+                    '<div class="wa-phone">📱 ' + phone + '</div>' +
+                    '<div class="wa-btn">发送消息</div>' +
+                '</div>' +
+            '<div class="v2-footer-icons">✉️ @ 📍</div>' +
+        '</div>' +
     '</div>';
 }
 
@@ -605,13 +795,24 @@ function renderLibGrid() {
     list.forEach(function(tpl) {
         var card = document.createElement('div');
         card.className = 'lib-card';
+        card.dataset.id = tpl.id;
+        var posterClass = 'lib-card-poster';
+        if (tpl.layout === 'v2') posterClass += ' v2-poster';
+        if (tpl.layout === 'image') posterClass += ' image-poster';
         card.innerHTML =
-            '<div class="lib-card-poster">' + renderPoster(tpl) + '</div>' +
+            '<div class="' + posterClass + '">' + renderPoster(tpl) + '</div>' +
             '<div class="lib-card-body">' +
                 '<div class="lib-card-name">' + tpl.name + ' · ' + tpl.poster + '</div>' +
                 '<div class="lib-card-desc">' + tpl.desc + '</div>' +
+                '<button class="lib-card-btn">使用此模板</button>' +
             '</div>';
-        card.onclick = function() { openPosterPreview(tpl); };
+        var posterSelector = '.' + posterClass.replace(/ /g, '.');
+        card.querySelector(posterSelector).onclick = function() { openPosterPreview(tpl); };
+        card.querySelector('.lib-card-btn').onclick = function(e) {
+            e.stopPropagation();
+            selectTemplate(tpl);
+            closeLibrary();
+        };
         grid.appendChild(card);
     });
 }
@@ -621,7 +822,7 @@ function openPosterPreview(tpl) {
     viewingPoster = tpl;
     var inner = document.getElementById('posterFsInner');
     inner.innerHTML =
-        renderPoster(tpl) +
+        '<div class="poster-fs-content">' + renderPoster(tpl) + '</div>' +
         '<button class="poster-fs-close" onclick="closePosterPreview()">&times;</button>' +
         '<div class="poster-fs-actions">' +
             '<button class="btn-fs btn-fs-cancel" onclick="closePosterPreview()">返回</button>' +
@@ -650,7 +851,9 @@ function selectTemplate(tpl) {
     document.getElementById('emptyTpl').style.display = 'none';
     var st = document.getElementById('selectedTpl');
     st.style.display = 'flex';
-    document.getElementById('tplThumb').innerHTML = '<div style="width:100%;height:100%;transform:scale(0.33);transform-origin:top left;width:216px;height:288px;">' + renderPoster(tpl) + '</div>';
+    var thumbScale = tpl.layout === 'v2' ? 'scale(0.22)' : 'scale(0.33)';
+    var thumbWidth = tpl.layout === 'v2' ? '327px' : '216px';
+    document.getElementById('tplThumb').innerHTML = '<div style="width:100%;height:100%;transform:' + thumbScale + ';transform-origin:top left;width:' + thumbWidth + ';height:288px;">' + renderPoster(tpl) + '</div>';
     document.getElementById('tplName').textContent = tpl.name + ' · ' + tpl.poster;
 
     // 动态表单
@@ -699,55 +902,130 @@ function renderFields(fields, defaults) {
 /* ── 预览 & 分享 ── */
 function previewPage() {
     if (!selectedTemplate) { alert('请先选择模板'); return; }
-    
+
     // 创建用户编辑后的模板副本
     var userTemplate = JSON.parse(JSON.stringify(selectedTemplate));
-    
-    // 更新模板内容为用户编辑的信息
-    if (fieldValues.name) userTemplate.footerName = fieldValues.name + ' · ' + (fieldValues.role || userTemplate.defaults.role);
+
+    // 更新模板内容为用户编辑的信息 —— 遍历所有 fieldValues
+    var nameVal = fieldValues.name || userTemplate.defaults.name;
+    var roleVal = fieldValues.role || userTemplate.defaults.role;
+    userTemplate.footerName = nameVal + ' · ' + roleVal;
+
     if (fieldValues.headline) userTemplate.headline = fieldValues.headline;
     if (fieldValues.sub) userTemplate.sub = fieldValues.sub;
-    if (fieldValues.cta) {
-        userTemplate.cta = fieldValues.cta;
-        userTemplate.ctaColor = selectedTemplate.ctaColor;
-    }
-    
+    if (fieldValues.body) userTemplate.body = fieldValues.body;
+    if (fieldValues.cta) userTemplate.cta = fieldValues.cta;
+    if (fieldValues.services) userTemplate.services = fieldValues.services;
+    if (fieldValues.faq) userTemplate.faq = fieldValues.faq;
+    if (fieldValues.credentials) userTemplate.credentials = fieldValues.credentials;
+    if (fieldValues.highlights) userTemplate.highlights = fieldValues.highlights;
+    if (fieldValues.eventTime) userTemplate.eventTime = fieldValues.eventTime;
+    if (fieldValues.eventLocation) userTemplate.eventLocation = fieldValues.eventLocation;
+
     // 使用编辑后的模板渲染预览
     var previewContainer = document.getElementById('previewContainer');
     previewContainer.innerHTML = renderPoster(userTemplate);
-    previewContainer.querySelector('.tpl-poster').style.borderRadius = '12px';
-    
+    var posterEl = previewContainer.querySelector('.tpl-poster') || previewContainer.querySelector('.tpl-poster-v2');
+    if (posterEl) posterEl.style.borderRadius = '12px';
+
     document.getElementById('previewModal').classList.add('active');
 }
 function closePreview() { document.getElementById('previewModal').classList.remove('active'); }
 function generatePage() { alert('Landing Page 已生成！\n\n链接: https://yourname.elken.com'); closePreview(); }
 function shareTo(p) { alert('即将跳转到 ' + p + ' 分享页面'); }
 function copyLink() { navigator.clipboard.writeText('https://yourname.elken.com').then(function() { alert('链接已复制！'); }); }
-function setPeriod(btn) { btn.parentElement.querySelectorAll('.period-btn').forEach(function(b) { b.classList.remove('active'); }); btn.classList.add('active'); }
 
-// 渠道统计数据
-var channelStats = {
-    all: { visits: 156, unique: 89, duration: 2.3, inquiries: 12, visitsChange: '↑ 23%', uniqueChange: '↑ 15%', durationChange: '↓ 5%', inquiriesChange: '↑ 50%' },
-    whatsapp: { visits: 68, unique: 45, duration: 3.1, inquiries: 8, visitsChange: '↑ 35%', uniqueChange: '↑ 28%', durationChange: '↑ 12%', inquiriesChange: '↑ 75%' },
-    facebook: { visits: 42, unique: 28, duration: 1.8, inquiries: 3, visitsChange: '↑ 18%', uniqueChange: '↑ 10%', durationChange: '↓ 8%', inquiriesChange: '↑ 33%' },
-    instagram: { visits: 31, unique: 12, duration: 1.2, inquiries: 1, visitsChange: '↑ 12%', uniqueChange: '↑ 5%', durationChange: '↓ 15%', inquiriesChange: '→ 0%' },
-    rednote: { visits: 15, unique: 4, duration: 0.8, inquiries: 0, visitsChange: '↑ 8%', uniqueChange: '↑ 3%', durationChange: '↓ 20%', inquiriesChange: '→ 0%' },
-    copy: { visits: 0, unique: 0, duration: 0, inquiries: 0, visitsChange: '→ 0%', uniqueChange: '→ 0%', durationChange: '→ 0%', inquiriesChange: '→ 0%' }
+function exportAsImage() {
+    var previewContainer = document.getElementById('previewContainer');
+    var posterEl = previewContainer.querySelector('.tpl-poster') || previewContainer.querySelector('.tpl-poster-v2');
+    if (!posterEl) {
+        alert('请先选择模板并预览');
+        return;
+    }
+    
+    html2canvas(posterEl, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: null,
+        logging: false
+    }).then(function(canvas) {
+        var link = document.createElement('a');
+        link.download = 'landing-page-' + Date.now() + '.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    }).catch(function(error) {
+        console.error('Export failed:', error);
+        alert('导出图片失败，请重试');
+    });
+}
+
+var currentPeriod = 'today';
+var currentChannel = 'all';
+
+// 统计数据: period -> channel -> stats
+var statsData = {
+    yesterday: {
+        all: { visits: 134, unique: 78, duration: 2.1, inquiries: 9, visitsChange: '↑ 12%', uniqueChange: '↑ 8%', durationChange: '↓ 3%', inquiriesChange: '↑ 20%' },
+        whatsapp: { visits: 58, unique: 38, duration: 2.8, inquiries: 6, visitsChange: '↑ 22%', uniqueChange: '↑ 18%', durationChange: '↑ 8%', inquiriesChange: '↑ 50%' },
+        facebook: { visits: 36, unique: 24, duration: 1.6, inquiries: 2, visitsChange: '↑ 10%', uniqueChange: '↑ 6%', durationChange: '↓ 5%', inquiriesChange: '↑ 0%' },
+        instagram: { visits: 26, unique: 10, duration: 1.0, inquiries: 1, visitsChange: '↑ 8%', uniqueChange: '↑ 3%', durationChange: '↓ 10%', inquiriesChange: '→ 0%' },
+        rednote: { visits: 12, unique: 4, duration: 0.6, inquiries: 0, visitsChange: '↑ 5%', uniqueChange: '↑ 2%', durationChange: '↓ 15%', inquiriesChange: '→ 0%' },
+        copy: { visits: 2, unique: 2, duration: 0.5, inquiries: 0, visitsChange: '↑ 2%', uniqueChange: '↑ 2%', durationChange: '→ 0%', inquiriesChange: '→ 0%' }
+    },
+    today: {
+        all: { visits: 156, unique: 89, duration: 2.3, inquiries: 12, visitsChange: '↑ 23%', uniqueChange: '↑ 15%', durationChange: '↓ 5%', inquiriesChange: '↑ 50%' },
+        whatsapp: { visits: 68, unique: 45, duration: 3.1, inquiries: 8, visitsChange: '↑ 35%', uniqueChange: '↑ 28%', durationChange: '↑ 12%', inquiriesChange: '↑ 75%' },
+        facebook: { visits: 42, unique: 28, duration: 1.8, inquiries: 3, visitsChange: '↑ 18%', uniqueChange: '↑ 10%', durationChange: '↓ 8%', inquiriesChange: '↑ 33%' },
+        instagram: { visits: 31, unique: 12, duration: 1.2, inquiries: 1, visitsChange: '↑ 12%', uniqueChange: '↑ 5%', durationChange: '↓ 15%', inquiriesChange: '→ 0%' },
+        rednote: { visits: 15, unique: 4, duration: 0.8, inquiries: 0, visitsChange: '↑ 8%', uniqueChange: '↑ 3%', durationChange: '↓ 20%', inquiriesChange: '→ 0%' },
+        copy: { visits: 0, unique: 0, duration: 0, inquiries: 0, visitsChange: '→ 0%', uniqueChange: '→ 0%', durationChange: '→ 0%', inquiriesChange: '→ 0%' }
+    },
+    week: {
+        all: { visits: 892, unique: 534, duration: 2.5, inquiries: 67, visitsChange: '↑ 18%', uniqueChange: '↑ 12%', durationChange: '↑ 2%', inquiriesChange: '↑ 35%' },
+        whatsapp: { visits: 412, unique: 278, duration: 3.2, inquiries: 42, visitsChange: '↑ 28%', uniqueChange: '↑ 22%', durationChange: '↑ 10%', inquiriesChange: '↑ 55%' },
+        facebook: { visits: 256, unique: 168, duration: 1.9, inquiries: 18, visitsChange: '↑ 15%', uniqueChange: '↑ 8%', durationChange: '↓ 3%', inquiriesChange: '↑ 25%' },
+        instagram: { visits: 168, unique: 72, duration: 1.4, inquiries: 6, visitsChange: '↑ 10%', uniqueChange: '↑ 5%', durationChange: '↓ 8%', inquiriesChange: '↑ 10%' },
+        rednote: { visits: 48, unique: 14, duration: 0.9, inquiries: 1, visitsChange: '↑ 6%', uniqueChange: '↑ 3%', durationChange: '↓ 12%', inquiriesChange: '→ 0%' },
+        copy: { visits: 8, unique: 2, duration: 0.6, inquiries: 0, visitsChange: '↑ 3%', uniqueChange: '↑ 1%', durationChange: '→ 0%', inquiriesChange: '→ 0%' }
+    },
+    month: {
+        all: { visits: 3456, unique: 2134, duration: 2.6, inquiries: 278, visitsChange: '↑ 22%', uniqueChange: '↑ 16%', durationChange: '↑ 4%', inquiriesChange: '↑ 42%' },
+        whatsapp: { visits: 1589, unique: 1089, duration: 3.3, inquiries: 178, visitsChange: '↑ 32%', uniqueChange: '↑ 25%', durationChange: '↑ 12%', inquiriesChange: '↑ 60%' },
+        facebook: { visits: 987, unique: 678, duration: 2.0, inquiries: 68, visitsChange: '↑ 18%', uniqueChange: '↑ 12%', durationChange: '↓ 2%', inquiriesChange: '↑ 30%' },
+        instagram: { visits: 678, unique: 312, duration: 1.5, inquiries: 28, visitsChange: '↑ 14%', uniqueChange: '↑ 8%', durationChange: '↓ 5%', inquiriesChange: '↑ 18%' },
+        rednote: { visits: 178, unique: 52, duration: 1.0, inquiries: 4, visitsChange: '↑ 9%', uniqueChange: '↑ 5%', durationChange: '↓ 10%', inquiriesChange: '↑ 5%' },
+        copy: { visits: 24, unique: 3, duration: 0.7, inquiries: 0, visitsChange: '↑ 4%', uniqueChange: '↑ 2%', durationChange: '→ 0%', inquiriesChange: '→ 0%' }
+    }
 };
+
+function renderStats() {
+    var stats = statsData[currentPeriod][currentChannel];
+    document.getElementById('statVisits').textContent = stats.visits;
+    document.getElementById('statVisitsChange').textContent = stats.visitsChange;
+    document.getElementById('statVisitsChange').className = 'stat-change ' + (stats.visitsChange.indexOf('↑') >= 0 ? 'up' : stats.visitsChange.indexOf('↓') >= 0 ? 'down' : '');
+    document.getElementById('statUnique').textContent = stats.unique;
+    document.getElementById('statUniqueChange').textContent = stats.uniqueChange;
+    document.getElementById('statUniqueChange').className = 'stat-change ' + (stats.uniqueChange.indexOf('↑') >= 0 ? 'up' : stats.uniqueChange.indexOf('↓') >= 0 ? 'down' : '');
+    document.getElementById('statDuration').textContent = stats.duration;
+    document.getElementById('statDurationChange').textContent = stats.durationChange;
+    document.getElementById('statDurationChange').className = 'stat-change ' + (stats.durationChange.indexOf('↑') >= 0 ? 'up' : stats.durationChange.indexOf('↓') >= 0 ? 'down' : '');
+    document.getElementById('statInquiries').textContent = stats.inquiries;
+    document.getElementById('statInquiriesChange').textContent = stats.inquiriesChange;
+    document.getElementById('statInquiriesChange').className = 'stat-change ' + (stats.inquiriesChange.indexOf('↑') >= 0 ? 'up' : stats.inquiriesChange.indexOf('↓') >= 0 ? 'down' : '');
+}
+
+function setPeriod(btn, period) {
+    btn.parentElement.querySelectorAll('.period-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    currentPeriod = period;
+    renderStats();
+}
 
 function setChannel(btn, channel) {
     btn.parentElement.querySelectorAll('.channel-tab').forEach(function(b) { b.classList.remove('active'); });
     btn.classList.add('active');
-    
-    var stats = channelStats[channel];
-    document.getElementById('statVisits').textContent = stats.visits;
-    document.getElementById('statVisitsChange').textContent = stats.visitsChange;
-    document.getElementById('statUnique').textContent = stats.unique;
-    document.getElementById('statUniqueChange').textContent = stats.uniqueChange;
-    document.getElementById('statDuration').textContent = stats.duration;
-    document.getElementById('statDurationChange').textContent = stats.durationChange;
-    document.getElementById('statInquiries').textContent = stats.inquiries;
-    document.getElementById('statInquiriesChange').textContent = stats.inquiriesChange;
+    currentChannel = channel;
+    renderStats();
 }
 
 function openShareSheet() {
