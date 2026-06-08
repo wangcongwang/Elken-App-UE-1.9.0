@@ -621,6 +621,120 @@
             margin-top: 8px;
         }
 
+        /* Downline failure list */
+        .downline-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .downline-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .downline-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fce4ec, #f48fb1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .downline-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .downline-role {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .downline-fail-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: #fef2f2;
+            border-radius: 8px;
+            margin-top: 8px;
+            border-left: 3px solid #ef4444;
+        }
+        .downline-fail-item:first-of-type {
+            margin-top: 0;
+        }
+        .downline-fail-icon {
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .downline-fail-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .downline-fail-product {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .downline-fail-reason {
+            font-size: 12px;
+            color: #dc2626;
+            margin-top: 2px;
+        }
+        .downline-fail-date {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 1px;
+        }
+        .downline-fail-amount {
+            font-size: 13px;
+            font-weight: 600;
+            color: #dc2626;
+            white-space: nowrap;
+        }
+        .downline-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 16px 0 10px 0;
+            padding: 0 4px;
+        }
+        .downline-count-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #ef4444;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 10px;
+            padding: 1px 7px;
+            margin-left: 4px;
+        }
+        .downline-total-bv {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 12px;
+            background: #f0fdf4;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-size: 13px;
+            color: #065f46;
+        }
+        .downline-total-bv span {
+            font-weight: 700;
+        }
+
     </style>
 </head>
 <body>
@@ -643,6 +757,7 @@
         <div class="tab-item active" onclick="filterSubs('active', this)">Active</div>
         <div class="tab-item" onclick="filterSubs('paused', this)">Paused</div>
         <div class="tab-item" onclick="filterSubs('all', this)">All</div>
+        <div class="tab-item" onclick="filterSubs('downline-failed', this)">Failed Downline</div>
     </div>
 
     <div class="sub-list" id="subList">
@@ -740,8 +855,100 @@
         let currentFilter = 'active';
         let allSubs = getSubscriptions();
 
+        // Downline failed subscription data
+        const downlineFailed = [
+            {
+                name: 'Linda Wong',
+                memberId: '202406010008',
+                role: 'Silver Distributor',
+                avatar: 'LW',
+                failures: [
+                    { product: 'Kenwood Water Purifier KWP-2280', date: '2026-06-01', amount: 98, reason: 'Card declined — Insufficient funds' },
+                    { product: 'Elken BioPure Water System', date: '2026-05-15', amount: 128, reason: 'Payment timeout — GrabPay expired' }
+                ]
+            },
+            {
+                name: 'Ahmad Bin Ismail',
+                memberId: '202501200015',
+                role: 'Bronze Member',
+                avatar: 'AI',
+                failures: [
+                    { product: 'Spirulina Wellness Bundle', date: '2026-05-28', amount: 98, reason: 'Card declined — Expired card' }
+                ]
+            },
+            {
+                name: 'Sarah Chen',
+                memberId: '202403150003',
+                role: 'Gold Distributor',
+                avatar: 'SC',
+                failures: [
+                    { product: 'Kenwood Water Purifier KWP-2280', date: '2026-04-10', amount: 98, reason: 'Payment timeout — No response' },
+                    { product: 'Elken BioPure Water System', date: '2026-03-20', amount: 128, reason: 'Card declined — Limit exceeded' },
+                    { product: 'Spirulina Monthly Pack', date: '2026-02-05', amount: 68, reason: 'Bank rejected — Account closed' }
+                ]
+            },
+            {
+                name: 'Michele Tan',
+                memberId: '202508010022',
+                role: 'Silver Distributor',
+                avatar: 'MT',
+                failures: [
+                    { product: 'Elken BioPure Water System', date: '2026-05-01', amount: 128, reason: 'Card declined — Incorrect CVV' }
+                ]
+            },
+            {
+                name: 'David Lim',
+                memberId: '202511100011',
+                role: 'Bronze Member',
+                avatar: 'DL',
+                failures: [
+                    { product: 'Spirulina Monthly Pack', date: '2026-04-22', amount: 68, reason: 'Payment timeout — Bank offline' },
+                    { product: 'Kenwood Water Purifier KWP-2280', date: '2026-03-15', amount: 98, reason: 'Card declined — Frozen account' }
+                ]
+            }
+        ];
+
         function renderSubs() {
             const list = document.getElementById('subList');
+
+            // Handle downline failed tab
+            if (currentFilter === 'downline-failed') {
+                const totalFailures = downlineFailed.reduce((sum, d) => sum + d.failures.length, 0);
+                list.innerHTML = `
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 4px 8px;">
+                        <div style="font-size:15px;font-weight:600;color:#1f2937;">
+                            Failed Subscriptions
+                            <span class="downline-count-badge">${totalFailures}</span>
+                        </div>
+                        <div style="font-size:12px;color:#6b7280;">Across ${downlineFailed.length} downline</div>
+                    </div>
+                    ${downlineFailed.map(d => `
+                        <div class="downline-card">
+                            <div class="downline-header">
+                                <div class="downline-avatar">${d.avatar}</div>
+                                <div>
+                                    <div class="downline-name">${d.name}</div>
+                                    <div style="font-size:11px;color:#9ca3af;margin-top:1px;">ID: ${d.memberId}</div>
+                                </div>
+                                <div style="margin-left:auto;font-size:12px;color:#ef4444;font-weight:600;">${d.failures.length} failed</div>
+                            </div>
+                            ${d.failures.map(f => `
+                                <div class="downline-fail-item">
+                                    <div class="downline-fail-icon">❌</div>
+                                    <div class="downline-fail-info">
+                                        <div class="downline-fail-product">${f.product}</div>
+                                        <div class="downline-fail-reason">${f.reason}</div>
+                                        <div class="downline-fail-date">${formatDate(f.date)}</div>
+                                    </div>
+                                    <div class="downline-fail-amount">-MYR ${f.amount}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `).join('')}
+                `;
+                return;
+            }
+
             const filtered = currentFilter === 'all'
                 ? allSubs
                 : allSubs.filter(s => s.status === currentFilter);
