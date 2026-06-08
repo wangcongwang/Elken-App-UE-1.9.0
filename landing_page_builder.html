@@ -127,13 +127,16 @@
         .lib-card {
             background: white; border: 1px solid #e2e8f0; border-radius: 14px;
             overflow: hidden; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+            display: flex; flex-direction: column;
         }
         .lib-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(15,23,42,0.08); border-color: #bbf7d0; }
         .lib-card-poster {
             width: 100%; aspect-ratio: 3/4; position: relative; overflow: hidden;
         }
         .lib-card-poster.v2-poster {
-            aspect-ratio: 9/16;
+            aspect-ratio: unset;
+            max-height: 500px;
+            overflow-y: auto;
         }
         .lib-card-poster.image-poster {
             aspect-ratio: 9/16;
