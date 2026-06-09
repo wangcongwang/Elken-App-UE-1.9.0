@@ -867,41 +867,54 @@
     
     <script>
         // 内容数据 - 按日期分组
+        const festivalImages = {
+            raya: 'src/image/kzj.jpg',
+            national: 'src/image/ScreenShot_2026-06-09_161742_532.png',
+            deepavali: 'src/image/ScreenShot_2026-06-09_161753_935.png',
+            christmas: 'src/image/ScreenShot_2026-06-09_161814_564.png',
+            chinese: 'src/image/HDY_Bn-02-m-1.png',
+            default: 'src/image/ScreenShot_2026-06-09_161742_532.png'
+        };
+        
+        function getImageByType(type) {
+            return festivalImages[type] || festivalImages.default;
+        }
+
         const contentsByDate = {
             '2024-01-15': [
                 {
-                    image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: '新年新气象，健康好礼送不停！精选天然营养补充品，为您和家人带来满满活力。限时优惠，错过再等一年！',
+                    image: 'src/image/ScreenShot_2026-06-09_161742_532.png',
+                    text: '新年健康守护！精选维生素补充剂，增强免疫力，为新一年注入满满活力。限时特惠，买二送一！',
                     overlay: '📅 2024-01-15 | 🎉 新年特惠',
                     date: '2024年1月15日',
                     posterTitle: '新年健康好礼',
-                    posterSubtitle: '天然营养补充品 + 新年限时优惠',
+                    posterSubtitle: '维生素补充剂 + 新年限时优惠',
                     promoTag: '限时特惠'
                 },
                 {
-                    image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Luxury%20skincare%20beauty%20products%20with%20elegant%20packaging&image_size=landscape_4_3',
-                    text: '每天补充必需营养，让身体充满能量。科学配方，品质保证，让健康成为一种生活方式。',
+                    image: 'src/image/ScreenShot_2026-06-09_161742_532.png',
+                    text: '每日营养补给！精选螺旋藻、维生素等健康产品，科学配方，品质保证，让健康成为生活方式。',
                     overlay: '📅 2024-01-15 | 💪 健康生活',
                     date: '2024年1月15日',
                     posterTitle: '每日焕活计划',
-                    posterSubtitle: '品质营养补给，轻松养成健康生活',
+                    posterSubtitle: '螺旋藻+维生素，轻松养成健康生活',
                     promoTag: '热销推荐'
                 }
             ],
             '2024-04-10': [
                 {
-                    image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Hari%20Raya%20Aidilfitri%20festive%20family%20celebration%20with%20ketupat%2C%20mosque%20lanterns%2C%20crescent%20moon%2C%20green%20gold%20decorations%2C%20warm%20joyful%20atmosphere&image_size=landscape_4_3',
-                    text: 'Selamat Hari Raya Aidilfitri! 愿开斋节的祝福充满您的生活，健康与幸福永远伴随左右。与家人共度美好时光，享用丰盛美食！',
+                    image: 'src/image/kzj.jpg',
+                    text: 'Selamat Hari Raya Aidilfitri! 开斋节快乐！与家人团聚，共享健康美食。精选有机膳食补充品，为节日增添健康活力！',
                     overlay: '🕌 开斋节快乐 | 🎊 Selamat Hari Raya',
                     date: '2024年4月10日',
                     posterTitle: 'Selamat Hari Raya',
-                    posterSubtitle: '开斋节团聚时光，健康礼盒与节庆特惠同享',
+                    posterSubtitle: '开斋节健康礼盒，与家人共享健康时光',
                     promoTag: '节日精选'
                 }
             ],
             '2024-08-31': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
+image: 'src/image/ScreenShot_2026-06-09_161742_532.png',
                     text: 'Selamat Hari Merdeka! 马来西亚独立日快乐！愿我们的国家繁荣昌盛，人民幸福安康。一起为祖国喝彩！',
                     overlay: '🇲🇾 国庆日快乐 | 🎉 Merdeka!',
                     date: '2024年8月31日'
@@ -909,55 +922,55 @@ image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%2
             ],
             '2024-10-27': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: 'Happy Deepavali! 愿屠妖节的光芒照亮您的生活，带来繁荣、健康与幸福。与亲朋好友共度这个充满光明的节日！',
+                    image: 'src/image/ScreenShot_2026-06-09_161753_935.png',
+                    text: 'Happy Deepavali! 屠妖节快乐！精选关节健康产品，让您行动自如，与家人共度美好节日！',
                     overlay: '🪔 屠妖节快乐 | ✨ Happy Deepavali',
                     date: '2024年10月27日'
                 }
             ],
             '2024-12-25': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: 'Merry Christmas! 愿圣诞节的温馨与快乐充满您的家庭，健康与祝福常伴左右。圣诞快乐，新年快乐！',
+                    image: 'src/image/ScreenShot_2026-06-09_161814_564.png',
+                    text: 'Merry Christmas! 圣诞快乐！健身达人专属礼盒，优质蛋白粉助您塑造完美身材，节日礼物首选！',
                     overlay: '🎄 圣诞节快乐 | 🎅 Merry Christmas',
                     date: '2024年12月25日'
                 }
             ],
             '2024-02-10': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: '农历新年快乐！愿新的一年身体健康、万事如意、财源广进！与家人共度团圆时光，迎接美好未来！',
+                    image: 'src/image/HDY_Bn-02-m-1.png',
+                    text: '农历新年快乐！春节健康礼盒，精选营养产品，为家人送上健康祝福，共度团圆好时光！',
                     overlay: '🏮 农历新年快乐 | 🧧 Gong Xi Fa Cai',
                     date: '2024年2月10日'
                 }
             ],
             '2024-06-15': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: '父亲节快乐！感谢父亲的辛勤付出和无私奉献，愿天下所有父亲身体健康、幸福安康！',
+                    image: 'src/image/HDY_Bn-02-m-1.png',
+                    text: '父亲节快乐！为爸爸准备健康礼盒，精选营养补充品，让父亲保持活力，健康常伴！',
                     overlay: '👨 父亲节快乐 | 💝 Happy Father\'s Day',
                     date: '2024年6月15日'
                 }
             ],
             '2024-03-08': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: '妇女节快乐！致敬每一位女性，愿你们永远美丽、自信、坚强！',
+                    image: 'src/image/ScreenShot_2026-06-09_161814_564.png',
+                    text: '妇女节快乐！女神专属健身礼盒，优质蛋白粉助您塑造完美身材，展现自信魅力！',
                     overlay: '👩 妇女节快乐 | 💐 Happy Women\'s Day',
                     date: '2024年3月8日'
                 }
             ],
             '2024-04-22': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: '世界地球日快乐！让我们一起爱护地球，保护环境，为下一代创造更美好的家园！',
-                    overlay: '🌍 世界地球日 | 🌱 爱护环境',
+                    image: 'src/image/ScreenShot_2026-06-09_161753_935.png',
+                    text: '世界地球日！关爱自己，从关爱关节开始！精选关节健康产品，让您行动自如！',
+                    overlay: '🌍 地球日 | 🦵 关节健康',
                     date: '2024年4月22日'
                 }
             ],
             '2024-05-01': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
+image: 'src/image/ScreenShot_2026-06-09_161742_532.png',
                     text: '劳动节快乐！向所有辛勤工作的人们致敬！愿大家享受美好的假期时光！',
                     overlay: '💪 劳动节快乐 | 🎉 节日快乐',
                     date: '2024年5月1日'
@@ -965,15 +978,15 @@ image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%2
             ],
             '2024-05-12': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: '母亲节快乐！感谢母亲的养育之恩，愿天下所有母亲健康快乐、幸福安康！',
+                    image: 'src/image/ScreenShot_2026-06-09_161814_564.png',
+                    text: '母亲节快乐！为妈妈准备健身礼盒，优质蛋白粉助妈妈保持活力，健康美丽！',
                     overlay: '👩❤️ 母亲节快乐 | 💐 感恩母亲',
                     date: '2024年5月12日'
                 }
             ],
             '2024-07-01': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
+image: 'src/image/ScreenShot_2026-06-09_161742_532.png',
                     text: '马来西亚日快乐！纪念马来西亚成立，愿国家繁荣昌盛，人民团结一心！',
                     overlay: '🇲🇾 马来西亚日 | 🎊 Selamat Hari Malaysia',
                     date: '2024年7月1日'
@@ -981,47 +994,47 @@ image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%2
             ],
             '2024-09-01': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: '教师节快乐！感谢老师们的辛勤付出和谆谆教诲，桃李满天下！',
+                    image: 'src/image/ScreenShot_2026-06-09_161753_935.png',
+                    text: '教师节快乐！感恩恩师，关爱关节健康，让老师们站得更稳，教得更好！',
                     overlay: '👨‍🏫 教师节快乐 | 🙏 感谢恩师',
                     date: '2024年9月1日'
                 }
             ],
             '2024-11-11': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: '光棍节快乐！今天是购物的好日子，享受超值优惠，犒劳辛苦的自己！',
+                    image: 'src/image/ScreenShot_2026-06-09_161814_564.png',
+                    text: '光棍节购物狂欢！健身达人必备蛋白粉，塑造完美身材，遇见更好的自己！限时特惠，买二送一！',
                     overlay: '🎉 光棍节 | 🛍️ 购物狂欢',
                     date: '2024年11月11日'
                 }
             ],
             '2024-12-31': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: '新年快乐！感谢过去一年的陪伴，愿新的一年身体健康、事业顺利、万事如意！',
+                    image: 'src/image/HDY_Bn-02-m-1.png',
+                    text: '2025新年快乐！跨年健康礼盒，精选营养补充品，为新一年健康护航！',
                     overlay: '🎆 新年快乐 | 🎊 2025',
                     date: '2024年12月31日'
                 }
             ],
             '2024-01-01': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: '元旦快乐！新的一年新的开始，愿您在新的一年里实现梦想，收获满满！',
+                    image: 'src/image/HDY_Bn-02-m-1.png',
+                    text: '元旦快乐！新年健康礼盒，精选营养产品，开启健康新征程！',
                     overlay: '🎊 元旦快乐 | 🎉 新年新气象',
                     date: '2024年1月1日'
                 }
             ],
             '2024-01-26': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: '澳大利亚日快乐！庆祝澳大利亚国庆，愿大家度过一个愉快的假期！',
+                    image: 'src/image/ScreenShot_2026-06-09_161742_532.png',
+                    text: '澳大利亚日快乐！精选维生素补充剂，增强免疫力，健康每一天！',
                     overlay: '🇦🇺 澳大利亚日 | 🎉 Australia Day',
                     date: '2024年1月26日'
                 }
             ],
             '2026-06-08': [
                 {
-                    image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
+                    image: 'src/image/ScreenShot_2026-06-09_161742_532.png',
                     text: '夏季健康守护！精选维生素补充品，增强免疫力，让您活力满满度过每一天。限时优惠进行中！',
                     overlay: '☀️ 夏日健康 | 🛒 限时特惠',
                     date: '2026年6月8日',
@@ -1030,16 +1043,16 @@ image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%2
                     promoTag: '今日推荐'
                 },
                 {
-                    image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Luxury%20skincare%20beauty%20products%20with%20elegant%20packaging&image_size=landscape_4_3',
-                    text: '夏日护肤秘籍！清爽保湿系列，让肌肤水润透亮，无惧烈日骄阳。新品上市，买一送一！',
-                    overlay: '🌸 夏日护肤 | 💧 水润透亮',
+                    image: 'src/image/ScreenShot_2026-06-09_161753_935.png',
+                    text: '夏日活力守护！关节健康产品，让您行动自如，畅享夏日运动乐趣！',
+                    overlay: '🦵 关节健康 | 💪 活力无限',
                     date: '2026年6月8日',
-                    posterTitle: '夏日清爽护肤',
-                    posterSubtitle: '保湿透亮系列上新，买一送一活动进行中',
+                    posterTitle: '关节活力计划',
+                    posterSubtitle: '关节健康产品，让您行动自如',
                     promoTag: '新品上市'
                 },
                 {
-                    image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Fitness%20protein%20powder%20and%20gym%20supplements&image_size=landscape_4_3',
+                    image: 'src/image/ScreenShot_2026-06-09_161814_564.png',
                     text: '健身达人必备！优质蛋白粉，加速肌肉恢复，打造完美身材。会员专享8折优惠！',
                     overlay: '💪 健身补给 | 🏋️ 肌肉修复',
                     date: '2026年6月8日',
@@ -1050,37 +1063,37 @@ image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%2
             ],
             '2026-06-15': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: '父亲节快乐！为爸爸准备一份特别的礼物，表达深深的爱与感激。全场男士用品8折起！',
+                    image: 'src/image/HDY_Bn-02-m-1.png',
+                    text: '父亲节快乐！健康礼盒送给最爱的爸爸，精选营养补充品，让父亲保持活力！',
                     overlay: '👨 父亲节 | 🎁 感恩好礼',
                     date: '2026年6月15日'
                 },
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Luxury%20skincare%20beauty%20products%20with%20elegant%20packaging&image_size=landscape_4_3',
-                    text: '父亲节精选礼盒！男士护肤套装，让爸爸也能享受精致生活。限时特惠，买礼盒送精美卡片！',
-                    overlay: '🎯 男士护理 | 🎀 精美礼盒',
+                    image: 'src/image/ScreenShot_2026-06-09_161814_564.png',
+                    text: '父亲节健身礼盒！优质蛋白粉助爸爸保持健康体魄，展现男性魅力！',
+                    overlay: '🎯 男士健身 | 💪 活力满满',
                     date: '2026年6月15日'
                 }
             ],
             '2026-06-21': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: '夏至快乐！一年中最长的白天，珍惜每一刻阳光。夏季特惠活动火热进行中！',
-                    overlay: '🌞 夏至 | ☀️ 最长白昼',
+                    image: 'src/image/ScreenShot_2026-06-09_161753_935.png',
+                    text: '夏至快乐！关爱关节健康，让您在炎炎夏日也能活力满满，行动自如！',
+                    overlay: '🌞 夏至 | 🦵 关节护理',
                     date: '2026年6月21日'
                 }
             ],
             '2026-06-30': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: '6月月末大促销！全场商品低至5折，抓住机会囤货，错过再等一年！',
-                    overlay: '🔥 月末特惠 | 🛍️ 疯狂抢购',
+                    image: 'src/image/ScreenShot_2026-06-09_161814_564.png',
+                    text: '月末大促销！健身达人必备蛋白粉，塑造完美身材，限时特惠5折起！',
+                    overlay: '🔥 月末特惠 | 💪 健身必备',
                     date: '2026年6月30日'
                 }
             ],
             '2026-07-01': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
+image: 'src/image/ScreenShot_2026-06-09_161742_532.png',
                     text: '马来西亚日快乐！庆祝国家独立，爱国情怀满满。国庆特惠，全场商品享受独立日专属折扣！',
                     overlay: '🇲🇾 国庆日 | 🎊 Merdeka!',
                     date: '2026年7月1日'
@@ -1088,7 +1101,7 @@ image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%2
             ],
             '2026-08-31': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
+image: 'src/image/ScreenShot_2026-06-09_161742_532.png',
                     text: '马来西亚独立日快乐！Selamat Hari Merdeka！让我们一起庆祝这个特别的日子！',
                     overlay: '🇲🇾 独立日 | 🎉 Hari Merdeka',
                     date: '2026年8月31日'
@@ -1096,27 +1109,27 @@ image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%2
             ],
             '2026-06-01': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: '六月促销季开始啦！全场商品8折起，限时优惠，抓住机会囤货！',
-                    overlay: '🔥 6月特惠 | 🛍️ 限时抢购',
+                    image: 'src/image/ScreenShot_2026-06-09_161742_532.png',
+                    text: '六月促销季！精选维生素补充剂，增强免疫力，限时8折优惠！',
+                    overlay: '🔥 6月特惠 | 💊 营养补给',
                     date: '2026年6月1日'
                 },
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Luxury%20skincare%20beauty%20products%20with%20elegant%20packaging&image_size=landscape_4_3',
-                    text: '夏日健康必备！维生素C、D补充剂，增强免疫力，让您活力满满度过炎炎夏日！',
-                    overlay: '☀️ 夏日健康 | 💊 营养补充',
+                    image: 'src/image/ScreenShot_2026-06-09_161753_935.png',
+                    text: '夏日关节护理！精选关节健康产品，让您行动自如，畅享夏日活动！',
+                    overlay: '☀️ 夏日健康 | 🦵 关节护理',
                     date: '2026年6月1日'
                 }
             ],
             '2026-05-01': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
+                    image: 'src/image/ScreenShot_2026-06-09_161742_532.png',
                     text: '劳动节快乐！向所有辛勤工作的人们致敬！五一特惠活动火热进行中！',
                     overlay: '💪 劳动节 | 🎉 节日快乐',
                     date: '2026年5月1日'
                 },
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Luxury%20skincare%20beauty%20products%20with%20elegant%20packaging&image_size=landscape_4_3',
+                    image: 'src/image/ScreenShot_2026-06-09_161814_564.png',
                     text: '健身达人必备！优质蛋白棒，方便快捷补充能量，运动后快速恢复！',
                     overlay: '🏋️ 健身补给 | ⚡ 能量补充',
                     date: '2026年5月1日'
@@ -1124,29 +1137,29 @@ image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Luxury%2
             ],
             '2026-05-14': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: '母亲节快乐！感谢母亲的养育之恩，精选母亲节礼品限时特惠！',
-                    overlay: '👩❤️ 母亲节 | 💐 感恩好礼',
+                    image: 'src/image/ScreenShot_2026-06-09_161814_564.png',
+                    text: '母亲节快乐！健身礼盒送给妈妈，优质蛋白粉助妈妈保持活力！',
+                    overlay: '👩❤️ 母亲节 | 💪 健康守护',
                     date: '2026年5月14日'
                 },
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Luxury%20skincare%20beauty%20products%20with%20elegant%20packaging&image_size=landscape_4_3',
-                    text: '母亲节专属礼盒！高端护肤套装，让妈妈永远年轻美丽！',
-                    overlay: '🎁 母亲节礼盒 | 🌸 美丽呵护',
+                    image: 'src/image/ScreenShot_2026-06-09_161753_935.png',
+                    text: '母亲节健康礼盒！关节护理产品，让妈妈行动自如，健康快乐！',
+                    overlay: '🎁 母亲节礼盒 | 🦵 关节健康',
                     date: '2026年5月14日'
                 }
             ],
             '2026-04-22': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: '世界地球日快乐！让我们一起爱护地球，环保从我做起！绿色产品限时优惠！',
-                    overlay: '🌍 地球日 | 🌱 爱护环境',
+                    image: 'src/image/ScreenShot_2026-06-09_161753_935.png',
+                    text: '世界地球日！关爱自己，关爱关节！精选关节健康产品，让您行动自如！',
+                    overlay: '🌍 地球日 | 🦵 关节健康',
                     date: '2026年4月22日'
                 }
             ],
             '2026-04-10': [
                 {
-                    image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Hari%20Raya%20Aidilfitri%20celebration%20scene%20with%20traditional%20Malay%20family%2C%20ketupat%20decorations%2C%20mosque%20lights%2C%20crescent%20moon%2C%20green%20and%20gold%20festive%20mood&image_size=landscape_4_3',
+                    image: 'src/image/kzj.jpg',
                     text: 'Selamat Hari Raya Aidilfitri! 开斋节快乐！与家人共度美好时光，节日特惠进行中！',
                     overlay: '🕌 开斋节 | 🎊 Selamat Hari Raya',
                     date: '2026年4月10日',
@@ -1157,65 +1170,65 @@ image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%2
             ],
             '2026-03-08': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: '妇女节快乐！致敬每一位女性，女性专属优惠，全场美妆护肤8折起！',
-                    overlay: '👩 妇女节 | 💐 Happy Women\'s Day',
+                    image: 'src/image/ScreenShot_2026-06-09_161814_564.png',
+                    text: '妇女节快乐！女神专属健身礼盒，优质蛋白粉助您塑造完美身材！',
+                    overlay: '👩 妇女节 | 💪 健身女神',
                     date: '2026年3月8日'
                 },
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Luxury%20skincare%20beauty%20products%20with%20elegant%20packaging&image_size=landscape_4_3',
-                    text: '女神节特惠！精选美妆护肤产品，让您焕发迷人光彩！',
-                    overlay: '💄 女神节 | ✨ 美丽蜕变',
+                    image: 'src/image/ScreenShot_2026-06-09_161753_935.png',
+                    text: '女神节健康特惠！关节护理产品，让您行动自如，活力满满！',
+                    overlay: '💃 女神节 | 🦵 关节健康',
                     date: '2026年3月8日'
                 }
             ],
             '2026-02-10': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: '农历新年快乐！愿新的一年身体健康、万事如意！春节特惠活动火热进行中！',
+                    image: 'src/image/HDY_Bn-02-m-1.png',
+                    text: '农历新年快乐！春节健康礼盒，精选营养产品，为家人送上健康祝福！',
                     overlay: '🏮 新年快乐 | 🧧 Gong Xi Fa Cai',
                     date: '2026年2月10日'
                 },
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Luxury%20skincare%20beauty%20products%20with%20elegant%20packaging&image_size=landscape_4_3',
-                    text: '春节健康零食推荐！低糖低脂，美味又健康，过年必备！',
-                    overlay: '🍪 春节零食 | 🥨 健康美味',
+                    image: 'src/image/ScreenShot_2026-06-09_161814_564.png',
+                    text: '新年健身计划！优质蛋白粉助您实现新年目标，塑造完美身材！',
+                    overlay: '🎯 新年目标 | 💪 健身计划',
                     date: '2026年2月10日'
                 }
             ],
             '2026-01-01': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: '元旦快乐！新的一年新的开始，愿您在2026年实现梦想！新年特惠进行中！',
+                    image: 'src/image/HDY_Bn-02-m-1.png',
+                    text: '元旦快乐！新年健康礼盒，精选营养补充品，开启健康新征程！',
                     overlay: '🎊 元旦快乐 | 🎉 新年新气象',
                     date: '2026年1月1日'
                 },
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Luxury%20skincare%20beauty%20products%20with%20elegant%20packaging&image_size=landscape_4_3',
-                    text: '新年新目标！健身计划启动，精选运动营养品助您实现健康目标！',
-                    overlay: '🎯 新年计划 | 💪 健康目标',
+                    image: 'src/image/ScreenShot_2026-06-09_161814_564.png',
+                    text: '新年健身计划！优质蛋白粉助您实现新年目标，塑造完美身材！',
+                    overlay: '🎯 新年计划 | 💪 健身目标',
                     date: '2026年1月1日'
                 }
             ],
             '2025-12-25': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: '圣诞节快乐！愿这个节日充满爱与温暖，精选圣诞礼品限时特惠！',
-                    overlay: '🎄 圣诞节 | 🎅 Merry Christmas',
+                    image: 'src/image/ScreenShot_2026-06-09_161814_564.png',
+                    text: '圣诞节快乐！健身达人专属礼盒，优质蛋白粉助您塑造完美身材，节日礼物首选！',
+                    overlay: '🎄 圣诞节 | 💪 健身礼盒',
                     date: '2025年12月25日'
                 }
             ],
             '2025-12-31': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: '2026新年快乐！感谢一路相伴，愿新的一年身体健康、事业顺利！',
+                    image: 'src/image/HDY_Bn-02-m-1.png',
+                    text: '2026新年快乐！跨年健康礼盒，精选营养补充品，为新一年健康护航！',
                     overlay: '🎆 新年倒计时 | 🎊 2026',
                     date: '2025年12月31日'
                 }
             ],
             '2025-08-31': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
+                    image: 'src/image/ScreenShot_2026-06-09_161742_532.png',
                     text: '马来西亚独立日快乐！Selamat Hari Merdeka！国庆特惠进行中！',
                     overlay: '🇲🇾 独立日 | 🎉 Hari Merdeka',
                     date: '2025年8月31日'
@@ -1223,24 +1236,24 @@ image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%2
             ],
             '2025-06-15': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: '父亲节快乐！为爸爸准备一份特别的礼物，表达深深的爱与感激！',
+                    image: 'src/image/HDY_Bn-02-m-1.png',
+                    text: '父亲节快乐！健康礼盒送给最爱的爸爸，精选营养补充品，让父亲保持活力！',
                     overlay: '👨 父亲节 | 🎁 感恩好礼',
                     date: '2025年6月15日'
                 }
             ],
             '2026-12-25': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: '圣诞节快乐！愿这个节日充满爱与温暖，精选圣诞礼品限时特惠！',
-                    overlay: '🎄 圣诞节 | 🎅 Merry Christmas',
+                    image: 'src/image/ScreenShot_2026-06-09_161814_564.png',
+                    text: '圣诞节快乐！健身达人专属礼盒，优质蛋白粉助您塑造完美身材，节日礼物首选！',
+                    overlay: '🎄 圣诞节 | 💪 健身礼盒',
                     date: '2026年12月25日'
                 }
             ],
             '2026-12-31': [
                 {
-image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Health%20supplements%20and%20vitamins%20professional%20product%20photography&image_size=landscape_4_3',
-                    text: '2027新年快乐！感谢一路相伴，愿新的一年身体健康、事业顺利、万事如意！',
+                    image: 'src/image/HDY_Bn-02-m-1.png',
+                    text: '2027新年快乐！跨年健康礼盒，精选营养补充品，为新一年健康护航！',
                     overlay: '🎆 新年倒计时 | 🎊 2027',
                     date: '2026年12月31日'
                 }
