@@ -635,6 +635,30 @@
             gap: 12px;
             margin-bottom: 10px;
         }
+        .downline-whatsapp-btn {
+            margin-left: auto;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #25d366;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .downline-whatsapp-btn:hover {
+            background-color: #128c7e;
+            transform: scale(1.05);
+        }
+        .downline-whatsapp-btn:active {
+            transform: scale(0.95);
+        }
+        .downline-whatsapp-btn img {
+            width: 18px;
+            height: 18px;
+        }
         .downline-avatar {
             width: 40px;
             height: 40px;
@@ -860,6 +884,7 @@
             {
                 name: 'Linda Wong',
                 memberId: '202406010008',
+                phone: '+60123456789',
                 role: 'Silver Distributor',
                 avatar: 'LW',
                 failures: [
@@ -870,6 +895,7 @@
             {
                 name: 'Ahmad Bin Ismail',
                 memberId: '202501200015',
+                phone: '+60198765432',
                 role: 'Bronze Member',
                 avatar: 'AI',
                 failures: [
@@ -879,6 +905,7 @@
             {
                 name: 'Sarah Chen',
                 memberId: '202403150003',
+                phone: '+60162345678',
                 role: 'Gold Distributor',
                 avatar: 'SC',
                 failures: [
@@ -890,6 +917,7 @@
             {
                 name: 'Michele Tan',
                 memberId: '202508010022',
+                phone: '+60178765432',
                 role: 'Silver Distributor',
                 avatar: 'MT',
                 failures: [
@@ -899,6 +927,7 @@
             {
                 name: 'David Lim',
                 memberId: '202511100011',
+                phone: '+60189876543',
                 role: 'Bronze Member',
                 avatar: 'DL',
                 failures: [
@@ -907,6 +936,11 @@
                 ]
             }
         ];
+
+        function openWhatsApp(phone) {
+            const url = `https://api.whatsapp.com/send?phone=${encodeURIComponent(phone)}&text=${encodeURIComponent('您好，我注意到您的订阅订单有失败记录，需要我帮忙解决吗？')}`;
+            window.open(url, '_blank');
+        }
 
         function renderSubs() {
             const list = document.getElementById('subList');
@@ -930,7 +964,12 @@
                                     <div class="downline-name">${d.name}</div>
                                     <div style="font-size:11px;color:#9ca3af;margin-top:1px;">ID: ${d.memberId}</div>
                                 </div>
-                                <div style="margin-left:auto;font-size:12px;color:#ef4444;font-weight:600;">${d.failures.length} failed</div>
+                                <button class="downline-whatsapp-btn" onclick="openWhatsApp('${d.phone}')" title="Chat on WhatsApp">
+                                    <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px;color:white;">
+                                        <path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 01.213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 00.167-.054l1.903-1.114a.864.864 0 01.717-.098 10.16 10.16 0 002.837.403c4.801 0 8.692-3.287 8.692-7.344 0-4.054-3.891-7.342-8.692-7.342zm-3.11 5.329c-.344 0-.623-.279-.623-.622s.279-.622.623-.622.622.279.622.622-.278.622-.622.622zm6.218 0c-.344 0-.623-.279-.623-.622s.279-.622.623-.622.622.279.622.622-.278.622-.622.622zm3.11 0c-.344 0-.623-.279-.623-.622s.279-.622.623-.622.622.279.622.622-.278.622-.622.622z"/>
+                                    </svg>
+                                </button>
+                                <div style="font-size:12px;color:#ef4444;font-weight:600;margin-left:8px;">${d.failures.length} failed</div>
                             </div>
                             ${d.failures.map(f => `
                                 <div class="downline-fail-item">
