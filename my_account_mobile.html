@@ -1832,6 +1832,21 @@
             <div class="card" style="border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 20px;">
                 <div style="font-size: 18px; font-weight: 600; text-align: center; margin-bottom: 20px; color: #111827;">e-Form</div>
                 
+                <!-- 代理商申请表下载按钮（默认隐藏） -->
+                <div id="dealerFormDownload" style="display: none;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f3f4f6;">
+                        <div style="font-size: 15px; color: #374151;">代理商申请表</div>
+                        <a href="#" onclick="downloadDealerPDF(); return false;" style="display: flex; align-items: center; gap: 6px; color: #0066cc; text-decoration: none; font-size: 14px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            <span>Download</span>
+                        </a>
+                    </div>
+                </div>
+                
                 <!-- E-Form 列表容器 - JavaScript会在这里加载内容 -->
                 <div id="dealerFormList">
                     <!-- 默认显示 E-Form 列表项 -->
@@ -2883,7 +2898,97 @@
             console.log('页面加载：准备初始化地址选择器');
             initAddressSelectors();
             console.log('页面加载：地址选择器初始化完成');
+            
+            // 初始化代理商申请国家/地区差异化控制
+            initDealerApplicationControl();
         });
+        
+        // 代理商申请国家/地区差异化控制
+        function initDealerApplicationControl() {
+            const country = document.querySelector('.region-item.active').getAttribute('data-country');
+            const dealerApplicationData = JSON.parse(localStorage.getItem('dealerApplicationData') || '{}');
+            
+            // 定义不需要申请表的国家/地区
+            const skipCountries = ['TH', 'SG', 'HK', 'KH', 'ID', 'BN']; // 泰国、新加坡、香港、柬埔寨、印尼、文莱
+            
+            // 如果是需要跳过的国家/地区，直接返回
+            if (skipCountries.includes(country)) {
+                console.log('该地区无需申请表，直接跳过');
+                return;
+            }
+            
+            // 检查是否已申请过
+            if (dealerApplicationData.applied) {
+                console.log('用户已申请过代理商，显示下载按钮');
+                // 显示下载按钮
+                document.getElementById('dealerFormDownload').style.display = 'block';
+                return;
+            }
+            
+            // 如果是台湾地区且未申请过，显示申请表模态框
+            if (country === 'TW') {
+                console.log('台湾地区用户未申请过，显示申请表');
+                showDealerApplicationModal();
+            }
+            // 马来西亚地区用户未申请过，直接流转，不显示PDF申请表
+            else if (country === 'MY') {
+                console.log('马来西亚地区用户未申请过，直接流转');
+                // 不显示任何申请表，直接跳过
+            }
+        }
+        
+        // 显示代理商申请表模态框
+        function showDealerApplicationModal() {
+            // 创建模态框
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 90vw; max-height: 90vh; width: 90vw; height: 90vh;">
+                    <div class="modal-header">
+                        <h3 class="modal-title">台湾地区代理商申请表</h3>
+                        <span class="modal-close" onclick="closeDealerApplicationModal()">&times;</span>
+                    </div>
+                    <div style="padding: 10px 0; flex: 1; display: flex; flex-direction: column;">
+                        <iframe id="dealerApplicationPdf" src="" style="width: 100%; height: 85vh; border: none;"></iframe>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" onclick="submitDealerApplication()">提交申请</button>
+                        <button class="btn btn-secondary" onclick="closeDealerApplicationModal()">关闭</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            // 设置PDF源（这里使用一个示例PDF，实际项目中应替换为真实的台湾地区代理商申请表PDF）
+            document.getElementById('dealerApplicationPdf').src = 'dealer_application_tw.pdf';
+        }
+        
+        // 关闭代理商申请表模态框
+        function closeDealerApplicationModal() {
+            const modal = document.querySelector('.modal[style*="display: block"]');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        // 提交代理商申请
+        function submitDealerApplication() {
+            // 保存申请状态
+            const dealerApplicationData = JSON.parse(localStorage.getItem('dealerApplicationData') || '{}');
+            dealerApplicationData.applied = true;
+            dealerApplicationData.applyDate = new Date().toISOString().split('T')[0];
+            localStorage.setItem('dealerApplicationData', JSON.stringify(dealerApplicationData));
+            
+            // 关闭模态框
+            closeDealerApplicationModal();
+            
+            // 显示成功提示
+            showToast('申请提交成功！');
+            
+            // 显示下载按钮
+            document.getElementById('dealerFormDownload').style.display = 'block';
+        }
         
         // 验证个人信息表单
         function validatePersonalForm() {
