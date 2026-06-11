@@ -2922,12 +2922,12 @@
             const country = document.querySelector('.region-item.active').getAttribute('data-country');
             const dealerApplicationData = JSON.parse(localStorage.getItem('dealerApplicationData') || '{}');
             
-            // 定义不需要申请表的国家/地区
-            const skipCountries = ['TH', 'SG', 'HK', 'KH', 'ID', 'BN']; // 泰国、新加坡、香港、柬埔寨、印尼、文莱
+            // 只处理马来西亚和台湾地区
+            const supportedCountries = ['MY', 'TW'];
             
-            // 如果是需要跳过的国家/地区，直接返回
-            if (skipCountries.includes(country)) {
-                console.log('该地区无需申请表，直接跳过');
+            // 如果不是马来西亚或台湾，直接返回，不显示任何申请表
+            if (!supportedCountries.includes(country)) {
+                console.log('该地区不支持代理商申请表，直接跳过');
                 return;
             }
             
@@ -2939,13 +2939,11 @@
                 return;
             }
             
-            // 如果是台湾地区且未申请过，显示台湾申请表
+            // 马来西亚和台湾用户未申请过，显示对应申请表
             if (country === 'TW') {
                 console.log('台湾地区用户未申请过，显示台湾申请表');
                 showDealerApplicationModal('TW');
-            }
-            // 如果是马来西亚地区且未申请过，显示马来西亚申请表
-            else if (country === 'MY') {
+            } else if (country === 'MY') {
                 console.log('马来西亚地区用户未申请过，显示马来西亚申请表');
                 showDealerApplicationModal('MY');
             }
