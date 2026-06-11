@@ -2966,6 +2966,12 @@
                 'MY': 'dealer_application_my.html'
             };
             
+            // 先删除现有的申请表弹窗
+            const existingModal = document.getElementById('dealerApplicationModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
             const modal = document.createElement('div');
             modal.className = 'modal active';
             modal.setAttribute('id', 'dealerApplicationModal');
