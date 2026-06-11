@@ -1018,6 +1018,20 @@
                     <button onclick="testAsStockist()" style="padding: 8px 16px; background-color: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px;">测试：Stockist（看e-form）</button>
                     <button onclick="resetTestData()" style="padding: 8px 16px; background-color: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px;">重置所有数据</button>
                 </div>
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #f59e0b;">
+                    <div style="font-size: 13px; font-weight: 600; color: #92400e; margin-bottom: 10px;">🌍 切换会员国家（测试代理商申请表）</div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                        <button onclick="switchTestCountry('MY')" style="padding: 8px 12px; background-color: #059669; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">🇲🇾 马来西亚</button>
+                        <button onclick="switchTestCountry('TW')" style="padding: 8px 12px; background-color: #7c3aed; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">🇹🇼 台湾</button>
+                        <button onclick="switchTestCountry('TH')" style="padding: 8px 12px; background-color: #f59e0b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">🇹🇭 泰国</button>
+                        <button onclick="switchTestCountry('SG')" style="padding: 8px 12px; background-color: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">🇸🇬 新加坡</button>
+                        <button onclick="switchTestCountry('HK')" style="padding: 8px 12px; background-color: #ec4899; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">🇭🇰 香港</button>
+                        <button onclick="switchTestCountry('BN')" style="padding: 8px 12px; background-color: #14b8a6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">🇧🇳 文莱</button>
+                    </div>
+                    <div style="margin-top: 10px; font-size: 12px; color: #6b7280; text-align: center;">
+                        切换后会自动重新加载申请表逻辑
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -5224,6 +5238,41 @@
             localStorage.clear();
             alert('已清除所有数据，页面将刷新');
             location.reload();
+        }
+        
+        // 切换测试国家（用于测试代理商申请表）
+        function switchTestCountry(country) {
+            // 更新地区选择器的选中状态
+            document.querySelectorAll('.region-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            const targetRegion = document.querySelector(`[data-country="${country}"]`);
+            if (targetRegion) {
+                targetRegion.classList.add('active');
+            }
+            
+            // 重置申请状态以便重新测试
+            const dealerData = JSON.parse(localStorage.getItem('dealerApplicationData') || '{}');
+            dealerData.applied = false;
+            localStorage.setItem('dealerApplicationData', JSON.stringify(dealerData));
+            
+            alert(`已切换到 ${getCountryName(country)}，页面将刷新并重新加载申请表逻辑`);
+            location.reload();
+        }
+        
+        // 获取国家名称
+        function getCountryName(countryCode) {
+            const countryNames = {
+                'MY': '马来西亚',
+                'TW': '台湾',
+                'TH': '泰国',
+                'SG': '新加坡',
+                'HK': '香港',
+                'BN': '文莱',
+                'KH': '柬埔寨',
+                'ID': '印尼'
+            };
+            return countryNames[countryCode] || countryCode;
         }
     </script>
 
