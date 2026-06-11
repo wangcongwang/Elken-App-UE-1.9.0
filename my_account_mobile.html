@@ -2963,34 +2963,31 @@
             };
             
             const modal = document.createElement('div');
-            modal.className = 'modal';
-            modal.style.display = 'block';
+            modal.className = 'modal active';
+            modal.setAttribute('id', 'dealerApplicationModal');
+            modal.onclick = function(e) {
+                if (e.target === this) {
+                    this.remove();
+                }
+            };
             modal.innerHTML = `
-                <div class="modal-content" style="max-width: 95vw; max-height: 95vh; width: 95vw; height: 95vh;">
+                <div class="modal-content" style="max-width: 95vw; max-height: 95vh; width: 95vw; height: 95vh; margin: 0; border-radius: 12px;">
                     <div class="modal-header">
                         <h3 class="modal-title">${countryNames[country]}地区代理商申请表</h3>
-                        <span class="modal-close" onclick="closeDealerApplicationModal()">&times;</span>
+                        <span class="modal-close" onclick="this.closest('.modal').remove()">&times;</span>
                     </div>
-                    <div style="padding: 0; flex: 1; display: flex; flex-direction: column; overflow: hidden;">
-                        <iframe id="dealerApplicationPdf" src="" style="width: 100%; height: 85vh; border: none; overflow: auto;"></iframe>
+                    <div style="flex: 1; overflow: hidden; display: flex; flex-direction: column; min-height: 0;">
+                        <iframe id="dealerApplicationPdf" src="" style="width: 100%; flex: 1; border: none;"></iframe>
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-primary" onclick="submitDealerApplication('${country}')">提交申请</button>
-                        <button class="btn btn-secondary" onclick="closeDealerApplicationModal()">关闭</button>
+                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">关闭</button>
                     </div>
                 </div>
             `;
             document.body.appendChild(modal);
             
             document.getElementById('dealerApplicationPdf').src = formUrls[country];
-        }
-        
-        // 关闭代理商申请表模态框
-        function closeDealerApplicationModal() {
-            const modal = document.querySelector('.modal[style*="display: block"]');
-            if (modal) {
-                modal.remove();
-            }
         }
         
         // 提交代理商申请
