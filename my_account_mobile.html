@@ -2939,42 +2939,50 @@
                 return;
             }
             
-            // 如果是台湾地区且未申请过，显示申请表模态框
+            // 如果是台湾地区且未申请过，显示台湾申请表
             if (country === 'TW') {
-                console.log('台湾地区用户未申请过，显示申请表');
-                showDealerApplicationModal();
+                console.log('台湾地区用户未申请过，显示台湾申请表');
+                showDealerApplicationModal('TW');
             }
-            // 马来西亚地区用户未申请过，直接流转，不显示PDF申请表
+            // 如果是马来西亚地区且未申请过，显示马来西亚申请表
             else if (country === 'MY') {
-                console.log('马来西亚地区用户未申请过，直接流转');
-                // 不显示任何申请表，直接跳过
+                console.log('马来西亚地区用户未申请过，显示马来西亚申请表');
+                showDealerApplicationModal('MY');
             }
         }
         
         // 显示代理商申请表模态框
-        function showDealerApplicationModal() {
+        function showDealerApplicationModal(country) {
+            const countryNames = {
+                'TW': '台湾',
+                'MY': '马来西亚'
+            };
+            const formUrls = {
+                'TW': 'dealer_application_tw.html',
+                'MY': 'dealer_application_my.html'
+            };
+            
             const modal = document.createElement('div');
             modal.className = 'modal';
             modal.style.display = 'block';
             modal.innerHTML = `
                 <div class="modal-content" style="max-width: 95vw; max-height: 95vh; width: 95vw; height: 95vh;">
                     <div class="modal-header">
-                        <h3 class="modal-title">台湾地区代理商申请表</h3>
+                        <h3 class="modal-title">${countryNames[country]}地区代理商申请表</h3>
                         <span class="modal-close" onclick="closeDealerApplicationModal()">&times;</span>
                     </div>
                     <div style="padding: 0; flex: 1; display: flex; flex-direction: column; overflow: hidden;">
                         <iframe id="dealerApplicationPdf" src="" style="width: 100%; height: 85vh; border: none; overflow: auto;"></iframe>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-primary" onclick="submitDealerApplication()">提交申请</button>
+                        <button class="btn btn-primary" onclick="submitDealerApplication('${country}')">提交申请</button>
                         <button class="btn btn-secondary" onclick="closeDealerApplicationModal()">关闭</button>
                     </div>
                 </div>
             `;
             document.body.appendChild(modal);
             
-            // 设置申请表源
-            document.getElementById('dealerApplicationPdf').src = 'dealer_application_tw.html';
+            document.getElementById('dealerApplicationPdf').src = formUrls[country];
         }
         
         // 关闭代理商申请表模态框
@@ -2986,20 +2994,22 @@
         }
         
         // 提交代理商申请
-        function submitDealerApplication() {
-            // 保存申请状态
+        function submitDealerApplication(country) {
+            const countryNames = {
+                'TW': '台湾',
+                'MY': '马来西亚'
+            };
+            
             const dealerApplicationData = JSON.parse(localStorage.getItem('dealerApplicationData') || '{}');
             dealerApplicationData.applied = true;
             dealerApplicationData.applyDate = new Date().toISOString().split('T')[0];
+            dealerApplicationData.country = country;
             localStorage.setItem('dealerApplicationData', JSON.stringify(dealerApplicationData));
             
-            // 关闭模态框
             closeDealerApplicationModal();
             
-            // 显示成功提示
-            showToast('申请提交成功！');
+            showToast(`${countryNames[country]}地区申请提交成功！`);
             
-            // 显示下载按钮
             document.getElementById('dealerFormDownload').style.display = 'block';
         }
         
