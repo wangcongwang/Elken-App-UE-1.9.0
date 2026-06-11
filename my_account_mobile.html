@@ -2919,6 +2919,12 @@
         
         // 代理商申请国家/地区差异化控制
         function initDealerApplicationControl() {
+            // 防止重复执行
+            if (window._dealerApplicationInitialized) {
+                return;
+            }
+            window._dealerApplicationInitialized = true;
+            
             const country = document.querySelector('.region-item.active').getAttribute('data-country');
             const dealerApplicationData = JSON.parse(localStorage.getItem('dealerApplicationData') || '{}');
             
