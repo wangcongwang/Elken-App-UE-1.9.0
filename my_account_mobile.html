@@ -2917,55 +2917,14 @@
             initDealerApplicationControl();
         });
         
-        // 代理商申请国家/地区差异化控制
+        // 代理商申请国家/地区差异化控制（已停用，使用原来的 checkDealerApplication）
         function initDealerApplicationControl() {
-            // 防止重复执行
-            if (window._dealerApplicationInitialized) {
-                return;
-            }
-            window._dealerApplicationInitialized = true;
-            
-            const country = document.querySelector('.region-item.active').getAttribute('data-country');
-            const dealerApplicationData = JSON.parse(localStorage.getItem('dealerApplicationData') || '{}');
-            
-            // 只处理马来西亚和台湾地区
-            const supportedCountries = ['MY', 'TW'];
-            
-            // 如果不是马来西亚或台湾，直接返回，不显示任何申请表
-            if (!supportedCountries.includes(country)) {
-                console.log('该地区不支持代理商申请表，直接跳过');
-                return;
-            }
-            
-            // 检查是否已申请过
-            if (dealerApplicationData.applied) {
-                console.log('用户已申请过代理商，显示下载按钮');
-                // 显示下载按钮
-                document.getElementById('dealerFormDownload').style.display = 'block';
-                return;
-            }
-            
-            // 马来西亚和台湾用户未申请过，显示对应申请表
-            if (country === 'TW') {
-                console.log('台湾地区用户未申请过，显示台湾申请表');
-                showDealerApplicationModal('TW');
-            } else if (country === 'MY') {
-                console.log('马来西亚地区用户未申请过，显示马来西亚申请表');
-                showDealerApplicationModal('MY');
-            }
+            // 此函数已停用，逻辑已迁移到 checkDealerApplication()
+            console.log('initDealerApplicationControl: 已停用，使用 checkDealerApplication');
         }
         
-        // 显示代理商申请表模态框
+        // 显示台湾代理商申请表模态框
         function showDealerApplicationModal(country) {
-            const countryNames = {
-                'TW': '台湾',
-                'MY': '马来西亚'
-            };
-            const formUrls = {
-                'TW': 'dealer_application_tw.html',
-                'MY': 'dealer_application_my.html'
-            };
-            
             // 先删除现有的申请表弹窗
             const existingModal = document.getElementById('dealerApplicationModal');
             if (existingModal) {
@@ -2980,24 +2939,174 @@
                     this.remove();
                 }
             };
-            modal.innerHTML = `
-                <div class="modal-content" style="max-width: 95vw; max-height: 95vh; width: 95vw; height: 95vh; margin: 0; border-radius: 12px;">
+            
+            // 台湾申请表内容
+            const twFormContent = `
+                <div class="modal-content" style="max-width: 95vw; max-height: 95vh; width: 95vw; height: 95vh; margin: 0; border-radius: 12px; overflow: hidden;">
                     <div class="modal-header">
-                        <h3 class="modal-title">${countryNames[country]}地区代理商申请表</h3>
+                        <h3 class="modal-title">台湾地区代理商申请表</h3>
                         <span class="modal-close" onclick="this.closest('.modal').remove()">&times;</span>
                     </div>
-                    <div style="flex: 1; overflow: hidden; display: flex; flex-direction: column; min-height: 0;">
-                        <iframe id="dealerApplicationPdf" src="" style="width: 100%; flex: 1; border: none;"></iframe>
+                    <div style="flex: 1; overflow-y: auto; padding: 15px; background-color: #fff;">
+                        <style>
+                            .tw-form-container { font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif; }
+                            .tw-form-header { text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #0066cc; }
+                            .tw-form-header .logo { font-size: 24px; font-weight: bold; color: #0066cc; }
+                            .tw-form-header h1 { font-size: 18px; margin: 10px 0 5px 0; }
+                            .tw-form-header h2 { font-size: 12px; color: #666; margin: 0; font-weight: normal; }
+                            .tw-form-header .date { font-size: 10px; color: #999; margin-top: 5px; }
+                            .tw-form-header .warning { font-size: 10px; color: #dc3545; margin-top: 10px; line-height: 1.4; }
+                            .tw-section-title { background-color: #1a1a1a; color: white; padding: 6px 12px; font-size: 11px; font-weight: bold; margin: 15px 0 12px 0; text-transform: uppercase; letter-spacing: 1px; }
+                            .tw-form-row { display: flex; gap: 15px; margin-bottom: 10px; }
+                            .tw-form-item { flex: 1; }
+                            .tw-form-item label { display: block; font-size: 10px; color: #333; margin-bottom: 3px; }
+                            .tw-form-item input, .tw-form-item select { width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 11px; box-sizing: border-box; }
+                            .tw-radio-group { display: flex; gap: 15px; }
+                            .tw-radio-label { font-size: 11px; }
+                            .tw-address-group { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+                            .tw-address-group input { text-align: center; }
+                            .tw-agreement { margin-top: 15px; padding: 12px; background-color: #f9f9f9; border: 1px solid #ddd; font-size: 10px; line-height: 1.6; color: #444; }
+                            .tw-signature-section { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; }
+                            .tw-signature-item { text-align: center; width: 30%; }
+                            .tw-signature-line { border-bottom: 1px solid #333; height: 30px; margin-top: 5px; }
+                            .tw-footer { margin-top: 25px; padding-top: 15px; border-top: 2px solid #0066cc; text-align: center; font-size: 10px; color: #666; }
+                            .tw-footer .company { font-weight: bold; color: #0066cc; }
+                        </style>
+                        <div class="tw-form-container">
+                            <div class="tw-form-header">
+                                <div class="logo">ELKEN</div>
+                                <h1>愛康代理商申請書</h1>
+                                <h2>DEALER APPLICATION FORM (TAIWAN)</h2>
+                                <div class="date">中華民國112年11月1日生效</div>
+                                <div class="warning">PLEASE FILL IN USING BLOCK LETTERS. 請用大寫字母填寫。<br>ALL FIELDS ARE COMPULSORY.</div>
+                            </div>
+                            
+                            <div class="tw-section-title">APPLICANT'S PARTICULARS / 申請人資料</div>
+                            
+                            <div class="tw-form-row">
+                                <div class="tw-form-item"><label>NAME OF APPLICANT / 姓名</label><input type="text" placeholder="請輸入姓名"></div>
+                                <div class="tw-form-item"><label>NAME IN ENGLISH / 英文姓名</label><input type="text" placeholder="請輸入英文姓名"></div>
+                            </div>
+                            
+                            <div class="tw-form-row">
+                                <div class="tw-form-item"><label>ID NUMBER / 身分證字號</label><input type="text" placeholder="例如：A123456789"></div>
+                                <div class="tw-form-item"><label>PASSPORT NUMBER / 護照號碼</label><input type="text" placeholder="請輸入護照號碼"></div>
+                            </div>
+                            
+                            <div class="tw-form-row">
+                                <div class="tw-form-item"><label>GENDER / 性別</label>
+                                    <div class="tw-radio-group">
+                                        <label class="tw-radio-label"><input type="radio" name="gender"> MALE / 男</label>
+                                        <label class="tw-radio-label"><input type="radio" name="gender"> FEMALE / 女</label>
+                                    </div>
+                                </div>
+                                <div class="tw-form-item"><label>DATE OF BIRTH / 出生日期</label><input type="date"></div>
+                            </div>
+                            
+                            <div class="tw-form-row">
+                                <div class="tw-form-item"><label>NATIONALITY / 國籍</label><input type="text" value="Taiwan" readonly></div>
+                                <div class="tw-form-item"><label>CONTACT NUMBER / 聯絡電話</label><input type="text" placeholder="+886 9XX-XXX-XXX"></div>
+                            </div>
+                            
+                            <div class="tw-form-row">
+                                <div class="tw-form-item" style="flex: 2;"><label>EMAIL / 電子郵件</label><input type="text" placeholder="請輸入電子郵件"></div>
+                            </div>
+                            
+                            <div class="tw-form-row">
+                                <div class="tw-form-item" style="flex: 2;"><label>ADDRESS / 通訊地址</label></div>
+                            </div>
+                            <div class="tw-address-group">
+                                <input type="text" placeholder="郵遞區號">
+                                <input type="text" placeholder="縣市">
+                                <input type="text" placeholder="鄉鎮市區">
+                                <input type="text" placeholder="村里">
+                                <input type="text" placeholder="鄰">
+                            </div>
+                            <div style="margin-top: 8px;"><input type="text" placeholder="路街段" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 11px;"></div>
+                            <div style="margin-top: 8px;"><input type="text" placeholder="巷弄號樓" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 11px;"></div>
+                            
+                            <div class="tw-section-title">DELIVERY DETAILS / 收件資訊</div>
+                            
+                            <div class="tw-form-row">
+                                <div class="tw-form-item"><label>RECIPIENT'S NAME / 收件人姓名</label><input type="text" placeholder="請輸入收件人姓名"></div>
+                                <div class="tw-form-item"><label>CONTACT NUMBER / 聯絡電話</label><input type="text" placeholder="請輸入聯絡電話"></div>
+                            </div>
+                            
+                            <div class="tw-section-title">SPONSOR'S PARTICULARS / 推薦人資料</div>
+                            
+                            <div class="tw-form-row">
+                                <div class="tw-form-item"><label>NAME OF SPONSOR / 推薦人姓名</label><input type="text" placeholder="請輸入推薦人姓名"></div>
+                                <div class="tw-form-item"><label>SPONSOR'S ID / 推薦人身分證字號</label><input type="text" placeholder="請輸入身分證字號"></div>
+                            </div>
+                            
+                            <div class="tw-section-title">BONUS PAYMENT DETAILS / 獎金發放資料</div>
+                            
+                            <div class="tw-form-row">
+                                <div class="tw-form-item"><label>BANK NAME / 銀行名稱</label>
+                                    <select>
+                                        <option>中華郵政</option>
+                                        <option>國泰世華銀行</option>
+                                        <option>玉山銀行</option>
+                                        <option>台灣土地銀行</option>
+                                        <option>台北富邦銀行</option>
+                                        <option>其他</option>
+                                    </select>
+                                </div>
+                                <div class="tw-form-item"><label>BRANCH / 分行</label><input type="text" placeholder="請輸入分行名稱"></div>
+                            </div>
+                            
+                            <div class="tw-form-row">
+                                <div class="tw-form-item"><label>BANK ACCOUNT NUMBER / 銀行帳號</label><input type="text" placeholder="請輸入銀行帳號"></div>
+                                <div class="tw-form-item"><label>BANK ACCOUNT HOLDER NAME / 帳號戶名</label><input type="text" placeholder="請輸入帳號戶名"></div>
+                            </div>
+                            
+                            <div class="tw-agreement">
+                                我確認此申請表填寫內容皆完整正確且我已閱讀申請書背面之合約條款，並同意愛康台灣分公司依據申請書背面之資訊聲明處理我的個人資料。<br>
+                                <label style="display: block; margin: 5px 0;"><input type="checkbox"> 我同意愛康台灣分公司寄送商訊任何相關訊息</label>
+                                <label style="display: block; margin: 5px 0;"><input type="checkbox"> 我不同意愛康台灣分公司發送任何商訊訊息與Email</label>
+                            </div>
+                            
+                            <div class="tw-signature-section">
+                                <div class="tw-signature-item"><label>SIGNATURE / 簽名</label><div class="tw-signature-line"></div></div>
+                                <div class="tw-signature-item"><label>DATE / 日期</label><div class="tw-signature-line" style="height: 20px;"></div></div>
+                                <div class="tw-signature-item"><label>備註</label><div class="tw-signature-line" style="height: 20px;"></div></div>
+                            </div>
+                            
+                            <div class="tw-footer">
+                                <div class="company">ELKEN INTERNATIONAL SDN. BHD., TAIWAN BRANCH</div>
+                                <p>愛康國際商股份有限公司台灣分公司</p>
+                                <p>104臺北市中山區中山北路一段11號14樓之1</p>
+                                <p>免付費服務電話 0800 880 689</p>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-primary" onclick="submitDealerApplication('${country}')">提交申请</button>
-                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">关闭</button>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 10px;">
+                            <input type="checkbox" id="twAgreeTerms" onchange="document.getElementById('twNextBtn').disabled = !this.checked;">
+                            <span style="font-size: 12px;">我已阅读并同意代理商条款与条件</span>
+                        </label>
+                        <button id="twNextBtn" class="btn-primary" onclick="goToSignatureTW()" disabled>下一步</button>
+                        <button class="btn-secondary" onclick="this.closest('.modal').remove()">关闭</button>
                     </div>
                 </div>
             `;
-            document.body.appendChild(modal);
             
-            document.getElementById('dealerApplicationPdf').src = formUrls[country];
+            modal.innerHTML = twFormContent;
+            document.body.appendChild(modal);
+        }
+        
+        // 台湾申请表下一步 - 进入签名流程
+        function goToSignatureTW() {
+            closeDealerApplicationModal();
+            openSignatureModal();
+        }
+        
+        // 关闭代理商申请表弹窗
+        function closeDealerApplicationModal() {
+            const modal = document.getElementById('dealerApplicationModal');
+            if (modal) {
+                modal.remove();
+            }
         }
         
         // 提交代理商申请
@@ -3017,7 +3126,9 @@
             
             showToast(`${countryNames[country]}地区申请提交成功！`);
             
-            document.getElementById('dealerFormDownload').style.display = 'block';
+            if (document.getElementById('dealerFormDownload')) {
+                document.getElementById('dealerFormDownload').style.display = 'block';
+            }
         }
         
         // 验证个人信息表单
@@ -4501,14 +4612,26 @@
             const hasApplied = localStorage.getItem('dealerApplicationSubmitted');
             const isStockist = localStorage.getItem('isStockist') === 'true';
             
-            console.log('检查经销商申请:', { hasApplied, isStockist });
+            // 优先从 localStorage 获取保存的国家，否则从 DOM 获取
+            const savedCountry = localStorage.getItem('selectedCountry');
+            const domCountry = document.querySelector('.region-item.active')?.getAttribute('data-country');
+            const country = savedCountry || domCountry;
+            
+            console.log('检查经销商申请:', { hasApplied, isStockist, country, savedCountry, domCountry });
+            
+            // 只处理台湾和马来西亚地区
+            const supportedCountries = ['MY', 'TW'];
+            if (!supportedCountries.includes(country)) {
+                console.log('该地区不支持代理商申请表，直接跳过');
+                return;
+            }
             
             // 如果不是stockist且未申请过，显示申请表
             if (!isStockist && !hasApplied) {
-                console.log('显示经销商申请表');
+                console.log('显示经销商申请表，国家:', country);
                 // 延迟显示，等页面加载完成
                 setTimeout(() => {
-                    openDealerModal();
+                    openDealerModal(country);
                 }, 500);
             } else {
                 console.log('不显示申请表:', isStockist ? '已是stockist' : '已申请过');
@@ -4516,27 +4639,35 @@
         }
 
         // 打开经销商申请表
-        function openDealerModal() {
-            console.log('正在打开经销商申请表...');
-            const modal = document.getElementById('dealerModal');
-            console.log('dealerModal 元素:', modal);
-
-            if (modal) {
-                modal.classList.add('active');
-                console.log('已添加 active 类');
-
-                // 填充表单数据
-                fillDealerFormData();
-
-                // 绑定复选框事件
-                const agreeTerms = document.getElementById('agreeTerms');
-                if (agreeTerms) {
-                    agreeTerms.addEventListener('change', function() {
-                        document.getElementById('dealerNextBtn').disabled = !this.checked;
-                    });
-                }
+        function openDealerModal(country) {
+            console.log('正在打开经销商申请表...', country);
+            
+            // 根据国家加载不同的申请表
+            if (country === 'TW') {
+                // 台湾地区使用台湾申请表
+                showDealerApplicationModal('TW');
             } else {
-                console.error('找不到 dealerModal 元素');
+                // 马来西亚及其他地区使用原来的申请表
+                const modal = document.getElementById('dealerModal');
+                console.log('dealerModal 元素:', modal);
+
+                if (modal) {
+                    modal.classList.add('active');
+                    console.log('已添加 active 类');
+
+                    // 填充表单数据
+                    fillDealerFormData();
+
+                    // 绑定复选框事件
+                    const agreeTerms = document.getElementById('agreeTerms');
+                    if (agreeTerms) {
+                        agreeTerms.addEventListener('change', function() {
+                            document.getElementById('dealerNextBtn').disabled = !this.checked;
+                        });
+                    }
+                } else {
+                    console.error('找不到 dealerModal 元素');
+                }
             }
         }
 
@@ -5267,10 +5398,13 @@
                 targetRegion.classList.add('active');
             }
             
-            // 重置申请状态以便重新测试
-            const dealerData = JSON.parse(localStorage.getItem('dealerApplicationData') || '{}');
-            dealerData.applied = false;
-            localStorage.setItem('dealerApplicationData', JSON.stringify(dealerData));
+            // 保存当前选择的国家到 localStorage
+            localStorage.setItem('selectedCountry', country);
+            
+            // 重置所有申请状态以便重新测试
+            localStorage.removeItem('dealerApplicationData');
+            localStorage.removeItem('dealerApplicationSubmitted');
+            localStorage.removeItem('isStockist');
             
             alert(`已切换到 ${getCountryName(country)}，页面将刷新并重新加载申请表逻辑`);
             location.reload();

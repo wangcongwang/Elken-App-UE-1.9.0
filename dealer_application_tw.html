@@ -162,11 +162,17 @@
 <body>
     <div class="form-container">
         <div class="header">
-            <div style="font-size: 28px; font-weight: bold; color: #0066cc; margin-bottom: 5px;">ELKEN</div>
-            <h1>愛康代理商申請書</h1>
-            <h2>DEALER APPLICATION FORM</h2>
-            <div class="date">2023年11月1日生效</div>
-            <div class="warning">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-size: 28px; font-weight: bold; color: #0066cc;">ELKEN</div>
+                <div style="text-align: right;">
+                    <div style="font-size: 12px; color: #666;">Form No.: CS-F05-TW</div>
+                    <div style="font-size: 12px; color: #666;">Rev No.: B</div>
+                </div>
+            </div>
+            <h1 style="margin-top: 10px;">愛康代理商申請書</h1>
+            <h2>DEALER APPLICATION FORM (TAIWAN)</h2>
+            <div class="date">中華民國112年11月1日生效</div>
+            <div class="warning" style="margin-top: 15px;">
                 PLEASE FILL IN USING BLOCK LETTERS. 請用大寫字母填寫。<br>
                 ALL FIELDS ARE COMPULSORY. FAILURE TO COMPLETE THIS APPLICATION FORM WILL RESULT IN THE DELAY OF YOUR DEALERSHIP REGISTRATION.<br>
                 所有資料必須填寫，未能完成本申請表將延遲您的代理商註冊。
@@ -177,12 +183,23 @@
 
         <div class="form-row">
             <div class="form-item">
-                <label>NAME OF APPLICANT / 姓名 (按照身份證/護照)</label>
+                <label>NAME OF APPLICANT / 姓名 (按照身份證)</label>
                 <input type="text" placeholder="請輸入姓名">
             </div>
             <div class="form-item">
-                <label>NAME IN ENGLISH / 英文姓名 (按照身份證/護照)</label>
+                <label>NAME IN ENGLISH / 英文姓名 (按照身份證)</label>
                 <input type="text" placeholder="請輸入英文姓名">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-item">
+                <label>ID NUMBER / 身分證字號</label>
+                <input type="text" placeholder="例如：A123456789">
+            </div>
+            <div class="form-item">
+                <label>PASSPORT NUMBER / 護照號碼</label>
+                <input type="text" placeholder="請輸入護照號碼">
             </div>
         </div>
 
@@ -195,10 +212,10 @@
                 </div>
             </div>
             <div class="form-item">
-                <label>PREFERRED LANGUAGE / 首選語言</label>
+                <label>MARITAL STATUS / 婚姻狀況</label>
                 <div class="radio-group">
-                    <label class="radio-label"><input type="radio" name="language"> ENGLISH / 英語</label>
-                    <label class="radio-label"><input type="radio" name="language"> CHINESE / 中文</label>
+                    <label class="radio-label"><input type="radio" name="marital"> SINGLE / 單身</label>
+                    <label class="radio-label"><input type="radio" name="marital"> MARRIED / 已婚</label>
                 </div>
             </div>
             <div class="form-item">
@@ -210,22 +227,26 @@
         <div class="form-row">
             <div class="form-item">
                 <label>NATIONALITY / 國籍</label>
-                <input type="text" placeholder="請輸入國籍">
+                <input type="text" value="Taiwan" placeholder="請輸入國籍">
             </div>
             <div class="form-item">
-                <label>ID / PASSPORT NUMBER / 身份證 / 護照號碼</label>
-                <input type="text" placeholder="請輸入身份證/護照號碼">
+                <label>PREFERRED LANGUAGE / 首選語言</label>
+                <div class="radio-group">
+                    <label class="radio-label"><input type="radio" name="language"> CHINESE / 中文</label>
+                    <label class="radio-label"><input type="radio" name="language"> ENGLISH / 英語</label>
+                    <label class="radio-label"><input type="radio" name="language"> MALAY / 馬來語</label>
+                </div>
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-item">
                 <label>CONTACT NUMBER / 聯絡電話</label>
-                <input type="text" placeholder="請輸入聯絡電話">
+                <input type="text" placeholder="+886 9XX-XXX-XXX">
             </div>
             <div class="form-item">
                 <label>HOME NUMBER / 室內電話號碼</label>
-                <input type="text" placeholder="請輸入室內電話">
+                <input type="text" placeholder="+886-2-XXXXXXX">
             </div>
         </div>
 
@@ -241,31 +262,21 @@
                 <label>ADDRESS / 通訊地址</label>
                 <div class="address-group">
                     <input type="text" placeholder="郵遞區號">
-                    <input type="text" placeholder="市">
-                    <input type="text" placeholder="鄉/鎮/區">
-                    <input type="text" placeholder="里">
+                    <input type="text" placeholder="縣市">
+                    <input type="text" placeholder="鄉/鎮/市/區">
+                    <input type="text" placeholder="村里/區">
                     <input type="text" placeholder="鄰">
                 </div>
                 <div style="margin-top: 8px;">
-                    <input type="text" placeholder="路 / 街 / 段" style="width: 100%;">
+                    <input type="text" placeholder="路/街/段" style="width: 100%;">
                 </div>
                 <div style="margin-top: 8px;">
-                    <input type="text" placeholder="巷 / 弄 / 號 / 樓之" style="width: 100%;">
+                    <input type="text" placeholder="巷/弄/號/樓之" style="width: 100%;">
                 </div>
             </div>
         </div>
 
-        <div class="form-row">
-            <div class="form-item">
-                <label>MARITAL STATUS / 婚姻狀況</label>
-                <div class="radio-group">
-                    <label class="radio-label"><input type="radio" name="marital"> SINGLE / 單身</label>
-                    <label class="radio-label"><input type="radio" name="marital"> MARRIED / 已婚</label>
-                </div>
-            </div>
-        </div>
-
-        <div class="section-title">DELIVERY DETAILS / 收件資訊 (if different from above / 如與以上不同)</div>
+        <div class="section-title">DELIVERY DETAILS / 收件資訊 (if different from above)</div>
 
         <div class="form-row">
             <div class="form-item">
@@ -294,16 +305,16 @@
                 <label>ADDRESS / 通訊地址</label>
                 <div class="address-group">
                     <input type="text" placeholder="郵遞區號">
-                    <input type="text" placeholder="市">
-                    <input type="text" placeholder="鄉/鎮/區">
-                    <input type="text" placeholder="里">
+                    <input type="text" placeholder="縣市">
+                    <input type="text" placeholder="鄉/鎮/市/區">
+                    <input type="text" placeholder="村里/區">
                     <input type="text" placeholder="鄰">
                 </div>
                 <div style="margin-top: 8px;">
-                    <input type="text" placeholder="路 / 街 / 段" style="width: 100%;">
+                    <input type="text" placeholder="路/街/段" style="width: 100%;">
                 </div>
                 <div style="margin-top: 8px;">
-                    <input type="text" placeholder="巷 / 弄 / 號 / 樓之" style="width: 100%;">
+                    <input type="text" placeholder="巷/弄/號/樓之" style="width: 100%;">
                 </div>
             </div>
         </div>
@@ -323,12 +334,12 @@
                 <input type="text" placeholder="請輸入推薦人姓名">
             </div>
             <div class="form-item">
-                <label>CONTACT NUMBER / 聯絡電話</label>
-                <input type="text" placeholder="請輸入聯絡電話">
+                <label>SPONSOR'S ID / 推薦人身分證字號</label>
+                <input type="text" placeholder="例如：A123456789">
             </div>
             <div class="form-item">
-                <label>SPONSOR'S ID / 推薦人 ID</label>
-                <input type="text" placeholder="請輸入推薦人 ID">
+                <label>CONTACT NUMBER / 聯絡電話</label>
+                <input type="text" placeholder="+886 9XX-XXX-XXX">
             </div>
         </div>
 
@@ -337,7 +348,21 @@
         <div class="form-row">
             <div class="form-item">
                 <label>BANK NAME / 銀行名稱</label>
-                <input type="text" placeholder="請輸入銀行名稱">
+                <select>
+                    <option value="">請選擇銀行</option>
+                    <option>中華郵政</option>
+                    <option>國泰世華銀行</option>
+                    <option>玉山銀行</option>
+                    <option>台灣土地銀行</option>
+                    <option>台灣新光商業銀行</option>
+                    <option>台北富邦銀行</option>
+                    <option>華南銀行</option>
+                    <option>台新銀行</option>
+                    <option>中國信託銀行</option>
+                    <option>兆豐銀行</option>
+                    <option>臺灣銀行</option>
+                    <option>其他</option>
+                </select>
             </div>
             <div class="form-item">
                 <label>BRANCH / 分行</label>
@@ -359,14 +384,10 @@
         <div class="agreement">
             *Must be the Applicant's name and it could either be the Applicant's single or joint bank account. *必須是申請人名稱的單個或聯合帳戶。<br><br>
             I confirm that all the information provided in this Application Form is correct, accurate and complete and I have read and understood the Terms of Agreement on the back of this Application and consent to the processing of my personal data for the purposes stated.<br>
-            我確認此申請表填寫內容皆完整正確且我已閱讀申請書背面之合約條款，並同意愛康台灣分公司依據申請書背面之資訊聲明處理我的個人資料。
-        </div>
-
-        <div class="checkbox-group" style="margin-top: 15px;">
-            <label class="checkbox-label"><input type="checkbox"> 我同意愛康台灣分公司寄送商訊任何相關訊息。</label>
-            <label class="checkbox-label"><input type="checkbox"> 我同意愛康台灣分公司寄送商訊任何相關訊息。</label>
-            <label class="checkbox-label"><input type="checkbox"> 我同意愛康台灣分公司發送任何商訊訊息與Email。</label>
-            <label class="checkbox-label"><input type="checkbox"> 我不同意愛康台灣分公司發送任何商訊訊息與Email。（不包含廣告公告或公司資訊動態）</label>
+            我確認此申請表填寫內容皆完整正確且我已閱讀申請書背面之合約條款，並同意愛康台灣分公司依據申請書背面之資訊聲明處理我的個人資料。<br><br>
+            <label class="checkbox-label" style="display: block; margin: 5px 0;"><input type="checkbox"> 我同意愛康台灣分公司寄送商訊任何相關訊息。</label>
+            <label class="checkbox-label" style="display: block; margin: 5px 0;"><input type="checkbox"> 我同意愛康台灣分公司發送任何商訊訊息與Email。</label>
+            <label class="checkbox-label" style="display: block; margin: 5px 0;"><input type="checkbox"> 我不同意愛康台灣分公司發送任何商訊訊息與Email。（不包含廣告公告或公司資訊動態）</label>
         </div>
 
         <div class="signature-section">
@@ -379,13 +400,14 @@
                 <div class="signature-line" style="height: 25px;"></div>
             </div>
             <div class="signature-item">
-                <label>以上未勾選表示同意接收</label>
-                <div style="font-size: 11px; color: #666; margin-top: 15px;">(如未勾選任何選項，視為同意接收所有資訊)</div>
+                <label>王冠</label>
+                <div class="signature-line" style="height: 25px;"></div>
             </div>
         </div>
 
         <div class="footer">
             <div class="company">ELKEN INTERNATIONAL SDN. BHD., TAIWAN BRANCH</div>
+            <p>愛康國際商股份有限公司台灣分公司</p>
             <p>104臺北市中山區中山北路一段11號14樓之1</p>
             <p>免付費服務電話 0800 880 689 | 臺北辦公室電話 +886 2 2752 0612</p>
             <p>www.elkenglobal.com</p>
