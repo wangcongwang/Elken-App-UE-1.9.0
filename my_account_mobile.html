@@ -2972,7 +2972,7 @@
                             .tw-footer { margin-top: 25px; padding-top: 15px; border-top: 2px solid #0066cc; text-align: center; font-size: 10px; color: #666; }
                             .tw-footer .company { font-weight: bold; color: #0066cc; }
                         </style>
-                        <div class="tw-form-container">
+                        <form id="twApplicationForm" class="tw-form-container">
                             <div class="tw-form-header">
                                 <div class="logo">ELKEN</div>
                                 <h1>愛康代理商申請書</h1>
@@ -2984,66 +2984,66 @@
                             <div class="tw-section-title">APPLICANT'S PARTICULARS / 申請人資料</div>
                             
                             <div class="tw-form-row">
-                                <div class="tw-form-item"><label>NAME OF APPLICANT / 姓名</label><input type="text" placeholder="請輸入姓名"></div>
-                                <div class="tw-form-item"><label>NAME IN ENGLISH / 英文姓名</label><input type="text" placeholder="請輸入英文姓名"></div>
+                                <div class="tw-form-item"><label>NAME OF APPLICANT / 姓名</label><input type="text" name="twName" placeholder="請輸入姓名"></div>
+                                <div class="tw-form-item"><label>NAME IN ENGLISH / 英文姓名</label><input type="text" name="twNameEn" placeholder="請輸入英文姓名"></div>
                             </div>
                             
                             <div class="tw-form-row">
-                                <div class="tw-form-item"><label>ID NUMBER / 身分證字號</label><input type="text" placeholder="例如：A123456789"></div>
-                                <div class="tw-form-item"><label>PASSPORT NUMBER / 護照號碼</label><input type="text" placeholder="請輸入護照號碼"></div>
+                                <div class="tw-form-item"><label>ID NUMBER / 身分證字號</label><input type="text" name="twIC" placeholder="例如：A123456789"></div>
+                                <div class="tw-form-item"><label>PASSPORT NUMBER / 護照號碼</label><input type="text" name="twPassport" placeholder="請輸入護照號碼"></div>
                             </div>
                             
                             <div class="tw-form-row">
                                 <div class="tw-form-item"><label>GENDER / 性別</label>
                                     <div class="tw-radio-group">
-                                        <label class="tw-radio-label"><input type="radio" name="gender"> MALE / 男</label>
-                                        <label class="tw-radio-label"><input type="radio" name="gender"> FEMALE / 女</label>
+                                        <label class="tw-radio-label"><input type="radio" name="twGender" value="M"> MALE / 男</label>
+                                        <label class="tw-radio-label"><input type="radio" name="twGender" value="F"> FEMALE / 女</label>
                                     </div>
                                 </div>
-                                <div class="tw-form-item"><label>DATE OF BIRTH / 出生日期</label><input type="date"></div>
+                                <div class="tw-form-item"><label>DATE OF BIRTH / 出生日期</label><input type="date" name="twDOB"></div>
                             </div>
                             
                             <div class="tw-form-row">
-                                <div class="tw-form-item"><label>NATIONALITY / 國籍</label><input type="text" value="Taiwan" readonly></div>
-                                <div class="tw-form-item"><label>CONTACT NUMBER / 聯絡電話</label><input type="text" placeholder="+886 9XX-XXX-XXX"></div>
+                                <div class="tw-form-item"><label>NATIONALITY / 國籍</label><input type="text" name="twNationality" value="Taiwan" readonly></div>
+                                <div class="tw-form-item"><label>CONTACT NUMBER / 聯絡電話</label><input type="text" name="twPhone" placeholder="+886 9XX-XXX-XXX"></div>
                             </div>
                             
                             <div class="tw-form-row">
-                                <div class="tw-form-item" style="flex: 2;"><label>EMAIL / 電子郵件</label><input type="text" placeholder="請輸入電子郵件"></div>
+                                <div class="tw-form-item" style="flex: 2;"><label>EMAIL / 電子郵件</label><input type="text" name="twEmail" placeholder="請輸入電子郵件"></div>
                             </div>
                             
                             <div class="tw-form-row">
                                 <div class="tw-form-item" style="flex: 2;"><label>ADDRESS / 通訊地址</label></div>
                             </div>
                             <div class="tw-address-group">
-                                <input type="text" placeholder="郵遞區號">
-                                <input type="text" placeholder="縣市">
-                                <input type="text" placeholder="鄉鎮市區">
-                                <input type="text" placeholder="村里">
-                                <input type="text" placeholder="鄰">
+                                <input type="text" name="twZipCode" placeholder="郵遞區號">
+                                <input type="text" name="twCity" placeholder="縣市">
+                                <input type="text" name="twDistrict" placeholder="鄉鎮市區">
+                                <input type="text" name="twVillage" placeholder="村里">
+                                <input type="text" name="twNeighborhood" placeholder="鄰">
                             </div>
-                            <div style="margin-top: 8px;"><input type="text" placeholder="路街段" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 11px;"></div>
-                            <div style="margin-top: 8px;"><input type="text" placeholder="巷弄號樓" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 11px;"></div>
+                            <div style="margin-top: 8px;"><input type="text" name="twStreet" placeholder="路街段" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 11px;"></div>
+                            <div style="margin-top: 8px;"><input type="text" name="twLane" placeholder="巷弄號樓" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 11px;"></div>
                             
                             <div class="tw-section-title">DELIVERY DETAILS / 收件資訊</div>
                             
                             <div class="tw-form-row">
-                                <div class="tw-form-item"><label>RECIPIENT'S NAME / 收件人姓名</label><input type="text" placeholder="請輸入收件人姓名"></div>
-                                <div class="tw-form-item"><label>CONTACT NUMBER / 聯絡電話</label><input type="text" placeholder="請輸入聯絡電話"></div>
+                                <div class="tw-form-item"><label>RECIPIENT'S NAME / 收件人姓名</label><input type="text" name="twRecipientName" placeholder="請輸入收件人姓名"></div>
+                                <div class="tw-form-item"><label>CONTACT NUMBER / 聯絡電話</label><input type="text" name="twRecipientPhone" placeholder="請輸入聯絡電話"></div>
                             </div>
                             
                             <div class="tw-section-title">SPONSOR'S PARTICULARS / 推薦人資料</div>
                             
                             <div class="tw-form-row">
-                                <div class="tw-form-item"><label>NAME OF SPONSOR / 推薦人姓名</label><input type="text" placeholder="請輸入推薦人姓名"></div>
-                                <div class="tw-form-item"><label>SPONSOR'S ID / 推薦人身分證字號</label><input type="text" placeholder="請輸入身分證字號"></div>
+                                <div class="tw-form-item"><label>NAME OF SPONSOR / 推薦人姓名</label><input type="text" name="twSponsorName" placeholder="請輸入推薦人姓名"></div>
+                                <div class="tw-form-item"><label>SPONSOR'S ID / 推薦人身分證字號</label><input type="text" name="twSponsorIC" placeholder="請輸入身分證字號"></div>
                             </div>
                             
                             <div class="tw-section-title">BONUS PAYMENT DETAILS / 獎金發放資料</div>
                             
                             <div class="tw-form-row">
                                 <div class="tw-form-item"><label>BANK NAME / 銀行名稱</label>
-                                    <select>
+                                    <select name="twBank">
                                         <option>中華郵政</option>
                                         <option>國泰世華銀行</option>
                                         <option>玉山銀行</option>
@@ -3052,12 +3052,12 @@
                                         <option>其他</option>
                                     </select>
                                 </div>
-                                <div class="tw-form-item"><label>BRANCH / 分行</label><input type="text" placeholder="請輸入分行名稱"></div>
+                                <div class="tw-form-item"><label>BRANCH / 分行</label><input type="text" name="twBranch" placeholder="請輸入分行名稱"></div>
                             </div>
                             
                             <div class="tw-form-row">
-                                <div class="tw-form-item"><label>BANK ACCOUNT NUMBER / 銀行帳號</label><input type="text" placeholder="請輸入銀行帳號"></div>
-                                <div class="tw-form-item"><label>BANK ACCOUNT HOLDER NAME / 帳號戶名</label><input type="text" placeholder="請輸入帳號戶名"></div>
+                                <div class="tw-form-item"><label>BANK ACCOUNT NUMBER / 銀行帳號</label><input type="text" name="twBankAccount" placeholder="請輸入銀行帳號"></div>
+                                <div class="tw-form-item"><label>BANK ACCOUNT HOLDER NAME / 帳號戶名</label><input type="text" name="twAccountName" placeholder="請輸入帳號戶名"></div>
                             </div>
                             
                             <div class="tw-agreement">
@@ -3080,6 +3080,7 @@
                             </div>
                         </div>
                     </div>
+                    </form>
                     <div class="modal-footer">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 10px;">
                             <input type="checkbox" id="twAgreeTerms" onchange="document.getElementById('twNextBtn').disabled = !this.checked;">
@@ -3097,6 +3098,47 @@
         
         // 台湾申请表下一步 - 进入签名流程
         function goToSignatureTW() {
+            // 保存台湾用户填写的表单数据
+            const twForm = document.getElementById('twApplicationForm');
+            if (twForm) {
+                // 构建完整地址
+                const zipCode = twForm.querySelector('[name="twZipCode"]')?.value || '';
+                const city = twForm.querySelector('[name="twCity"]')?.value || '';
+                const district = twForm.querySelector('[name="twDistrict"]')?.value || '';
+                const village = twForm.querySelector('[name="twVillage"]')?.value || '';
+                const neighborhood = twForm.querySelector('[name="twNeighborhood"]')?.value || '';
+                const street = twForm.querySelector('[name="twStreet"]')?.value || '';
+                const lane = twForm.querySelector('[name="twLane"]')?.value || '';
+                const address = `${zipCode} ${city}${district}${village}${neighborhood} ${street} ${lane}`.trim();
+                
+                const formData = {
+                    name: twForm.querySelector('[name="twName"]')?.value || '',
+                    nameEn: twForm.querySelector('[name="twNameEn"]')?.value || '',
+                    idCard: twForm.querySelector('[name="twIC"]')?.value || '',
+                    passport: twForm.querySelector('[name="twPassport"]')?.value || '',
+                    gender: twForm.querySelector('[name="twGender"]')?.value || '',
+                    birthDate: twForm.querySelector('[name="twDOB"]')?.value || '',
+                    nationality: twForm.querySelector('[name="twNationality"]')?.value || '',
+                    phone: twForm.querySelector('[name="twPhone"]')?.value || '',
+                    email: twForm.querySelector('[name="twEmail"]')?.value || '',
+                    address: address,
+                    recipientName: twForm.querySelector('[name="twRecipientName"]')?.value || '',
+                    recipientPhone: twForm.querySelector('[name="twRecipientPhone"]')?.value || '',
+                    sponsorName: twForm.querySelector('[name="twSponsorName"]')?.value || '',
+                    sponsorIC: twForm.querySelector('[name="twSponsorIC"]')?.value || '',
+                    bankName: twForm.querySelector('[name="twBank"]')?.value || '',
+                    branch: twForm.querySelector('[name="twBranch"]')?.value || '',
+                    bankAccount: twForm.querySelector('[name="twBankAccount"]')?.value || '',
+                    accountName: twForm.querySelector('[name="twAccountName"]')?.value || '',
+                    country: 'TW'
+                };
+                
+                console.log('保存台湾表单数据:', formData);
+                
+                // 保存到 localStorage
+                localStorage.setItem('twFormData', JSON.stringify(formData));
+            }
+            
             closeDealerApplicationModal();
             openSignatureModal();
         }
@@ -4953,8 +4995,17 @@
 
             // 获取会员数据并保存申请数据
             const memberData = getMemberData();
+            
+            // 检查是否有台湾表单数据
+            const twFormData = JSON.parse(localStorage.getItem('twFormData') || '{}');
+            
+            // 确定国家：从台湾表单数据或会员数据中获取
+            const country = twFormData.country || memberData.country || 'MY';
+            
             const dealerData = {
                 ...memberData,
+                ...twFormData,
+                country: country || twFormData.country || memberData.country || 'MY',
                 signature: signatureDataUrl,
                 submitDate: new Date().toLocaleDateString('zh-CN'),
                 submitDateEn: new Date().toLocaleDateString('en-GB')
@@ -5089,9 +5140,26 @@
         function downloadDealerPDF() {
             // 获取经销商申请数据
             const dealerData = JSON.parse(localStorage.getItem('dealerApplicationData') || '{}');
-
-            // 使用 jsPDF 直接生成并下载 PDF
-            generateDirectPDF(dealerData);
+            const twFormData = JSON.parse(localStorage.getItem('twFormData') || '{}');
+            
+            // 调试日志
+            console.log('下载PDF - dealerData.country:', dealerData.country);
+            console.log('下载PDF - twFormData.country:', twFormData.country);
+            
+            // 确定最终使用的国家：优先使用 dealerData.country，否则使用 twFormData.country
+            const finalCountry = dealerData.country || twFormData.country || 'MY';
+            console.log('下载PDF - 最终国家:', finalCountry);
+            
+            // 根据国家生成不同的 PDF
+            if (finalCountry === 'TW') {
+                // 台湾版本 PDF
+                console.log('生成台湾版本PDF');
+                generateTaiwanPDF({...dealerData, ...twFormData, country: 'TW'});
+            } else {
+                // 马来西亚版本 PDF
+                console.log('生成马来西亚版本PDF');
+                generateDirectPDF(dealerData);
+            }
         }
 
         // 使用 jsPDF 直接生成并下载 PDF
@@ -5335,6 +5403,203 @@
 
             // 直接下载 PDF
             doc.save('Dealer_Application_Form_' + (data.memberId || '000000') + '_Signed.pdf');
+        }
+
+        // 使用 jsPDF 生成台湾版本 PDF
+        function generateTaiwanPDF(data) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+
+            const pageWidth = 210;
+            const margin = 15;
+            const contentWidth = pageWidth - 2 * margin;
+            let y = 15;
+
+            // Logo 和表单编号
+            doc.setFillColor(233, 30, 99);
+            doc.rect(margin, y, 25, 10, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.text('ELKEN', margin + 5, y + 7);
+
+            doc.setTextColor(0, 51, 102);
+            doc.setFontSize(7);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Form No.: CS-F05-TW', pageWidth - margin - 30, y + 4);
+            doc.text('Rev No.: 112.11.01', pageWidth - margin - 30, y + 8);
+            y += 15;
+
+            // 标题
+            doc.setTextColor(0, 51, 102);
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'bold');
+            doc.text('DEALER APPLICATION FORM', pageWidth / 2, y, { align: 'center' });
+            y += 5;
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.text('愛康國際商股份有限公司台灣分公司', pageWidth / 2, y, { align: 'center' });
+            y += 5;
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'normal');
+            doc.text('PLEASE FILL IN USING BLOCK LETTERS / 請用正楷填寫', pageWidth / 2, y, { align: 'center' });
+            y += 10;
+
+            // 申请人资料
+            doc.setFillColor(0, 51, 102);
+            doc.rect(margin, y, contentWidth, 6, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'bold');
+            doc.text('1. APPLICANT\'S PARTICULARS / 申請人資料', margin + 2, y + 4.5);
+            y += 8;
+
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'bold');
+            doc.text('NAME / 姓名', margin, y);
+            doc.setFont('helvetica', 'normal');
+            doc.text(data.name || '-', margin, y + 5);
+            y += 10;
+
+            doc.setFont('helvetica', 'bold');
+            doc.text('IC / PASSPORT NO. / 身份證字號', margin, y);
+            doc.text('DATE OF BIRTH / 出生日期', margin + contentWidth / 2, y);
+            doc.setFont('helvetica', 'normal');
+            doc.text(data.idCard || '-', margin, y + 4);
+            doc.text(data.birthDate || '-', margin + contentWidth / 2, y + 4);
+            y += 10;
+
+            doc.setFont('helvetica', 'bold');
+            doc.text('CONTACT NO. / 聯絡電話', margin, y);
+            doc.text('EMAIL', margin + contentWidth / 2, y);
+            doc.setFont('helvetica', 'normal');
+            doc.text(data.phone || '-', margin, y + 4);
+            doc.text(data.email || '-', margin + contentWidth / 2, y + 4);
+            y += 10;
+
+            doc.setFont('helvetica', 'bold');
+            doc.text('ADDRESS / 通訊地址', margin, y);
+            doc.setFont('helvetica', 'normal');
+            doc.text(data.address || '-', margin, y + 4);
+            y += 10;
+
+            // 推荐人资料
+            doc.setFillColor(0, 51, 102);
+            doc.rect(margin, y, contentWidth, 6, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'bold');
+            doc.text('2. REFEREE\'S PARTICULARS / 推薦人資料', margin + 2, y + 4.5);
+            y += 8;
+
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'bold');
+            doc.text('REFERRER NAME / 推薦人姓名', margin, y);
+            doc.setFont('helvetica', 'normal');
+            doc.text(data.refName || '-', margin, y + 5);
+            y += 10;
+
+            doc.setFont('helvetica', 'bold');
+            doc.text('REFERRER IC / 推薦人身份證字號', margin, y);
+            doc.text('REFERRER CONTACT / 推薦人聯絡電話', margin + contentWidth / 2, y);
+            doc.setFont('helvetica', 'normal');
+            doc.text(data.refIC || '-', margin, y + 4);
+            doc.text(data.refPhone || '-', margin + contentWidth / 2, y + 4);
+            y += 10;
+
+            // 奖金发放资料
+            doc.setFillColor(0, 51, 102);
+            doc.rect(margin, y, contentWidth, 6, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'bold');
+            doc.text('3. BONUS PAYMENT / 獎金發放資料', margin + 2, y + 4.5);
+            y += 8;
+
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'bold');
+            doc.text('BANK NAME / 銀行名稱', margin, y);
+            doc.setFont('helvetica', 'normal');
+            doc.text(data.bankName || '-', margin, y + 5);
+            y += 10;
+
+            doc.setFont('helvetica', 'bold');
+            doc.text('BANK ACCOUNT / 銀行帳號', margin, y);
+            doc.text('ACCOUNT NAME / 帳號戶名', margin + contentWidth / 2, y);
+            doc.setFont('helvetica', 'normal');
+            doc.text(data.bankAccount || '-', margin, y + 4);
+            doc.text(data.accountName || '-', margin + contentWidth / 2, y + 4);
+            y += 10;
+
+            // 同意条款
+            doc.setFillColor(0, 51, 102);
+            doc.rect(margin, y, contentWidth, 6, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'bold');
+            doc.text('4. AGREEMENT / 同意條款', margin + 2, y + 4.5);
+            y += 8;
+
+            const terms = [
+                '1. I agree to abide by the Terms and Conditions set by Elken International Sdn. Bhd.',
+                '   我同意遵守愛康國際商股份有限公司所訂定之條款與細則。',
+                '2. I authorize the Company to credit my bonus/payout to the bank account provided.',
+                '   我授權公司將獎金/付款匯入所提供的銀行帳戶。',
+                '3. This application form is valid for 3 months from the date of submission.',
+                '   本申請表自遞交日起三個月內有效。'
+            ];
+
+            doc.setFontSize(8);
+            doc.setTextColor(0, 0, 0);
+            terms.forEach(term => {
+                doc.text(term, margin, y);
+                y += 5;
+            });
+            y += 5;
+
+            // 签名区域
+            doc.setFillColor(0, 51, 102);
+            doc.rect(margin, y, contentWidth, 6, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'bold');
+            doc.text('5. SIGNATURE / 簽名', margin + 2, y + 4.5);
+            y += 10;
+
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(8);
+            doc.text('Applicant Signature / 申請人簽名:', margin, y);
+            if (data.signature) {
+                doc.addImage(data.signature, 'PNG', margin, y + 2, 60, 25);
+            } else {
+                doc.rect(margin, y + 2, 60, 25);
+            }
+            y += 35;
+
+            doc.text('Date / 日期:', margin, y);
+            doc.text(data.submittedDate || new Date().toLocaleDateString('zh-TW'), margin + 25, y);
+            y += 10;
+
+            // 公司信息
+            doc.setFillColor(245, 245, 245);
+            doc.rect(margin, y, contentWidth, 25, 'F');
+            doc.setTextColor(100, 100, 100);
+            doc.setFontSize(8);
+            doc.text('ELKEN INTERNATIONAL SDN. BHD., TAIWAN BRANCH', pageWidth / 2, y + 8, { align: 'center' });
+            doc.text('愛康國際商股份有限公司台灣分公司', pageWidth / 2, y + 14, { align: 'center' });
+            doc.text('104臺北市中山區中山北路一段11號14樓之1', pageWidth / 2, y + 20, { align: 'center' });
+            doc.text('免付費服務電話 0800 880 689', pageWidth / 2, y + 25, { align: 'center' });
+
+            // 页脚
+            doc.setFontSize(7);
+            doc.text('This is a computer-generated document.', pageWidth / 2, 280, { align: 'center' });
+            doc.text('© ' + new Date().getFullYear() + ' Elken International. All rights reserved.', pageWidth / 2, 285, { align: 'center' });
+
+            // 下载 PDF
+            doc.save('Dealer_Application_Form_Taiwan_' + (data.memberId || '000000') + '_Signed.pdf');
         }
 
         // 测试用：清除申请状态
